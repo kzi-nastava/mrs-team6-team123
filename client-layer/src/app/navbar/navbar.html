@@ -5,12 +5,14 @@
   </div>
 
   <span class="spacer"></span>
-<!--
-  <div class="nav-links" [class.active]="menuActive">
-    <a routerLink="/home" routerLinkActive="active">Home</a>
-    <a routerLink="/about" routerLinkActive="active">About</a>
-    <a routerLink="/contact" routerLinkActive="active">Contact</a>
+  
+  <div class="nav-links" *ngIf="links.length" [class.active]="menuActive">
+    <a *ngFor="let link of links" [routerLink]="link.route" routerLinkActive="active">
+      {{ link.label }}
+    </a>
   </div>
--->
-  <button class="hamburger" (click)="toggleMenu()">&#9776;</button>
+
+  <button *ngIf="showHamburger" class="hamburger" (click)="toggleMenu()">
+    &#9776;
+  </button>
 </mat-toolbar>
