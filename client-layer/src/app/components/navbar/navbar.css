@@ -31,11 +31,18 @@
   flex: 1 1 auto;
 }
 
+.link-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+  margin: 0 auto;
+}
+
 .nav-links a {
   margin-left: 20px;
-  text-decoration: none;
-  color: black;
   position: relative;
+  display: inline-block;
+  margin: 0 8px;
 }
 
 .nav-links a::after {

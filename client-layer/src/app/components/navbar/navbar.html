@@ -8,7 +8,7 @@
   
   <div class="nav-links" *ngIf="links.length" [class.active]="menuActive">
     <a *ngFor="let link of links" [routerLink]="link.route" routerLinkActive="active">
-      {{ link.label }}
+      <img [src]="link.icon" alt="icon" class="link-icon" />
     </a>
   </div>
 

@@ -7,5 +7,10 @@
     ]"
 >
 -->
-<app-navbar></app-navbar>
+<app-navbar
+    [showHamburger]="true"
+    [links]="[
+        { route: '/driver/ride-history', icon: 'history.png' }
+    ]"
+></app-navbar>
 <router-outlet></router-outlet>
