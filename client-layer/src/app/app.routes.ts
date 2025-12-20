@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { RideHistoryComponent } from './pages/driver/ride-history/ride-history';
-import { RegisteredHome } from './components/registered-home/registered-home';
+import { RegisteredHome } from './pages/registered-home/registered-home';
 
 export const routes: Routes = [
     {path: 'driver/ride-history', component: RideHistoryComponent },

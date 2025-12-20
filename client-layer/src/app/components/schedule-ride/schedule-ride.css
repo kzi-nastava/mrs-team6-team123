@@ -1,0 +1,260 @@
+.schedule-ride-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.schedule-ride-container h2 {
+  color: #325639;
+  margin: 0 0 16px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.left-column h3,
+.right-column h3 {
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  text-transform: lowercase;
+}
+
+.form-group {
+  display: flex;
+  gap: 8px;
+}
+
+.input-with-icon {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.location-input {
+  width: 100%;
+  padding: 10px 12px 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #f0f0f0;
+}
+
+.location-input:focus {
+  outline: none;
+  background-color: white;
+  border-color: #325639;
+}
+
+.input-with-icon .icon {
+  position: absolute;
+  right: 12px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.btn-add-item {
+  padding: 8px 12px;
+  background-color: #c8e6c9;
+  color: #325639;
+  border: 1px dashed #325639;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-add-item:hover {
+  background-color: #a8dca9;
+}
+
+.stop-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stop-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #f0f0f0;
+}
+
+.stop-input:focus {
+  outline: none;
+  background-color: white;
+  border-color: #325639;
+}
+
+.btn-remove-stop {
+  padding: 4px 8px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-remove-stop:hover {
+  background-color: #cc0000;
+}
+
+.select-vehicle {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #c8e6c9;
+  color: #325639;
+  cursor: pointer;
+}
+
+.select-vehicle:focus {
+  outline: none;
+  border-color: #325639;
+}
+
+.preferences-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.toggle-label span {
+  user-select: none;
+}
+
+.select-schedule {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #c8e6c9;
+  color: #325639;
+  cursor: pointer;
+}
+
+.select-schedule:focus {
+  outline: none;
+  border-color: #325639;
+}
+
+.schedule-time {
+  display: flex;
+  gap: 8px;
+}
+
+.time-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.time-input:focus {
+  outline: none;
+  border-color: #325639;
+}
+
+.instructions-textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  min-height: 60px;
+  resize: vertical;
+  background-color: #f9f9f9;
+}
+
+.instructions-textarea:focus {
+  outline: none;
+  background-color: white;
+  border-color: #325639;
+}
+
+.ride-details {
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+}
+
+.detail-row strong {
+  color: #325639;
+  font-weight: 600;
+}
+
+.btn-book {
+  padding: 12px 24px;
+  background-color: #325639;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: center;
+  min-width: 200px;
+}
+
+.btn-book:hover {
+  background-color: #1e3728;
+}
+
+.btn-book:active {
+  transform: scale(0.98);
+}
+
+

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { MapComponent } from '../map/map';
+import { MapComponent } from '../../components/map/map';
+import { ScheduleRideComponent } from '../../components/schedule-ride/schedule-ride';
 
 @Component({
   selector: 'app-registered-home',
-  imports: [MapComponent],
+  imports: [MapComponent, ScheduleRideComponent],
   templateUrl: './registered-home.html',
   styleUrl: './registered-home.css',
 })
