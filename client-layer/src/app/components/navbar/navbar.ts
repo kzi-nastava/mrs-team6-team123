@@ -18,7 +18,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./navbar.css'],
 })
 export class NavbarComponent {
-  @Input() links: { label: string; route: string }[] = [];
+  @Input() links: { route: string; icon: string }[] = [];
   @Input() showHamburger = false;
 
   menuActive = false;
