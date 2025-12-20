@@ -1,8 +1,7 @@
 .map-frame {
     border: 2px solid rgb(50, 86, 57);
-    width: 50vw;
+    width: 55vw;
     height: calc(100vh - 20px);
-    margin: 10px 0 10px 10px;
     box-sizing: border-box;   
 }
 
