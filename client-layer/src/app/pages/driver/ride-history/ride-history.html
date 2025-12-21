@@ -1,17 +1,5 @@
-<app-navbar
-    [showHamburger]="true"
-    [links]="[
-    { route: '/driver/home', icon: 'home.png' },
-    { route: '/driver/ride-history', icon: 'history.png' },
-    { route: '/driver/favorites', icon: 'favorites.png' },
-    { route: '/driver/notifications', icon: 'notification.png' },
-    { route: '/driver/reports', icon: 'pricing.png' },
-    { route: '/driver/profile', icon: 'user.png' }]"
-></app-navbar>
 <div class="page">
   <h1>Ride history</h1>
   <app-ride-history-filter></app-ride-history-filter>
-  <app-ride-history-table
-  [rides]=[] 
-  [columns]="columns"></app-ride-history-table>
+  <app-ride-history-table [rides]="[]" [columns]="columns"></app-ride-history-table>
 </div>

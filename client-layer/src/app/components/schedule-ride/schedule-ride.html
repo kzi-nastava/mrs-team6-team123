@@ -1,0 +1,108 @@
+<div class="schedule-ride-container">
+  <h2>Schedule a ride</h2>
+
+  <div class="form-layout">
+    <div class="left-column">
+      <h3>Schedule a ride</h3>
+
+      <!-- Starting Point -->
+      <div class="form-group">
+        <div class="input-with-icon">
+          <input
+            [(ngModel)]="startAddress"
+            placeholder="starting point"
+            type="text"
+            class="location-input"
+          />
+          <span class="icon">📍</span>
+        </div>
+      </div>
+
+      <!-- Add Stop Button -->
+      <button (click)="addStop()" class="btn-add-item">+ add stop</button>
+
+      <div *ngFor="let stop of stops" class="stop-item">
+        <input
+          type="text"
+          [(ngModel)]="stop.address"
+          (change)="updateStop(stop.id, stop.address)"
+          placeholder="stop address"
+          class="stop-input"
+        />
+        <button (click)="removeStop(stop.id)" class="btn-remove-stop">✕</button>
+      </div>
+
+      <!-- Destination -->
+      <div class="form-group">
+        <div class="input-with-icon">
+          <input
+            [(ngModel)]="endAddress"
+            placeholder="destination"
+            type="text"
+            class="location-input"
+          />
+          <span class="icon">📍</span>
+        </div>
+      </div>
+
+
+      <button (click)="addPassenger()" class="btn-add-item">+ add passenger</button>
+
+      <textarea
+        [(ngModel)]="additionalInstructions"
+        placeholder="Additional instructions..."
+        class="instructions-textarea"
+      >
+      </textarea>
+    </div>
+
+    <div class="right-column">
+      <h3>Ride preferences</h3>
+
+      <!-- Vehicle Type -->
+      <select [(ngModel)]="vehicleType" class="select-vehicle">
+        <option value="economy">vehicle type</option>
+        <option *ngFor="let option of vehicleOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+      <!-- Pets/babies -->
+      <div class="preferences-toggles">
+        <label class="toggle-label">
+          <span>must allow pets:</span>
+          <mat-slide-toggle [(ngModel)]="hasPet"></mat-slide-toggle>
+        </label>
+
+        <label class="toggle-label">
+          <span>must allow babies:</span>
+          <mat-slide-toggle [(ngModel)]="hasBaby"></mat-slide-toggle>
+        </label>
+      </div>
+
+      <select [(ngModel)]="scheduleType" class="select-schedule">
+        <option value="now">now</option>
+        <option value="later">schedule for later</option>
+      </select>
+
+      <!-- Time -->
+      <div *ngIf="scheduleType === 'later'" class="schedule-time">
+        <input type="time" [(ngModel)]="scheduledTime" class="time-input" />
+      </div>
+
+      <!-- Details -->
+      <div class="ride-details">
+        <div class="detail-row">
+          <span>Estimated Time:</span>
+          <strong>{{ estimatedTime }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Estimated Price:</span>
+          <strong>{{ estimatedPrice }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button (click)="bookRide()" class="btn-book">Book Ride</button>
+</div>
