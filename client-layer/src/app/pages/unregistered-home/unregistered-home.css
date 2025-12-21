@@ -1,0 +1,27 @@
+.unregistered-home-container {
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.content-wrapper {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.right-panel {
+  flex: 1;
+  padding: 20px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+}
+
+.right-panel h2 {
+  color: #325639;
+  margin-top: 0;
+}
+
+.right-panel p {
+  color: #666;
+  line-height: 1.6;
+}
