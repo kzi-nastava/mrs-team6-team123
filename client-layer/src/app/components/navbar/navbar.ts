@@ -26,7 +26,13 @@ export class NavbarComponent {
 
   guestLinks = [
     { route: '/registered-home', icon: 'home.png' },
-    { route: '/login', icon: 'user.png' }
+    //{ route: '/login', icon: 'user.png' },
+    { route: '/driver/ride-history', icon: 'history.png' },
+    { route: '/login', icon: 'login.png' },
+    { route: '/register', icon: 'register.png' },
+    { route: '/profile', icon: 'user.png' },
+    { route: '/driver/profile', icon: 'drivers.png' },
+    { route: '/admin/profile', icon: 'admin.png' }
   ];
 
   registeredUserLinks = [
