@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type UserType = 'driver' | 'passenger' | 'guest';
+export type UserType = 'driver' | 'passenger' | 'guest' | 'admin';
 
 export interface User {
   id: string;

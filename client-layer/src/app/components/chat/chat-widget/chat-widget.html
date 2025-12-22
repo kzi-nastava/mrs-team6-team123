@@ -1,0 +1,22 @@
+<div
+  class="chat-fab"
+  *ngIf="userType() !== 'guest'"
+  (click)="toggle()">
+
+  <img src="/chat.png" alt="Chat" />
+</div>
+
+<div class="chat-popup" *ngIf="isOpen">
+
+  <app-chat-list
+    *ngIf="showChatList"
+    (chatSelected)="openChat($event)">
+  </app-chat-list>
+
+  <app-chat-window
+    *ngIf="showChatWindow"
+    [chatId]="selectedChatId"
+    (close)="close()">
+  </app-chat-window>
+
+</div>

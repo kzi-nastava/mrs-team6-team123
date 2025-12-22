@@ -2,10 +2,12 @@ import { Component, signal, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar';
 import { AuthService } from './services/auth.service';
+import { ChatWidgetComponent } from './components/chat/chat-widget/chat-widget';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent, ChatWidgetComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

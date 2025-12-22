@@ -1,0 +1,49 @@
+.chat-container {
+  position: fixed;
+  bottom: 50px; /* iznad dugmeta */
+  right: 50px;
+  width: 350px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  background: #FFFFFF;
+  z-index: 1000;
+}
+
+.chat-header {
+  background-color: #618762;
+  color: white;
+  padding: 15px;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.chat-summary {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background-color: #f9f9f9;
+  transition: background 0.2s;
+}
+
+.chat-summary:hover {
+  background-color: #e6f7e6;
+}
+
+.chat-user {
+  font-weight: bold;
+}
+
+.chat-last-message {
+  font-size: 14px;
+  color: #555;
+}

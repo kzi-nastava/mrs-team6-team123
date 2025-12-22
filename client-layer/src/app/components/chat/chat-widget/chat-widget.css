@@ -1,0 +1,18 @@
+.chat-fab {
+  position: fixed;
+  bottom: 0px;
+  right: 5px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-fab img {
+  width: 28px;
+  height: 28px;
+}
