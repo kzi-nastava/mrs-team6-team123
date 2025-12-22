@@ -42,9 +42,19 @@ export class NavbarComponent {
     { route: '/driver/ride-history', icon: 'history.png' },
     { route: '/driver/favorites', icon: 'favorites.png' },
     { route: '/driver/notifications', icon: 'notification.png' },
-    { route: '/driver/reports', icon: 'pricing.png' },
+    { route: '/driver/reports', icon: 'report.png' },
     { route: '/driver/profile', icon: 'user.png' }
   ];
+
+  adminLinks = [
+    { route: '/admin/home', icon: 'home.png' },
+    { route: '/admin/ride-history', icon: 'history.png' },
+    { route: '/admin/drivers', icon: 'drivers.png' },
+    { route: '/admin/reports', icon: 'report.png' },
+    { route: '/admin/pricing', icon: 'pricing.png' },
+    { route: '/admin/notifications', icon: 'notification.png' },
+    { route: '/admin/profile', icon: 'user.png' }
+  ]
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
@@ -68,6 +78,8 @@ export class NavbarComponent {
         this.links = [...this.driverLinks];
       } else if (userType === 'passenger') {
         this.links = [...this.registeredUserLinks];
+      } else if (userType === 'admin') {
+        this.links = [...this.adminLinks];
       } else {
         this.links = [...this.guestLinks];
       }
