@@ -71,12 +71,12 @@ export class NavbarComponent {
   //   type: 'driver'
   // });
 
-  // this.authService.login({
-  //   id: '2',
-  //   name: 'Jane Passenger',
-  //   email: 'passenger@test.com',
-  //   type: 'passenger'
-  // });
+  this.authService.login({
+    id: '2',
+    name: 'Jane Passenger',
+    email: 'passenger@test.com',
+    type: 'passenger'
+  });
 
     effect(() => {
       const userType = this.authService.userType();
