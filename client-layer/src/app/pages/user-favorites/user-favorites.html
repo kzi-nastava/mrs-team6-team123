@@ -1,0 +1,17 @@
+<div class="favorites-container">
+  <h2>My Favorite Routes</h2>
+
+  <div class="routes-list" *ngIf="favorites.length > 0; else noFavorites">
+    <app-route-card *ngFor="let route of favorites" [data]="route"></app-route-card>
+  </div>
+
+  <div class="pagination" aria-label="Pagination">
+    <button class="page-btn" disabled aria-label="Previous page">&lt;</button>
+    <span class="page-number">1</span>
+    <button class="page-btn" disabled aria-label="Next page">&gt;</button>
+  </div>
+
+  <ng-template #noFavorites>
+    <p class="no-favorites">No favorite routes yet. Add some for quick access!</p>
+  </ng-template>
+</div>

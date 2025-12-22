@@ -1,0 +1,17 @@
+<div class="route-card">
+  <div class="route-info">
+    <div class="route-locations">
+      <ng-container *ngFor="let city of data.title.split(',')">
+        <p class="route-line route-title">{{ city.trim() }}</p>
+      </ng-container>
+    </div>
+    <span class="route-duration">{{ data.duration }}</span>
+  </div>
+
+  <div class="route-actions">
+    <button class="btn-book" (click)="book.emit()">{{ data.bookText }}</button>
+    <button class="btn-delete" type="button" aria-label="Remove favorite" (click)="delete.emit()">
+      <span class="sr-only">Remove</span>
+    </button>
+  </div>
+</div>
