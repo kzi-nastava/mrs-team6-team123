@@ -31,8 +31,8 @@ export class NavbarComponent {
     { route: '/login', icon: 'login.png' },
     { route: '/register', icon: 'register.png' },
     { route: '/profile', icon: 'user.png' },
-    { route: '/driver/profile', icon: 'drivers.png' },
-    { route: '/admin/profile', icon: 'admin.png' }
+    //{ route: '/driver/profile', icon: 'drivers.png' },
+    //{ route: '/admin/profile', icon: 'admin.png' }
   ];
 
   registeredUserLinks = [
@@ -49,7 +49,7 @@ export class NavbarComponent {
     { route: '/driver/favorites', icon: 'favorites.png' },
     { route: '/driver/notifications', icon: 'notification.png' },
     { route: '/driver/reports', icon: 'report.png' },
-    { route: '/driver/profile', icon: 'user.png' }
+    { route: '/profile', icon: 'user.png' }
   ];
 
   adminLinks = [
@@ -59,24 +59,24 @@ export class NavbarComponent {
     { route: '/admin/reports', icon: 'report.png' },
     { route: '/admin/pricing', icon: 'pricing.png' },
     { route: '/admin/notifications', icon: 'notification.png' },
-    { route: '/admin/profile', icon: 'user.png' }
+    { route: '/profile', icon: 'user.png' }
   ]
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
-  // this.authService.login({
-  //   id: '1',
-  //   name: 'John Driver',
-  //   email: 'driver@test.com',
-  //   type: 'driver'
-  // });
-
   this.authService.login({
-    id: '2',
-    name: 'Jane Passenger',
-    email: 'passenger@test.com',
-    type: 'passenger'
+    id: '1',
+    name: 'John Driver',
+    email: 'driver@test.com',
+    type: 'driver'
   });
+
+  // this.authService.login({
+  //   id: '2',
+  //   name: 'Jane Passenger',
+  //   email: 'passenger@test.com',
+  //   type: 'passenger'
+  // });
 
     effect(() => {
       const userType = this.authService.userType();
