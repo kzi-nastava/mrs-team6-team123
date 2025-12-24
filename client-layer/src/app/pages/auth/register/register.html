@@ -1,0 +1,17 @@
+<div class="auth-container">
+  <h1>Register</h1>
+
+  <input placeholder="Email" [(ngModel)]="form.email" />
+  <input placeholder="Password" type="password" [(ngModel)]="form.password" />
+  <input
+    placeholder="Confirm password"
+    type="password"
+    [(ngModel)]="form.confirmPassword"
+  />
+  <input placeholder="First name" [(ngModel)]="form.firstName" />
+  <input placeholder="Last name" [(ngModel)]="form.lastName" />
+  <input placeholder="Address" [(ngModel)]="form.address" />
+  <input placeholder="Phone" [(ngModel)]="form.phone" />
+
+  <button (click)="register()">Register</button>
+</div>

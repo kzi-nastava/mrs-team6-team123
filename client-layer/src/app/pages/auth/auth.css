@@ -1,0 +1,96 @@
+.auth-container {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 36px 32px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-container h1 {
+  margin-bottom: 28px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* zajednički stil za sve forme */
+.auth-container form,
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* input polja */
+.auth-container input {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 2px solid #d0d0d0;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-container input:focus {
+  outline: none;
+  border-color: #5d7c5b;
+  box-shadow: 0 0 6px rgba(93, 124, 91, 0.25);
+}
+
+/* dugmad */
+.auth-container button {
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 24px;
+  background: #5d7c5b;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.auth-container button:hover {
+  background: #4a6249;
+}
+
+.auth-container button:active {
+  transform: scale(0.97);
+}
+
+/* linkovi ispod forme */
+.auth-links {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #5d7c5b;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.link-btn:hover {
+  color: #4a6249;
+}
+
+/* responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    margin: 40px 16px;
+    padding: 28px 20px;
+  }
+
+  .auth-container h1 {
+    font-size: 24px;
+  }
+}
