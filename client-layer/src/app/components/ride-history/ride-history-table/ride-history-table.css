@@ -1,0 +1,15 @@
+.ride-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ride-table th, .ride-table td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.ride-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}

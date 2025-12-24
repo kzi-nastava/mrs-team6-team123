@@ -1,0 +1,286 @@
+.profile-container {
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.profile-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.btn-edit-profile {
+  background-color: #5d7c5b;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-edit-profile:hover {
+  background-color: #4a6249;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-save {
+  background-color: #5d7c5b;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-save:hover {
+  background-color: #4a6249;
+}
+
+.btn-cancel {
+  background-color: #999;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #777;
+}
+
+.profile-content {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Left Section */
+.left-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+  max-width: 600px;
+}
+
+.profile-card {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  flex-shrink: 0;
+  overflow: visible;
+  position: relative;
+}
+
+.avatar-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #5d7c5b;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-avatar-btn:hover {
+  background-color: #4a6249;
+  transform: scale(1.1);
+}
+
+.edit-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+}
+
+.profile-details h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.profile-details .email {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+}
+
+.profile-details .hours-active {
+  font-size: 14px;
+  color: #d32f2f;
+  margin: 8px 0 0 0;
+}
+
+.personal-info-section,
+.vehicle-info-section {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.personal-info-section h3,
+.vehicle-info-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.info-label {
+  font-weight: 600;
+  min-width: 140px;
+  color: #333;
+}
+
+.info-value {
+  color: #555;
+}
+
+.edit-input {
+  padding: 8px 12px;
+  border: 2px solid #5d7c5b;
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: inherit;
+  flex: 1;
+  max-width: 300px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #4a6249;
+  box-shadow: 0 0 4px rgba(93, 124, 91, 0.3);
+}
+
+.change-password-link {
+  background: none;
+  border: none;
+  color: #5d7c5b;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 12px;
+  transition: color 0.2s;
+}
+
+.change-password-link:hover {
+  color: #4a6249;
+}
+
+/* Right Section */
+.right-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.stat-card {
+  background-color: #c8ddc7;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .profile-content {
+    grid-template-columns: 1fr;
+  }
+
+  .right-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .vehicle-info-section {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .right-section {
+    grid-template-columns: 1fr;
+  }
+}

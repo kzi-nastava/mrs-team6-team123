@@ -1,0 +1,115 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Profile info</h1>
+    <div class="header-buttons" *ngIf="!isEditMode">
+      <button class="btn-edit-profile" (click)="toggleEditMode()">edit profile</button>
+    </div>
+    <div class="header-buttons" *ngIf="isEditMode">
+      <button class="btn-save" (click)="saveProfile()">save</button>
+      <button class="btn-cancel" (click)="cancelEdit()">cancel</button>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <!-- Left side: personal Info -->
+    <div class="left-section">
+      <div class="profile-card">
+        <div class="profile-avatar">
+          <img src="/icons8-user-48.png" alt="User Profile" class="avatar-icon" />
+          <button class="edit-avatar-btn" title="Change profile picture">
+            <img src="/edit-pen.png" alt="Edit" class="edit-icon" />
+          </button>
+        </div>
+        <div class="profile-details">
+          <h2>{{ profileData.name }}</h2>
+          <p class="email">{{ profileData.email }}</p>
+          <p class="hours-active" *ngIf="userType === 'driver'">
+            Hours active: {{ profileData.hoursActive }}
+          </p>
+        </div>
+      </div>
+
+      <div class="personal-info-section">
+        <h3>Personal info</h3>
+        <div class="info-row">
+          <span class="info-label">E-mail:</span>
+          <span class="info-value">{{ profileData.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Full Name:</span>
+          <span class="info-value" *ngIf="!isEditMode">{{ profileData.fullName }}</span>
+          <input
+            type="text"
+            *ngIf="isEditMode"
+            class="edit-input"
+            [(ngModel)]="editFormData.fullName"
+          />
+        </div>
+        <div class="info-row">
+          <span class="info-label">Home address:</span>
+          <span class="info-value" *ngIf="!isEditMode">{{ profileData.homeAddress }}</span>
+          <input
+            type="text"
+            *ngIf="isEditMode"
+            class="edit-input"
+            [(ngModel)]="editFormData.homeAddress"
+          />
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone:</span>
+          <span class="info-value" *ngIf="!isEditMode">{{ profileData.phone }}</span>
+          <input
+            type="text"
+            *ngIf="isEditMode"
+            class="edit-input"
+            [(ngModel)]="editFormData.phone"
+          />
+        </div>
+        <button *ngIf="isEditMode" class="change-password-link" (click)="changePassword()">
+          change password
+        </button>
+      </div>
+    </div>
+
+    <!-- Right side: Driver and Vehicle Info -->
+    <div class="right-section" *ngIf="userType === 'driver'">
+      <div class="stat-card rides-card">
+        <div class="stat-value">{{ profileData.totalRides }}</div>
+        <div class="stat-label">total rides</div>
+      </div>
+
+      <div class="stat-card rating-card">
+        <div class="stat-value">{{ profileData.rating }} ⭐</div>
+        <div class="stat-label">rating</div>
+      </div>
+
+      <div class="vehicle-info-section">
+        <h3>Vehicle info</h3>
+        <div class="info-row">
+          <span class="info-label">Model:</span>
+          <span class="info-value">{{ profileData.vehicleModel }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Type:</span>
+          <span class="info-value">{{ profileData.vehicleType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">License Plate:</span>
+          <span class="info-value">{{ profileData.licensePlate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Capacity:</span>
+          <span class="info-value">{{ profileData.capacity }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Babies Allowed:</span>
+          <span class="info-value">{{ profileData.babiesAllowed ? '✓' : '✗' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Pets Allowed:</span>
+          <span class="info-value">{{ profileData.petsAllowed ? '✓' : '✗' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

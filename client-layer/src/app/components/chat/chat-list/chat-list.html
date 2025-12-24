@@ -1,0 +1,20 @@
+<div class="chat-container">
+  <!-- Ako nema selektovanog chata, prikazi listu -->
+  <div *ngIf="!selectedChatId" class="chat-list">
+    <div class="chat-header">
+        Support Chat
+    </div>
+    <div class="chat-summary" *ngFor="let chat of chatSummaries" (click)="openChat(chat.chatId)">
+      <div class="chat-user">{{ chat.userName }}</div>
+      <div class="chat-last-message">{{ chat.lastMessage }}</div>
+    </div>
+  </div>
+
+  <!-- Ako je chat selektovan, prikazi chat window -->
+  <app-chat-window
+    *ngIf="selectedChatId"
+    [chatId]="selectedChatId"
+    [initialMessages]="selectedChatMessages"
+    (close)="closeChat()">
+  </app-chat-window>
+</div>
