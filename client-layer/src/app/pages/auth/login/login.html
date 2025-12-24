@@ -1,0 +1,28 @@
+<div class="auth-container">
+  <h1>Login</h1>
+
+  <form (ngSubmit)="login()" class="auth-form">
+    <input
+      type="email"
+      placeholder="Email"
+      [(ngModel)]="email"
+      name="email"
+      required
+    />
+
+    <input
+      type="password"
+      placeholder="Password"
+      [(ngModel)]="password"
+      name="password"
+      required
+    />
+
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="auth-links">
+    <button class="link-btn" (click)="goToReset()">Forgot password?</button>
+    <button class="link-btn" (click)="goToRegister()">Create account</button>
+  </div>
+</div>

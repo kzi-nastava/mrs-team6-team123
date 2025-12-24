@@ -4,6 +4,9 @@ import { RegisteredHome } from './pages/registered-home/registered-home';
 import { UnregisteredHomeComponent } from './pages/unregistered-home/unregistered-home';
 import { UserFavoritesComponent } from './pages/user-favorites/user-favorites';
 import { ProfileComponent } from './pages/profile/profile';
+import { LoginComponent } from './pages/auth/login/login';
+import { RegisterComponent } from './pages/auth/register/register';
+import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password';
 
 export const routes: Routes = [
   {path: 'driver/ride-history', component: RideHistoryComponent },
@@ -12,6 +15,8 @@ export const routes: Routes = [
   { path: 'registered-home', component: RegisteredHome },
   { path: 'favorites', component: UserFavoritesComponent },
   { path: 'profile', component: ProfileComponent },
-
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'unregistered-home', component: UnregisteredHomeComponent }
 ];
