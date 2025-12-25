@@ -8,11 +8,12 @@ import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password';
 import { AdminHomeComponent } from './pages/admin-home/admin-home';
+import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 
 export const routes: Routes = [
   {path: 'driver/ride-history', component: RideHistoryComponent },
 
-  { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
+  { path: '', redirectTo: '/admin-home', pathMatch: 'full' },
   { path: 'registered-home', component: RegisteredHome },
   { path: 'favorites', component: UserFavoritesComponent },
   { path: 'profile', component: ProfileComponent },
@@ -20,5 +21,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
-  { path: 'admin-home', component: AdminHomeComponent}
+  { path: 'admin-home', component: AdminHomeComponent},
+  { path: 'track-ride-page', component: TrackRidePageComponent}
 ];
