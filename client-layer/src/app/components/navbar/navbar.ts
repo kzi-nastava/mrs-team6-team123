@@ -25,12 +25,12 @@ export class NavbarComponent {
   menuActive = false;
 
   guestLinks = [
-    { route: '/registered-home', icon: 'home.png' },
-    //{ route: '/login', icon: 'user.png' },
-    { route: '/driver/ride-history', icon: 'history.png' },
-    { route: '/login', icon: 'login.png' },
-    { route: '/register', icon: 'register.png' },
-    { route: '/profile', icon: 'user.png' },
+    { route: '/unregistered-home', icon: 'home.png' },
+    { route: '/login', icon: 'user.png' },
+    //{ route: '/driver/ride-history', icon: 'history.png' },
+    //{ route: '/login', icon: 'login.png' },
+    //{ route: '/register', icon: 'register.png' },
+    //{ route: '/profile', icon: 'user.png' },
     //{ route: '/driver/profile', icon: 'drivers.png' },
     //{ route: '/admin/profile', icon: 'admin.png' }
   ];
@@ -53,7 +53,7 @@ export class NavbarComponent {
   ];
 
   adminLinks = [
-    { route: '/admin/home', icon: 'home.png' },
+    { route: '/admin-home', icon: 'home.png' },
     { route: '/admin/ride-history', icon: 'history.png' },
     { route: '/admin/drivers', icon: 'drivers.png' },
     { route: '/admin/reports', icon: 'report.png' },
@@ -64,12 +64,12 @@ export class NavbarComponent {
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
-  this.authService.login({
-    id: '1',
-    name: 'John Driver',
-    email: 'driver@test.com',
-    type: 'driver'
-  });
+  // this.authService.login({
+  //   id: '1',
+  //   name: 'John Driver',
+  //   email: 'driver@test.com',
+  //   type: 'driver'
+  // });
 
   // this.authService.login({
   //   id: '2',

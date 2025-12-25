@@ -1,0 +1,15 @@
+.admin-home-container {
+  padding: 20px; 
+}
+
+.rides-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 767px) {
+  .rides-list {
+    grid-template-columns: 1fr;
+  }
+}
