@@ -1,0 +1,57 @@
+.ride-actions {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.ride-actions button {
+  display: block;
+  width: 150px;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.warning-btn {
+  background-color: #7A0000;
+  font-weight: bold;
+}
+
+.warning-btn:hover {
+  background-color: #5d0101;
+}
+
+.status-btn {
+  background-color: #575757;
+  color: #D9D9D9;
+}
+
+.status-btn:hover {
+  background-color: rgb(71, 71, 71);
+  color: #D9D9D9;
+}
+
+.ride-actions button:not(.warning-btn):not(.status-btn) {
+  background-color: #618762;
+}
+
+.ride-actions button:not(.warning-btn):not(.status-btn):hover {
+  background-color: #436744;
+}
+
+@media (max-width: 768px) {
+  .ride-actions {
+    padding: 12px;
+  }
+
+  .ride-actions button {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
