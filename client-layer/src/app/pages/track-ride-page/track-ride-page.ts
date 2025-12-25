@@ -11,8 +11,9 @@ import { Ride } from '../../components/track-ride/ride-info/ride-info';
   styleUrls: ['./track-ride-page.css'],
 })
 export class TrackRidePageComponent {
-  //@Input() ride!: Ride;
+  @Input() ride!: Ride;
 
+  /*
   ride = {
     from: 'Belgrade',
     to: 'Novi Sad',
@@ -23,4 +24,5 @@ export class TrackRidePageComponent {
     price: 1200,
     passengers: ['Jovana J.', 'Ana A.', 'Petar P.'] // dummy lista putnika
   };
+  */
 }

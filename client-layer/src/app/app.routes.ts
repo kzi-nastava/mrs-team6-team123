@@ -13,7 +13,7 @@ import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page'
 export const routes: Routes = [
   {path: 'driver/ride-history', component: RideHistoryComponent },
 
-  { path: '', redirectTo: '/admin-home', pathMatch: 'full' },
+  { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
   { path: 'registered-home', component: RegisteredHome },
   { path: 'favorites', component: UserFavoritesComponent },
   { path: 'profile', component: ProfileComponent },

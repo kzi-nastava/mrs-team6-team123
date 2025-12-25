@@ -3,7 +3,6 @@ import { Component, computed, Input } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 
 export interface Ride {
-  id: string;
   from: string;
   to: string;
   nextStop?: string;

@@ -17,6 +17,6 @@ export class ActiveRidesCardComponent {
   constructor(private router: Router) {}
 
   goToTrackRide() {
-    this.router.navigate(['/track-ride-page', this.data.id])
+    this.router.navigate(['/track-ride-page'])
   }
 }
