@@ -1,13 +1,13 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
 
-public class RideRatingDTO {
+public class RideRatingResponseDTO {
     private Long rideId;
     private Long driverId;
     private int driverRating;
     private Long vehicleId;
     private int vehicleRating;
 
-    public RideRatingDTO() {}
+    public RideRatingResponseDTO() {}
 
     public Long getRideId() {
         return rideId;
