@@ -3,10 +3,9 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideOrderRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideRatingDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideRatingResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideTrackingResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.model.Ride;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -41,7 +40,6 @@ public class RideController {
     @GetMapping("/{rideId}/tracking")
     public ResponseEntity<RideTrackingResponseDTO> trackRide(@PathVariable Long rideId) {
         RideTrackingResponseDTO response = new RideTrackingResponseDTO();
-        // dummy data for demonstration
         response.setRideId(rideId);
         response.setCurrentLocation("45.2671 N, 19.8335 E");
         response.setNextStop("Boulevard 2");
@@ -50,8 +48,12 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/finish")
-    public ResponseEntity<String> finishRide(@PathVariable Long rideId) {
-        return ResponseEntity.ok("Ride with ID " + rideId + " has been finished.");
+    public ResponseEntity<RideResponseDTO> finishRide(@PathVariable Long rideId) {
+        RideResponseDTO response = new RideResponseDTO();
+        response.setRideId(rideId);
+        response.setDriverId(42L);
+        response.setStatus("FINISHED");
+        return ResponseEntity.ok(response);
     }
 
     // 2.6.1 Početak vožnje
@@ -65,7 +67,13 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/rate")
-    public ResponseEntity<String> rateRide(@PathVariable Long rideId, @RequestBody RideRatingDTO rideRatingDTO) {
-        return ResponseEntity.ok("Ride with ID " + rideId + " has been rated.");
+    public ResponseEntity<RideRatingResponseDTO> rateRide(@PathVariable Long rideId) {
+        RideRatingResponseDTO response = new RideRatingResponseDTO();
+        response.setRideId(rideId);
+        response.setDriverId(20L);
+        response.setVehicleId(21L);
+        response.setDriverRating(9);
+        response.setVehicleRating(8);
+        return ResponseEntity.ok(response);
     }
 }
