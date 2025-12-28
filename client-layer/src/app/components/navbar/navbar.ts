@@ -64,12 +64,12 @@ export class NavbarComponent {
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
-  // this.authService.login({
-  //   id: '1',
-  //   name: 'John Driver',
-  //   email: 'driver@test.com',
-  //   type: 'driver'
-  // });
+  this.authService.login({
+    id: '1',
+    name: 'John Driver',
+    email: 'driver@test.com',
+    type: 'driver'
+  });
 
   // this.authService.login({
   //   id: '2',
