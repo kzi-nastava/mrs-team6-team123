@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">mobile-application</string>
+    <string name="taxi_name">Dusha Taxi</string>
+    <string name="report">report</string>
+    <string name="stop">stop</string>
+    <string name="panic">PANIC</string>
+    <string name="go_inactive">go inactive</string>
+    <string name="finish">finish</string>
+    <string name="view">view</string>
+    <string name="send">send</string>
+    <string name="rate">rate</string>
+    <string name="start">start</string>
+    <string name="show">show</string>
+    <string name="edit">edit profile</string>
+    <string name="save">save</string>
+    <string name="add">add</string>
+    <string name="change_photo">Change photo</string>
+    <string name="change_password">Change password</string>
+    <string name="personal_info">Personal info</string>
+    <string name="vehicle_info">Vehicle info</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="filter">Filter</string>
+    <string name="menu">Menu</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="history">Ride History</string>
+    <string name="favorites">Favorite Routes</string>
+    <string name="reports">Reports</string>
+    <string name="pricing">Pricing</string>
+    <string name="notification">Notifications</string>
+    <string name="drivers">Drivers</string>
+    <string name="chat">Chat</string>
+    <string name="ride_history">Ride History</string>
 </resources>

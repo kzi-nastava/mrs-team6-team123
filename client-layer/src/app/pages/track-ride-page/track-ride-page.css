@@ -1,0 +1,17 @@
+.track-ride {
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.content-wrapper {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.right-panel {
+  flex: 1;
+  padding: 20px;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
