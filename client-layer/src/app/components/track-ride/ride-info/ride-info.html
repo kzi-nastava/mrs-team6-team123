@@ -1,0 +1,30 @@
+<div class="ride-info">
+    <div class="admin-info" *ngIf="isAdmin && ride">
+        <p><strong>Driver:</strong> {{ ride.driverName }}</p>
+        <p><strong>Started at:</strong> {{ ride.startedAt }}</p>
+    </div>
+
+    <div class="basic-info" *ngIf="ride">
+        <p><strong>From:</strong> {{ ride.from }}</p>
+        <p><strong>To:</strong> {{ ride.to }}</p>
+        <p class="time-left"><strong>{{ ride.timeLeft }}</strong></p>
+    </div>
+
+    <div class="next-stop" *ngIf="ride">
+        <p><strong>Next stop:</strong> {{ ride.nextStop }}</p>
+    </div>
+
+    <div class="price-info" *ngIf="isDriver && ride">
+        <p><strong>Price:</strong> {{ ride.price }}</p>
+    </div>
+
+    <div class="passengers-info" *ngIf="isAdmin && ride">
+        <p><strong>Passengers:</strong></p>
+        <div class="passengers-list">
+            <p *ngFor="let passenger of passengers; let i = index"
+                [ngClass]="{ 'first-passenger': i === 0 }">
+                {{ passenger }}
+            </p>
+        </div>  
+    </div>
+</div>

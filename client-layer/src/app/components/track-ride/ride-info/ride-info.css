@@ -1,0 +1,52 @@
+.ride-info {
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+.admin-info,
+.basic-info,
+.next-stop,
+.price-info,
+.passengers-info {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+}
+
+.passengers-info {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ride-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ride-info p strong {
+  font-weight: bold;
+}
+
+.passengers-list p {
+  margin: 4px 0;
+}
+
+.first-passenger {
+  font-weight: bold;
+  color: #618762; 
+}
+
+.time-left {
+    color: #7A0000;
+}
+
+@media (max-width: 767px) {
+  .ride-info {
+    padding: 12px;
+  }
+
+  .ride-info p {
+    font-size: 13px;
+  }
+}

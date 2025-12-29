@@ -1,0 +1,8 @@
+<div class="admin-home-container">
+    <div class="rides-list">
+        <app-active-rides-card
+            *ngFor="let ride of rides"
+            [data]="ride">
+        </app-active-rides-card>
+    </div>
+</div>
