@@ -2,6 +2,7 @@ package com.example.mobile_application;
 
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,9 +23,8 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
-    private MaterialToolbar toolbarView;
 
-    private boolean isLoggedIn = true;
+    private boolean isLoggedIn = false;
     private String userRole = "user"; // "driver" | "admin"
 
     @Override
@@ -36,16 +36,23 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerMenuView = findViewById(R.id.navigation_view);
         bottomNavigationView = findViewById(R.id.navbar);
-        toolbarView = findViewById(R.id.main_toolbar);
 
-        findViewById(R.id.nav_hamburger).setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.END)
-        );
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
+        Menu menu = drawerMenuView.getMenu();
+        if (userRole.equals("admin")) {
+            menu.findItem(R.id.favorites).setVisible(false);
+        } else if (userRole.equals("user") || userRole.equals("driver")) {
+            menu.findItem(R.id.drivers).setVisible(false);
+            menu.findItem(R.id.pricing).setVisible(false);
+        }
 
         if (!isLoggedIn) {
-            Menu menu = bottomNavigationView.getMenu();
+            menu = bottomNavigationView.getMenu();
             menu.findItem(R.id.nav_hamburger).setVisible(false);
         }
+
+        setUpBottomNavigation();
 
         if (saveInstanceState == null) {
             loadFragment(new MapFragment());
@@ -57,5 +64,30 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.main_container, fragment)
                 .commit();
+    }
+
+    private void setUpBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_hamburger
+                    && findViewById(R.id.nav_hamburger).getVisibility() == View.VISIBLE) {
+                drawerLayout.openDrawer(GravityCompat.START);
+                return false;
+            } else if (id == R.id.nav_home) {
+                loadFragment(new MapFragment());
+                return true;
+            } else if (id == R.id.nav_profile) {
+                /*
+                if (isLoggedIn) {
+                    loadFragment(new ProfileFragment());
+                } else {
+                    loadFragment(new LoginFragment());
+                }*/
+                return true;
+            }
+
+            return false;
+        });
     }
 }
