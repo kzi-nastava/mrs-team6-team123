@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
 
-    private boolean isLoggedIn = false;
-    private String userRole = "user"; // "driver" | "admin"
+    private boolean isLoggedIn = true;
+    private String userRole = "driver"; // "driver" | "admin"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setUpBottomNavigation();
+        setUpDrawerMenu();
 
         if (saveInstanceState == null) {
             loadFragment(new MapFragment());
@@ -81,25 +82,34 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(new MapFragment());
                 return true;
             } else if (id == R.id.nav_profile) {
-                /*
                 if (isLoggedIn) {
                     loadFragment(new ProfileFragment());
                 } else {
                     loadFragment(new LoginFragment());
-                }*/
+                }
                 return true;
             }
 
             return false;
         });
+    }
 
-        // Load ProfileFragment into the container
-        if (savedInstanceState == null) {
-            FragmentManager fm = getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            Fragment fragment = ProfileFragment.newInstance("driver"); // pass user role
-            ft.replace(R.id.fragment_container, fragment);
-            ft.commit();
-        }
+    private void setUpDrawerMenu() {
+        drawerMenuView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            Fragment fragment = null;
+            if (id == R.id.history) {
+                fragment = new RideHistoryFragment();
+            }
+
+            if (fragment != null) {
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.main_container, fragment);
+                ft.commit();
+            }
+            drawerLayout.closeDrawers();
+            return true;
+        });
     }
 }
