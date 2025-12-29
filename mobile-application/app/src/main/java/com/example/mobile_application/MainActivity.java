@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_profile) {
                 if (isLoggedIn) {
-                    loadFragment(new ProfileFragment());
+                    loadFragment(ProfileFragment.newInstance(userRole));
                 } else {
                     loadFragment(new LoginFragment());
                 }
