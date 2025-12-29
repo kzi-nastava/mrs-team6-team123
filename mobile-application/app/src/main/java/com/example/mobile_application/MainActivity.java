@@ -17,6 +17,9 @@ import com.example.mobile_application.map.MapFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,5 +92,14 @@ public class MainActivity extends AppCompatActivity {
 
             return false;
         });
+
+        // Load ProfileFragment into the container
+        if (savedInstanceState == null) {
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            Fragment fragment = ProfileFragment.newInstance("driver"); // pass user role
+            ft.replace(R.id.fragment_container, fragment);
+            ft.commit();
+        }
     }
 }
