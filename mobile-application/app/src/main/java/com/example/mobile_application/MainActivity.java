@@ -1,27 +1,96 @@
 package com.example.mobile_application;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+
+import com.example.mobile_application.map.MapFragment;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
+    private DrawerLayout drawerLayout;
+    private NavigationView drawerMenuView;
+    private BottomNavigationView bottomNavigationView;
+
+    private boolean isLoggedIn = false;
+    private String userRole = "user"; // "driver" | "admin"
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+    protected void onCreate(Bundle saveInstanceState) {
+        super.onCreate(saveInstanceState);
+
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerMenuView = findViewById(R.id.navigation_view);
+        bottomNavigationView = findViewById(R.id.navbar);
+
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
+        Menu menu = drawerMenuView.getMenu();
+        if (userRole.equals("admin")) {
+            menu.findItem(R.id.favorites).setVisible(false);
+        } else if (userRole.equals("user") || userRole.equals("driver")) {
+            menu.findItem(R.id.drivers).setVisible(false);
+            menu.findItem(R.id.pricing).setVisible(false);
+        }
+
+        if (!isLoggedIn) {
+            menu = bottomNavigationView.getMenu();
+            menu.findItem(R.id.nav_hamburger).setVisible(false);
+        }
+
+        setUpBottomNavigation();
+
+        if (saveInstanceState == null) {
+            loadFragment(new MapFragment());
+        }
+    }
+
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, fragment)
+                .commit();
+    }
+
+    private void setUpBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_hamburger
+                    && findViewById(R.id.nav_hamburger).getVisibility() == View.VISIBLE) {
+                drawerLayout.openDrawer(GravityCompat.START);
+                return false;
+            } else if (id == R.id.nav_home) {
+                loadFragment(new MapFragment());
+                return true;
+            } else if (id == R.id.nav_profile) {
+                /*
+                if (isLoggedIn) {
+                    loadFragment(new ProfileFragment());
+                } else {
+                    loadFragment(new LoginFragment());
+                }*/
+                return true;
+            }
+
+            return false;
         });
 
         // Load ProfileFragment into the container

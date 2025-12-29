@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/history"
+        android:icon="@drawable/history"
+        android:title="@string/history" />
+    <item
+        android:id="@+id/favorites"
+        android:icon="@drawable/favorites"
+        android:title="@string/favorites" />
+    <item
+        android:id="@+id/notifications"
+        android:icon="@drawable/notification"
+        android:title="@string/notification" />
+    <item
+        android:id="@+id/reports"
+        android:icon="@drawable/report"
+        android:title="@string/reports"/>
+    <item
+        android:id="@+id/pricing"
+        android:icon="@drawable/pricing"
+        android:title="@string/pricing"/>
+    <item
+        android:id="@+id/drivers"
+        android:icon="@drawable/drivers"
+        android:title="@string/drivers"/>
+</menu>
