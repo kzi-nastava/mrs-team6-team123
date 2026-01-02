@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 
 import java.net.URI;
 
@@ -23,7 +24,7 @@ public class DriverController {
         response.setPhone(request.getPhone());
         response.setVehicleModel(request.getVehicleModel());
         response.setLicensePlate(request.getLicensePlate());
-        response.setStatus("PENDING_APPROVAL");
+        response.setStatus(DriverStatus.PENDING_APPROVAL);
 
         return ResponseEntity.created(URI.create("/api/drivers/" + response.getId()))
                 .body(response);

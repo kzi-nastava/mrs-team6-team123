@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 import lombok.Getter;
 import lombok.Setter;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +28,7 @@ public class AdminRideHistoryDTO {
     private Integer driverRating;
     private Integer vehicleRating;
     private String driverName;
-    private String vehicleModel;
+    private VehicleType vehicleType;
 
     public AdminRideHistoryDTO() {
     }
