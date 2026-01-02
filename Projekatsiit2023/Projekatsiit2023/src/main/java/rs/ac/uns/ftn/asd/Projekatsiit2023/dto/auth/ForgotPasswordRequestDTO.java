@@ -1,9 +1,10 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
 public class ForgotPasswordRequestDTO {
     private String email;
 
-    public ForgotPasswordRequestDTO() {}
+    public ForgotPasswordRequestDTO() {
+    }
 
     public String getEmail() {
         return email;

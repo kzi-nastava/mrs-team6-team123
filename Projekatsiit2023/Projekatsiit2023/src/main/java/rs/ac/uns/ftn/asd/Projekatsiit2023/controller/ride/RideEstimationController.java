@@ -1,16 +1,18 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.controller.ride;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideEstimationRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideEstimationResponseDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideEstimationRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideEstimationResponseDTO;
 
 @RestController
 @RequestMapping("/api/ride-estimation")
 public class RideEstimationController {
 
     @PostMapping
-    public ResponseEntity<RideEstimationResponseDTO> estimateRide(@RequestBody RideEstimationRequestDTO estimationRequest) {
+    public ResponseEntity<RideEstimationResponseDTO> estimateRide(
+            @RequestBody RideEstimationRequestDTO estimationRequest) {
         RideEstimationResponseDTO response = new RideEstimationResponseDTO();
         response.setStartLocation(estimationRequest.getStartLocation());
         response.setEndLocation(estimationRequest.getEndLocation());

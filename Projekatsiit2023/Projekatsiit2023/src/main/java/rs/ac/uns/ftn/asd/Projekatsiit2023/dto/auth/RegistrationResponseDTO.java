@@ -1,11 +1,12 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
 public class RegistrationResponseDTO {
     private String message;
     private Long userId;
     private String email;
 
-    public RegistrationResponseDTO() {}
+    public RegistrationResponseDTO() {
+    }
 
     public String getMessage() {
         return message;

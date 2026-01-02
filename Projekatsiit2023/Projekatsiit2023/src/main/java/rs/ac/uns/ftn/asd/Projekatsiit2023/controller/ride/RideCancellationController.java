@@ -1,9 +1,10 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.controller.ride;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.CancelRideRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.CancelRideResponseDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.CancelRideRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.CancelRideResponseDTO;
 
 @RestController
 @RequestMapping("/api/rides")

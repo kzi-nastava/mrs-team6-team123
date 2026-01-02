@@ -1,24 +1,18 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver;
 
-public class DriverResponseDTO {
-    private Long id;
+public class DriverRegistrationRequestDTO {
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
     private String vehicleModel;
+    private String vehicleType; // STANDARD | LUX | VAN
     private String licensePlate;
-    private String status; // e.g., ACTIVE, PENDING_APPROVAL
+    private int seats;
+    private boolean babyTransport; // allows babies
+    private boolean petTransport; // allows pets
 
-    public DriverResponseDTO() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public DriverRegistrationRequestDTO() {
     }
 
     public String getFirstName() {
@@ -61,6 +55,14 @@ public class DriverResponseDTO {
         this.vehicleModel = vehicleModel;
     }
 
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
     public String getLicensePlate() {
         return licensePlate;
     }
@@ -69,11 +71,27 @@ public class DriverResponseDTO {
         this.licensePlate = licensePlate;
     }
 
-    public String getStatus() {
-        return status;
+    public int getSeats() {
+        return seats;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setSeats(int seats) {
+        this.seats = seats;
+    }
+
+    public boolean isBabyTransport() {
+        return babyTransport;
+    }
+
+    public void setBabyTransport(boolean babyTransport) {
+        this.babyTransport = babyTransport;
+    }
+
+    public boolean isPetTransport() {
+        return petTransport;
+    }
+
+    public void setPetTransport(boolean petTransport) {
+        this.petTransport = petTransport;
     }
 }

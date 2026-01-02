@@ -1,10 +1,11 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 public class CancelRideRequestDTO {
     private Long userId;
     private String reason;
 
-    public CancelRideRequestDTO() {}
+    public CancelRideRequestDTO() {
+    }
 
     public Long getUserId() {
         return userId;

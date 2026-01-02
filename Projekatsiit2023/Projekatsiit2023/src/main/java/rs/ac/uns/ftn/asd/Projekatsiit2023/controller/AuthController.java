@@ -4,6 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.ForgotPasswordRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.LoginRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.LoginResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.RegistrationRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.RegistrationResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.ResetPasswordRequestDTO;
 
 @RestController
 @RequestMapping("/api/auth")

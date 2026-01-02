@@ -1,11 +1,12 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver;
 
 public class ActiveVehicleDTO {
     private Long vehicleId;
     private String location;
     private boolean available;
 
-    public ActiveVehicleDTO() {}
+    public ActiveVehicleDTO() {
+    }
 
     public Long getVehicleId() {
         return vehicleId;
