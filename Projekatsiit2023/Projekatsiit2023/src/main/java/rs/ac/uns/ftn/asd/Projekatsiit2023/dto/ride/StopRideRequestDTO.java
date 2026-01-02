@@ -1,7 +1,12 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 public class StopRideRequestDTO {
     private String currentLocation;
     private LocalDateTime stoppedAt;
@@ -9,19 +14,4 @@ public class StopRideRequestDTO {
     public StopRideRequestDTO() {
     }
 
-    public String getCurrentLocation() {
-        return currentLocation;
-    }
-
-    public void setCurrentLocation(String currentLocation) {
-        this.currentLocation = currentLocation;
-    }
-
-    public LocalDateTime getStoppedAt() {
-        return stoppedAt;
-    }
-
-    public void setStoppedAt(LocalDateTime stoppedAt) {
-        this.stoppedAt = stoppedAt;
-    }
 }

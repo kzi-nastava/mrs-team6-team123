@@ -1,5 +1,10 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ResetPasswordRequestDTO {
     private String token;
     private String newPassword;
@@ -8,27 +13,4 @@ public class ResetPasswordRequestDTO {
     public ResetPasswordRequestDTO() {
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 }
