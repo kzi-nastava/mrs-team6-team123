@@ -24,4 +24,8 @@
         android:id="@+id/drivers"
         android:icon="@drawable/drivers"
         android:title="@string/drivers"/>
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/logout"
+        android:title="@string/logout"/>
 </menu>

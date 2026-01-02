@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.color.MaterialColors;
+
 public class RideHistoryFragment extends Fragment {
 
     private LinearLayout tableHeader;
@@ -57,7 +59,8 @@ public class RideHistoryFragment extends Fragment {
         tv.setWidth(350);
         tv.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.nobile_bold));
         tv.setPadding(16, 8, 16, 8); // px
-        tv.setTextColor(getResources().getColor(R.color.black, null));
+        int color = MaterialColors.getColor(tv, com.google.android.material.R.attr.colorOnSurface);
+        tv.setTextColor(color);
         tableHeader.addView(tv);
     }
 
@@ -90,7 +93,8 @@ public class RideHistoryFragment extends Fragment {
         tv.setText(text);
         tv.setWidth(350);
         tv.setPadding(16, 8, 16, 8);
-        tv.setTextColor(getResources().getColor(R.color.black, null));
+        int color = MaterialColors.getColor(tv, com.google.android.material.R.attr.colorOnSurface);
+        tv.setTextColor(color);
 
         row.addView(tv);
     }

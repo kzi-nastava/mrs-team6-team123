@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/rideHistoryView"
@@ -13,6 +14,7 @@
         android:text="@string/ride_history"
         android:fontFamily="@font/nobile_bold"
         android:textAppearance="?attr/textAppearanceHeadlineMedium"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -73,7 +75,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:fillViewport="true"
-        android:background="@color/gray"
+        android:background="?attr/colorSurfaceContainer"
         app:layout_constraintTop_toBottomOf="@id/dateFilterContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingVertical="8dp"
-                    android:background="@color/gray_dark" />
+                    android:background="?attr/colorSurfaceContainerHigh" />
 
                 <LinearLayout
                     android:id="@+id/rowsContainer"
