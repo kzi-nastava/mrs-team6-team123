@@ -1,13 +1,16 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver;
 
-public class UserProfileResponseDTO {
+public class DriverResponseDTO {
     private Long id;
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
+    private String vehicleModel;
+    private String licensePlate;
+    private String status; // e.g., ACTIVE, PENDING_APPROVAL
 
-    public UserProfileResponseDTO() {
+    public DriverResponseDTO() {
     }
 
     public Long getId() {
@@ -48,5 +51,29 @@ public class UserProfileResponseDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getVehicleModel() {
+        return vehicleModel;
+    }
+
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

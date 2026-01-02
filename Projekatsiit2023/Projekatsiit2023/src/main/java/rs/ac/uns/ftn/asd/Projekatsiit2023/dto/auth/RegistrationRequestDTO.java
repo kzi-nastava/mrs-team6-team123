@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
 public class RegistrationRequestDTO {
     private String email;
@@ -10,7 +10,8 @@ public class RegistrationRequestDTO {
     private String phoneNumber;
     private String profilePicture;
 
-    public RegistrationRequestDTO() {}
+    public RegistrationRequestDTO() {
+    }
 
     public String getEmail() {
         return email;

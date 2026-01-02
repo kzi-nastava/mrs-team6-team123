@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 public class CancelRideResponseDTO {
     private Long rideId;
@@ -6,7 +6,8 @@ public class CancelRideResponseDTO {
     private String reason;
     private String message;
 
-    public CancelRideResponseDTO() {}
+    public CancelRideResponseDTO() {
+    }
 
     public Long getRideId() {
         return rideId;

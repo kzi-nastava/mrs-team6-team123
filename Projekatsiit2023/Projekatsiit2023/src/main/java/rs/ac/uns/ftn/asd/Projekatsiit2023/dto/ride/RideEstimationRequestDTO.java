@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 import java.util.List;
 
@@ -8,7 +8,8 @@ public class RideEstimationRequestDTO {
     private List<String> intermediateStops;
     private String vehicleType;
 
-    public RideEstimationRequestDTO() {}
+    public RideEstimationRequestDTO() {
+    }
 
     public String getStartLocation() {
         return startLocation;

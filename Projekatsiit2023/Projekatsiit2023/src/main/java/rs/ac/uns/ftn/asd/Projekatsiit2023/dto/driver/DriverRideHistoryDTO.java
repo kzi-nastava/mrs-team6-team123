@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +14,8 @@ public class DriverRideHistoryDTO {
     private boolean panicTriggered;
     private Long canceledByUserId;
 
-    public DriverRideHistoryDTO() {}
+    public DriverRideHistoryDTO() {
+    }
 
     public Long getRideId() {
         return rideId;

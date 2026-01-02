@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 public class RideEstimationResponseDTO {
     private String startLocation;
@@ -8,7 +8,8 @@ public class RideEstimationResponseDTO {
     private double estimatedPrice;
     private String route;
 
-    public RideEstimationResponseDTO() {}
+    public RideEstimationResponseDTO() {
+    }
 
     public String getStartLocation() {
         return startLocation;

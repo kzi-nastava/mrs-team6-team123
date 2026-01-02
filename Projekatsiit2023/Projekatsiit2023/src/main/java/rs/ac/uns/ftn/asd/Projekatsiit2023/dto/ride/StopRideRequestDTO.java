@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 import java.time.LocalDateTime;
 
@@ -6,7 +6,8 @@ public class StopRideRequestDTO {
     private String currentLocation;
     private LocalDateTime stoppedAt;
 
-    public StopRideRequestDTO() {}
+    public StopRideRequestDTO() {
+    }
 
     public String getCurrentLocation() {
         return currentLocation;

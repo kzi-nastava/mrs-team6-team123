@@ -2,8 +2,9 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.DriverRegistrationRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.DriverResponseDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverRegistrationRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverResponseDTO;
 
 import java.net.URI;
 

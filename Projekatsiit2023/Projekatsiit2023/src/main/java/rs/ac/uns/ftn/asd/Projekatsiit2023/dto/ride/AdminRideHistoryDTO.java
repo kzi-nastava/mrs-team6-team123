@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +24,8 @@ public class AdminRideHistoryDTO {
     private String driverName;
     private String vehicleModel;
 
-    public AdminRideHistoryDTO() {}
+    public AdminRideHistoryDTO() {
+    }
 
     public Long getRideId() {
         return rideId;

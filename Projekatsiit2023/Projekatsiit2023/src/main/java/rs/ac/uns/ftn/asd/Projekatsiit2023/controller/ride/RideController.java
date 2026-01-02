@@ -1,11 +1,12 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.controller.ride;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideOrderRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideRatingResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideTrackingResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.RideResponseDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideOrderRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideRatingResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideTrackingResponseDTO;
 
 @RestController
 @RequestMapping("/api/rides")

@@ -1,8 +1,9 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.controller.ride;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.AdminRideHistoryDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.AdminRideHistoryDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

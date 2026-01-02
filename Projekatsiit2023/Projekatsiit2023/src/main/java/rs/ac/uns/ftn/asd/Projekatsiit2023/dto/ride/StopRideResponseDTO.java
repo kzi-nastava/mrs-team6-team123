@@ -1,4 +1,4 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +9,8 @@ public class StopRideResponseDTO {
     private double recalculatedPrice;
     private String message;
 
-    public StopRideResponseDTO() {}
+    public StopRideResponseDTO() {
+    }
 
     public Long getRideId() {
         return rideId;

@@ -1,11 +1,12 @@
-package rs.ac.uns.ftn.asd.Projekatsiit2023.dto;
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
 public class ResetPasswordRequestDTO {
     private String token;
     private String newPassword;
     private String confirmPassword;
 
-    public ResetPasswordRequestDTO() {}
+    public ResetPasswordRequestDTO() {
+    }
 
     public String getToken() {
         return token;
