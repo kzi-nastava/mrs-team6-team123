@@ -3,10 +3,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controller.ride;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideOrderRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideRatingResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.RideTrackingResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.*;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -68,13 +65,14 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/rate")
-    public ResponseEntity<RideRatingResponseDTO> rateRide(@PathVariable Long rideId) {
+    public ResponseEntity<RideRatingResponseDTO> rateRide(@RequestBody RideRatingRequestDTO request) {
         RideRatingResponseDTO response = new RideRatingResponseDTO();
-        response.setRideId(rideId);
+        response.setRideId(request.getRideId());
+        // driverId and vehicleId will be found using rideId
         response.setDriverId(20L);
         response.setVehicleId(21L);
-        response.setDriverRating(9);
-        response.setVehicleRating(8);
+        response.setDriverRating(request.getDriverRating());
+        response.setVehicleRating(request.getVehicleRating());
         return ResponseEntity.ok(response);
     }
 }
