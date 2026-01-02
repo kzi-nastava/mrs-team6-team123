@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.ride.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -16,7 +17,7 @@ public class RideController {
         RideResponseDTO response = new RideResponseDTO();
         response.setRideId(500L);
         response.setDriverId(42L);
-        response.setStatus("CREATED");
+        response.setStatus(RideStatus.CREATED);
         response.setEstimatedTimeMinutes(8);
         response.setEstimatedPrice(450.0);
         return ResponseEntity.ok(response);
@@ -29,7 +30,7 @@ public class RideController {
         RideResponseDTO response = new RideResponseDTO();
         response.setRideId(501L);
         response.setDriverId(43L);
-        response.setStatus("CREATED");
+        response.setStatus(RideStatus.CREATED);
         response.setEstimatedTimeMinutes(7);
         response.setEstimatedPrice(420.0);
         return ResponseEntity.ok(response);
@@ -50,7 +51,7 @@ public class RideController {
         RideResponseDTO response = new RideResponseDTO();
         response.setRideId(rideId);
         response.setDriverId(42L);
-        response.setStatus("FINISHED");
+        response.setStatus(RideStatus.FINISHED);
         return ResponseEntity.ok(response);
     }
 
@@ -60,7 +61,7 @@ public class RideController {
         RideResponseDTO response = new RideResponseDTO();
         response.setRideId(rideId);
         response.setDriverId(42L);
-        response.setStatus("STARTED");
+        response.setStatus(RideStatus.STARTED);
         return ResponseEntity.ok(response);
     }
 
@@ -73,6 +74,34 @@ public class RideController {
         response.setVehicleId(21L);
         response.setDriverRating(request.getDriverRating());
         response.setVehicleRating(request.getVehicleRating());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{rideId}/stop")
+    public ResponseEntity<StopRideResponseDTO> stopRide(
+            @PathVariable Long rideId,
+            @RequestBody StopRideRequestDTO stopRequest) {
+        StopRideResponseDTO response = new StopRideResponseDTO();
+        response.setRideId(rideId);
+        response.setStoppedLocation(stopRequest.getCurrentLocation());
+        response.setStoppedAt(stopRequest.getStoppedAt());
+        response.setRecalculatedPrice(850.0);
+        response.setMessage("Ride stopped successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{rideId}/cancel")
+    public ResponseEntity<CancelRideResponseDTO> cancelRide(
+            @PathVariable Long rideId,
+            @RequestBody CancelRideRequestDTO cancelRequest) {
+        // TODO: Validate if ride can be cancelled (10 min before start for passengers)
+        // TODO: Check who is cancelling (driver or passenger)
+        // TODO: Send notifications to all parties
+        CancelRideResponseDTO response = new CancelRideResponseDTO();
+        response.setRideId(rideId);
+        response.setCancelledBy(cancelRequest.getUserId());
+        response.setReason(cancelRequest.getReason());
+        response.setMessage("Ride successfully cancelled.");
         return ResponseEntity.ok(response);
     }
 }

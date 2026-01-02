@@ -10,6 +10,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.LoginResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.RegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.RegistrationResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth.ResetPasswordRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,7 +22,7 @@ public class AuthController {
         response.setToken("dummy-jwt-token-12345");
         response.setUserId(1L);
         response.setEmail(loginRequest.getEmail());
-        response.setRole("PASSENGER");
+        response.setRole(UserRole.PASSENGER);
         return ResponseEntity.ok(response);
     }
 
