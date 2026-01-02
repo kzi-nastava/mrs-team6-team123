@@ -1,5 +1,10 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.auth;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class RegistrationResponseDTO {
     private String message;
     private Long userId;
@@ -8,27 +13,4 @@ public class RegistrationResponseDTO {
     public RegistrationResponseDTO() {
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }
