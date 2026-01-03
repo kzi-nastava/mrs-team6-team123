@@ -10,7 +10,8 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface">
 
         <include
             layout="@layout/view_toolbar" />
@@ -32,7 +33,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
-        android:background="@color/white"
-        app:itemTextColor="@color/black"/>
+        android:background="?attr/colorSurface"
+        app:itemTextColor="?attr/colorOnSurface"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>
