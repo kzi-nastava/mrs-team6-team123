@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +17,13 @@ import android.widget.TextView;
 
 import com.google.android.material.color.MaterialColors;
 
-public class RideHistoryFragment extends Fragment {
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
-    private LinearLayout tableHeader;
-    private LinearLayout rowsContainer;
-    private String userRole = "driver"; // "user" | "admin"
+public class RideHistoryFragment extends Fragment {
 
     @Nullable
     @Override
@@ -27,76 +31,6 @@ public class RideHistoryFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ride_history, container, false);
-
-        tableHeader = view.findViewById(R.id.tableHeader);
-        rowsContainer = view.findViewById(R.id.rowsContainer);
-
-        setUpTableColumns();
-        loadSampleRows();
-
         return view;
     }
-
-    private void setUpTableColumns() {
-        tableHeader.removeAllViews();
-
-        if (userRole.equals("driver")) {
-            addHeaderCell("Date");
-            addHeaderCell("From");
-            addHeaderCell("To");
-            addHeaderCell("Started at");
-            addHeaderCell("Ended at");
-            addHeaderCell("Price");
-            addHeaderCell("PANIC");
-            addHeaderCell("Canceled by");
-            addHeaderCell("Passengers");
-        }
-    }
-
-    private void addHeaderCell(String text) {
-        TextView tv = new TextView(requireContext());
-        tv.setText(text);
-        tv.setWidth(350);
-        tv.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.nobile_bold));
-        tv.setPadding(16, 8, 16, 8); // px
-        int color = MaterialColors.getColor(tv, com.google.android.material.R.attr.colorOnSurface);
-        tv.setTextColor(color);
-        tableHeader.addView(tv);
-    }
-
-    private void loadSampleRows() {
-        rowsContainer.removeAllViews();
-        LinearLayout row = createRow();
-
-        addCell(row, "12.12.2024");
-        addCell(row, "Location A");
-        addCell(row, "Location B");
-        addCell(row, "09:47");
-        addCell(row, "10:08");
-        addCell(row, "1400");
-        addCell(row, "-");
-        addCell(row, "-");
-        addCell(row, "Jane Doe, Minnie Mouse");
-
-        rowsContainer.addView(row);
-    }
-
-    private LinearLayout createRow() {
-        LinearLayout row = new LinearLayout(requireContext());
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setPadding(0, 8, 0, 8);
-        return row;
-    }
-
-    private void addCell(LinearLayout row, String text) {
-        TextView tv = new TextView(requireContext());
-        tv.setText(text);
-        tv.setWidth(350);
-        tv.setPadding(16, 8, 16, 8);
-        int color = MaterialColors.getColor(tv, com.google.android.material.R.attr.colorOnSurface);
-        tv.setTextColor(color);
-
-        row.addView(tv);
-    }
-
 }
