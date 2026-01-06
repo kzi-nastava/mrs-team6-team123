@@ -21,5 +21,8 @@
         <item name="colorSurfaceContainer">@color/gray_night</item>
         <item name="colorSurfaceContainerHigh">@color/gray_dark_night</item>
 
+        <item name="colorButtonNormal">@color/green_night</item>
+        <item name="colorTertiaryContainer">@color/gray_dark_night</item>
+
     </style>
 </resources>

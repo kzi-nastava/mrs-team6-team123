@@ -24,7 +24,7 @@
             android:textSize="18sp"
             android:fontFamily="@font/nobile_bold"
             android:textColor="?attr/colorOnSurface"
-            android:text="Novi Sad - Beograd" />
+            android:text="Boulevard -> University" />
 
         <TextView
             android:layout_width="wrap_content"

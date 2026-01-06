@@ -13,16 +13,10 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/rideHistoryView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/ride_history_heading"
             android:text="@string/ride_history"
-            android:fontFamily="@font/nobile_bold"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            style="@style/TextHeading"/>
 
         <LinearLayout
             android:id="@+id/dateFilterContainer"
@@ -31,7 +25,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="16dp"
             android:gravity="center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/rideHistoryView"
+            app:layout_constraintTop_toBottomOf="@id/ride_history_heading"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -72,6 +66,41 @@
                     android:inputType="none"
                     android:fontFamily="@font/nobile_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/btnClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/clear"
+                android:fontFamily="@font/nobile"
+                style="@style/Widget.SecondaryButton" />
+
+            <Button
+                android:id="@+id/btnApply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/apply"
+                android:fontFamily="@font/nobile"
+                style="@style/Widget.PrimaryButton"/>
 
         </LinearLayout>
 
