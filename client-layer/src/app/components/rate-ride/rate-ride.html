@@ -1,0 +1,35 @@
+<div class="rate-dialog">
+  <h1>Rate Drive</h1>
+
+  <div class="rating-section">
+    <label><strong>Driver: </strong>{{ data.driver }}</label>
+    <div class="stars">
+    <span 
+      class="star" 
+      *ngFor="let star of [1,2,3,4,5]" 
+      (click)="setDriverRating(star)"
+      [innerHTML]="isDriverStarFilled(star) ? '&#9733;' : '&#9734;'">
+    </span>
+  </div>
+
+  <div class="rating-section">
+    <label><strong>Vehicle: </strong>{{ data.vehicle }}</label>
+    <div class="stars">
+    <span 
+      class="star" 
+      *ngFor="let star of [1,2,3,4,5]" 
+      (click)="setVehicleRating(star)"
+      [innerHTML]="isVehicleStarFilled(star) ? '&#9733;' : '&#9734;'">
+    </span>
+  </div>
+
+  <div class="comment-section">
+    <label>Comment:</label>
+    <textarea placeholder="Leave comment here..."></textarea>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button class="cancel-btn" (click)="close()">Cancel</button>
+    <button mat-raised-button class="rate-btn" (click)="submit()">Rate</button>
+  </div>
+</div>
