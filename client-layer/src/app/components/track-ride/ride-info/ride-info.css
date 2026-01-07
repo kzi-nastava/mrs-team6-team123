@@ -20,7 +20,7 @@
 
 .ride-info p {
   margin: 6px 0;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
 }
 
@@ -44,9 +44,5 @@
 @media (max-width: 767px) {
   .ride-info {
     padding: 12px;
-  }
-
-  .ride-info p {
-    font-size: 13px;
   }
 }
