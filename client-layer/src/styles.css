@@ -4,6 +4,7 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Nobile', sans-serif; }
+button { font-family: 'Nobile', sans-serif; }
 
 .emblema-one-regular {
   font-family: "Emblema One", system-ui;

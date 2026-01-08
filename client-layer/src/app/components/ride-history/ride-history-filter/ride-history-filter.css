@@ -6,11 +6,24 @@
 
 .filters input {
   padding: 6px 8px;
+  border-radius: 20px;
+  background-color: #E9E9E9;
+  border-color: #C0C0C0;
 }
 
 .btn {
   padding: 6px 12px;
   cursor: pointer;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  background-color: #618762;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.btn:hover {
+  background-color: #436744;
 }
 
 @media (max-width: 768px) {
