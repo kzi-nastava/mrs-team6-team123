@@ -11,4 +11,27 @@ import { RideHistoryTableComponent } from '../../../components/ride-history/ride
 })
 export class RideHistoryComponent {
   columns = ['Date', 'From', 'To', 'Started at', 'Ended at', 'Canceled', 'PANIC', 'Price'];
+
+  rides = [
+    {
+      Date: "01.01.01.",
+      From: "ns",
+      To: "bg",
+      "Started at": "09",
+      "Ended at": "11",
+      Canceled: "-",
+      PANIC: "-",
+      Price: "100"
+    },
+    {
+      Date: "02.01.01.",
+      From: "ns",
+      To: "su",
+      "Started at": "79",
+      "Ended at": "71",
+      Canceled: "M",
+      PANIC: "Y",
+      Price: "0"
+    }
+  ]
 }

@@ -6,7 +6,9 @@
   </thead>
   <tbody>
     <tr *ngFor="let ride of rides">
-      <td *ngFor="let col of columns">{{ ride[col] }}</td>
+      <td *ngFor="let col of columns" [attr.data-label]="col">
+        {{ ride[col] }}
+      </td>
     </tr>
   </tbody>
 </table>
