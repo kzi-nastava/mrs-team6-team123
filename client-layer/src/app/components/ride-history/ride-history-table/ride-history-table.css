@@ -14,6 +14,21 @@
   font-weight: bold;
 }
 
+.btn-route {
+  padding: 8px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  background-color: #618762;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.btn-route:hover {
+  background-color: #436744;
+}
+
 @media (max-width: 768px) {
   .ride-table,
   .ride-table thead,
@@ -56,5 +71,9 @@
     font-weight: 600;
     color: #555;
     text-align: left;
+  }
+
+  .btn-route {
+    padding: 6px 15px;
   }
 }

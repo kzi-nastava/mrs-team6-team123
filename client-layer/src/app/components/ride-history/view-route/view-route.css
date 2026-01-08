@@ -1,0 +1,42 @@
+.view-route {
+  padding: 16px;
+}
+
+.btn-close {
+  padding: 8px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  background-color: #618762;
+  color: #fff;
+  transition: background-color 0.2s;
+  margin-top: 16px;
+}
+
+.btn-close:hover {
+  background-color: #436744;
+}
+
+.map-wrapper {
+  width: 360px;
+  height: 40vh;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid black;
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+.map-wrapper > app-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .map-wrapper {
+    width: 280px;
+    height: 40vh;
+  }
+}

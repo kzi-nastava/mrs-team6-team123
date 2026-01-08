@@ -3,14 +3,14 @@ import { RideHistoryFilterComponent } from '../../../components/ride-history/rid
 import { RideHistoryTableComponent } from '../../../components/ride-history/ride-history-table/ride-history-table';
 
 @Component({
-  selector: 'app-ride-history',
+  selector: 'app-driver-ride-history',
   standalone: true,
   imports: [RideHistoryFilterComponent, RideHistoryTableComponent],
-  templateUrl: './ride-history.html',
-  styleUrls: ['./ride-history.css'],
+  templateUrl: './driver-ride-history.html',
+  styleUrls: ['./driver-ride-history.css'],
 })
-export class RideHistoryComponent {
-  columns = ['Date', 'From', 'To', 'Started at', 'Ended at', 'Canceled', 'PANIC', 'Price'];
+export class DriverRideHistoryComponent {
+  columns = ['Date', 'From', 'To', 'Started at', 'Ended at', 'Canceled', 'PANIC', 'Price', 'Route'];
 
   rides = [
     {
@@ -21,7 +21,8 @@ export class RideHistoryComponent {
       "Ended at": "11",
       Canceled: "-",
       PANIC: "-",
-      Price: "100"
+      Price: "100",
+      Route: null
     },
     {
       Date: "02.01.01.",
@@ -31,7 +32,8 @@ export class RideHistoryComponent {
       "Ended at": "71",
       Canceled: "M",
       PANIC: "Y",
-      Price: "0"
+      Price: "0",
+      Route: null
     }
   ]
 }
