@@ -25,3 +25,14 @@
   color: #666;
   line-height: 1.6;
 }
+
+@media (max-width: 767px) {
+  .content-wrapper {
+    flex-direction: column; 
+  }
+
+  .right-panel {
+    padding: 12px;
+    height: auto;
+  }
+}
