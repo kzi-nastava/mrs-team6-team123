@@ -10,6 +10,7 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { AdminHomeComponent } from './pages/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { RateRideComponent } from './components/rate-ride/rate-ride';
+import { AdminPricingComponent } from './pages/admin-pricing/admin-pricing';
 
 export const routes: Routes = [
   {path: 'driver/ride-history', component: RideHistoryComponent },
@@ -24,5 +25,6 @@ export const routes: Routes = [
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
   { path: 'admin-home', component: AdminHomeComponent},
   { path: 'track-ride-page', component: TrackRidePageComponent },
-  { path: 'rate-ride', component: RateRideComponent }
+  { path: 'rate-ride', component: RateRideComponent },
+  { path: 'admin-pricing', component: AdminPricingComponent }
 ];
