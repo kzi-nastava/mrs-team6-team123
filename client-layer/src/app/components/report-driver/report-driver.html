@@ -1,0 +1,22 @@
+<div class="report-dialog">
+  <h1>Rate Drive</h1>
+
+  <div class="driver-details">
+    <div class="driver">
+      <label><strong>Driver: </strong>{{ data.driver }}</label>
+    </div>
+    <div class="vehicle">
+        <label><strong>Vehicle: </strong>{{ data.vehicle }}</label>
+    </div>
+  </div>
+
+  <div class="comment-section">
+    <label>Report:</label>
+    <textarea placeholder="Write report here..."></textarea>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button class="cancel-btn" (click)="close()">Cancel</button>
+    <button mat-raised-button class="rate-btn" (click)="submit()">Rate</button>
+  </div>
+</div>
