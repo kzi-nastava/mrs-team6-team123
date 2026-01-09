@@ -5,4 +5,16 @@
         <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
+    <style name="ChatMessageBase">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:maxWidth">260dp</item>
+        <item name="android:fontFamily">@font/nobile_regular</item>
+    </style>
+    <style name="ChatMessageSent" parent="ChatMessageBase">
+        <item name="android:background">@drawable/sent_message_bg</item>
+    </style>
+    <style name="ChatMessageReceived" parent="ChatMessageBase">
+        <item name="android:background">@drawable/received_message_bg</item>
+    </style>
 </resources>
