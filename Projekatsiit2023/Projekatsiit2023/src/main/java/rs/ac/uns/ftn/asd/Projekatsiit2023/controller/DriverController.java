@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.DriverResponseDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.ReportDriverRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver.ReportDriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 
 import java.net.URI;
@@ -28,5 +30,16 @@ public class DriverController {
 
         return ResponseEntity.created(URI.create("/api/drivers/" + response.getId()))
                 .body(response);
+    }
+
+    @PostMapping({"/{driverId}/report"})
+    public ResponseEntity<ReportDriverResponseDTO> reportDriver(@RequestBody ReportDriverRequestDTO request) {
+        ReportDriverResponseDTO response = new ReportDriverResponseDTO();
+        response.setRideId(request.getRideId());
+        response.setDriverId(request.getDriverId());
+        // vehicle ID is loaded based on driver ID
+        response.setVehicleId(400L);
+        response.setComment(request.getComment());
+        return  ResponseEntity.ok(response);
     }
 }
