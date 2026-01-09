@@ -1,15 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="?attr/colorSurface"
-    android:padding="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chat_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/chat_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnPrimary"
+                android:fontFamily="@font/nobile_bold"
+                android:textSize="30sp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:id="@+id/scrollMessages"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:padding="8dp">
 
         <LinearLayout
             android:id="@+id/layoutMessages"
@@ -21,7 +48,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="8sp">
 
         <EditText
             android:id="@+id/etMessage"
@@ -29,15 +57,20 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="?attr/colorSurfaceContainer"
-            android:hint="@string/type_a_message"
-            android:paddingStart="10dp"
-            android:paddingEnd="0dp"/>
+            android:hint="@string/type"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/btnSend"
-            android:text="@string/send"
+            android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_width="80dp" />
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/send"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/send"
+            android:padding="5dp"/>
+
 
     </LinearLayout>
 </LinearLayout>

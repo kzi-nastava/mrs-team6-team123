@@ -43,6 +43,18 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.navbar);
         chatButton = findViewById(R.id.btnChat);
 
+        chatButton.setOnClickListener(v -> {
+            if ("admin".equals(userRole)) {
+                ChatListDialogFragment listDialog = new ChatListDialogFragment();
+                listDialog.show(getSupportFragmentManager(), "ChatListDialog");
+            } else {
+                ChatDialogFragment dialog = ChatDialogFragment.newInstance(
+                        getString(R.string.support_chat)
+                );
+                dialog.show(getSupportFragmentManager(), "ChatDialog");
+            }
+        });
+
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
         Menu menu = drawerMenuView.getMenu();

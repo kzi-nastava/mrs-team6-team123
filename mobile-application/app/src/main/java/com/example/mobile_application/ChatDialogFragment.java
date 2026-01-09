@@ -14,11 +14,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class ChatDialogFragment extends DialogFragment {
+
+    public static ChatDialogFragment newInstance(String chatName) {
+        ChatDialogFragment fragment = new ChatDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("chat_name", chatName);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -27,10 +36,14 @@ public class ChatDialogFragment extends DialogFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat_dialog, container, false);
 
+        String chatName = getArguments().getString("chat_name");
+        TextView tvTitle = view.findViewById(R.id.chat_name);
+        tvTitle.setText(chatName);
+
         ScrollView scrollMessages = view.findViewById(R.id.scrollMessages);
         LinearLayout layoutMessages = view.findViewById(R.id.layoutMessages);
         EditText etMessage = view.findViewById(R.id.etMessage);
-        Button btnSend = view.findViewById(R.id.btnSend);
+        ImageButton btnSend = view.findViewById(R.id.btnSend);
 
         btnSend.setOnClickListener(v -> {
             String msg = etMessage.getText().toString().trim();
@@ -63,5 +76,15 @@ public class ChatDialogFragment extends DialogFragment {
         tv.setLayoutParams(params);
 
         container.addView(tv);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
+            getDialog().getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 }
