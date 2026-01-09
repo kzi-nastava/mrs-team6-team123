@@ -6,7 +6,6 @@
 .content-wrapper {
   display: flex;
   height: 100%;
-  overflow: hidden;
 }
 
 .right-panel {
@@ -14,4 +13,15 @@
   padding: 20px;
   background-color: #ffffff;
   overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .content-wrapper {
+    flex-direction: column; 
+  }
+
+  .right-panel {
+    padding: 12px;
+    height: auto;
+  }
 }

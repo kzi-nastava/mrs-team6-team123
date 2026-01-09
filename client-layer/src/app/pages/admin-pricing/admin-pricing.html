@@ -1,0 +1,28 @@
+<div class="page">
+    <h1>Pricing</h1>
+    <table class="pricing-table">
+        <thead>
+            <tr>
+                <th>Vehicle type</th>
+                <th>Price</th>
+                <th>New price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let price of prices">
+                <td>{{ price.vehicleType }}</td>
+                <td>{{ price.price }}</td>
+                <td class="new-price-cell">
+                    <input
+                        type="number"
+                        [(ngModel)]="price.newPrice"
+                        placeholder="Enter new price"
+                    />
+                    <button (click)="confirmPrice(price)">
+                        save
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
