@@ -9,6 +9,7 @@ import { RegisterComponent } from './pages/auth/register/register';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password';
 import { AdminHomeComponent } from './pages/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
+import { RateRideComponent } from './components/rate-ride/rate-ride';
 import { AdminPricingComponent } from './pages/admin-pricing/admin-pricing';
 
 export const routes: Routes = [
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
   { path: 'admin-home', component: AdminHomeComponent},
-  { path: 'track-ride-page', component: TrackRidePageComponent},
+  { path: 'track-ride-page', component: TrackRidePageComponent },
+  { path: 'rate-ride', component: RateRideComponent },
   { path: 'admin-pricing', component: AdminPricingComponent }
 ];

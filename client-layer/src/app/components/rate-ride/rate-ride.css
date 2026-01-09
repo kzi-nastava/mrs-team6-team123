@@ -1,0 +1,66 @@
+.rate-dialog {
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    display: block;
+}
+
+.rating-section {
+  margin-bottom: 15px;
+}
+
+.stars {
+  font-size: 24px;
+  color: #f1c40f;
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.comment-section textarea {
+  width: 90%;
+  height: 80px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: none;
+  font-size: 14px;
+  margin: auto;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+button {
+  display: block;
+  width: 150px;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+.rate-btn {
+    background-color: #618762;
+}
+
+.rate-btn:hover {
+  background-color: #436744;
+}
+
+.cancel-btn {
+  background-color: #575757;
+  color: #D9D9D9
+}
+
+.cancel-btn:hover {
+  background-color: rgb(71, 71, 71);
+  color: #D9D9D9;
+}
