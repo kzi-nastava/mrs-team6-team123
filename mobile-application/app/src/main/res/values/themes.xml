@@ -21,6 +21,9 @@
         <item name="colorSurfaceContainer">@color/gray</item>
         <item name="colorSurfaceContainerHigh">@color/gray_dark</item>
 
+        <item name="colorButtonNormal">@color/green</item>
+        <item name="colorTertiaryContainer">@color/gray_dark_night</item>
+
     </style>
 
     <style name="Theme.Mobileapplication" parent="Base.Theme.Mobileapplication" />

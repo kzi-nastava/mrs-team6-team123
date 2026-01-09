@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorSurface">
+
+    <LinearLayout
+        android:id="@+id/ride_details_view"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <TextView
+            android:text="@string/ride_details"
+            style="@style/TextHeading"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <org.osmdroid.views.MapView
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/container_stats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="18dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:padding="18dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/stats_card_bg">
+
+                <TextView
+                    android:id="@+id/driver_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4 ⭐"
+                    android:fontFamily="@font/nobile_bold"
+                    android:textSize="28sp"
+                    android:textColor="?attr/colorOnPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="driver rating"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/nobile_regular"
+                    android:textColor="?attr/colorOnPrimary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:padding="18dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/stats_card_bg">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/text_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3 ⭐"
+                        android:fontFamily="@font/nobile_bold"
+                        android:textSize="28sp"
+                        android:textColor="?attr/colorOnPrimary" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="vehicle rating"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/nobile_regular"
+                    android:textColor="?attr/colorOnPrimary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginVertical="8dp"
+            android:background="?attr/colorPrimary" />
+
+        <TextView
+            android:text="Boulevard -> University"
+            style="@style/TextSubHeading"/>
+        <TextView
+            android:text="Started at: 09:47"
+            style="@style/TextParagraph"/>
+        <TextView
+            android:text="Ended at: 10:03"
+            style="@style/TextParagraph"/>
+        <TextView
+            android:text="Price: 400"
+            style="@style/TextParagraph"/>
+        <TextView
+            android:text="PANIC: - "
+            style="@style/TextParagraph"/>
+        <TextView
+            android:text="Canceled by: - "
+            style="@style/TextParagraph"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginVertical="8dp"
+            android:background="?attr/colorPrimary" />
+
+        <TextView
+            android:text="Passengers:"
+            style="@style/TextSubHeading"/>
+        <TextView
+            android:text="Jane Doe\nMinnie Mouse\nLily Lily"
+            style="@style/TextParagraph"/>
+
+    </LinearLayout>
+</ScrollView>
