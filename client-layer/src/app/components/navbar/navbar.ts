@@ -57,7 +57,7 @@ export class NavbarComponent {
     { route: '/admin/ride-history', icon: 'history.png' },
     { route: '/admin/drivers', icon: 'drivers.png' },
     { route: '/admin/reports', icon: 'report.png' },
-    { route: '/admin/pricing', icon: 'pricing.png' },
+    { route: '/admin-pricing', icon: 'pricing.png' },
     { route: '/admin/notifications', icon: 'notification.png' },
     { route: '/profile', icon: 'user.png' }
   ]
@@ -68,7 +68,7 @@ export class NavbarComponent {
     id: '1',
     name: 'John Driver',
     email: 'driver@test.com',
-    type: 'driver'
+    type: 'admin'
   });
 
   // this.authService.login({
