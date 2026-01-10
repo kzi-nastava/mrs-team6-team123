@@ -6,7 +6,15 @@
   </thead>
   <tbody>
     <tr *ngFor="let ride of rides">
-      <td *ngFor="let col of columns">{{ ride[col] }}</td>
+      <td *ngFor="let col of columns" [attr.data-label]="col">
+          <button *ngIf="col === 'Route'" class="btn-route" (click)="showRoute()">
+            view
+          </button>
+
+          <span *ngIf="col !== 'Route'">
+            {{ ride[col] }}
+          </span>
+      </td>
     </tr>
   </tbody>
 </table>

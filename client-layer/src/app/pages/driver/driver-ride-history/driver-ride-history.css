@@ -1,5 +1,6 @@
 .page {
   padding: 24px;
+  max-width: 100%;
 }
 
 h1 {

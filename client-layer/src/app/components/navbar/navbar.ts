@@ -45,7 +45,7 @@ export class NavbarComponent {
 
   driverLinks = [
     { route: '/driver/home', icon: 'home.png' },
-    { route: '/driver/ride-history', icon: 'history.png' },
+    { route: '/driver/driver-ride-history', icon: 'history.png' },
     { route: '/driver/favorites', icon: 'favorites.png' },
     { route: '/driver/notifications', icon: 'notification.png' },
     { route: '/driver/reports', icon: 'report.png' },
