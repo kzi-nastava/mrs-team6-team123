@@ -3,6 +3,7 @@ package com.example.mobile_application;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
+    private ImageButton chatButton;
 
     private boolean isLoggedIn = true;
     private String userRole = "driver"; // "driver" | "admin"
@@ -33,6 +35,19 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerMenuView = findViewById(R.id.navigation_view);
         bottomNavigationView = findViewById(R.id.navbar);
+        chatButton = findViewById(R.id.btnChat);
+
+        chatButton.setOnClickListener(v -> {
+            if ("admin".equals(userRole)) {
+                ChatListDialogFragment listDialog = new ChatListDialogFragment();
+                listDialog.show(getSupportFragmentManager(), "ChatListDialog");
+            } else {
+                ChatDialogFragment dialog = ChatDialogFragment.newInstance(
+                        getString(R.string.support_chat)
+                );
+                dialog.show(getSupportFragmentManager(), "ChatDialog");
+            }
+        });
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
@@ -45,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!isLoggedIn) {
+            chatButton.setVisibility(View.GONE);
             menu = bottomNavigationView.getMenu();
             menu.findItem(R.id.nav_hamburger).setVisible(false);
         }
