@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
     private boolean isLoggedIn = true;
-    private String userRole = "driver"; // "driver" | "admin"
+    private String userRole = "user"; // "driver" | "admin"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
