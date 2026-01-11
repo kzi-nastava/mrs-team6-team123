@@ -13,26 +13,45 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageButton;
-import android.text.InputType;
-import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 
 import androidx.fragment.app.Fragment;
 
+/**
+ * ProfileFragment manages the user profile display
+ * Supports two modes: view mode (read-only) and edit mode
+ */
 public class ProfileFragment extends Fragment {
 
     private static final String ARG_USER_ROLE = "userRole";
 
     private String mUserRole;
 
+    // Driver-specific containers
     private LinearLayout statsContainer;
     private TextView textActiveHours;
     private LinearLayout vehicleContainer;
-    private EditText editFullName, editAddress, editPhone;
+
+    // Personal info fields
+    private EditText editFullName;
+    private EditText editAddress;
+    private EditText editPhone;
+
+    // Profile image and controls
     private ImageView imageProfile;
     private ImageButton btnChangePhoto;
+    private Button btnEdit;
+    private Button btnSave;
+
+    // Image picker for profile photo selection
     private ActivityResultLauncher<String> imagePickerLauncher;
+
     private boolean isDriver = false;
+    private boolean isEditMode = false;
+
+    // Store original paddings
+    private int[] fullNamePadding;
+    private int[] addressPadding;
+    private int[] phonePadding;
 
     public ProfileFragment() {
     }
@@ -48,7 +67,11 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inicijalizacija Image Picker-a
+        initializeImagePicker();
+        extractUserRoleFromArguments();
+    }
+
+    private void initializeImagePicker() {
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -56,7 +79,9 @@ public class ProfileFragment extends Fragment {
                         imageProfile.setImageURI(uri);
                     }
                 });
+    }
 
+    private void extractUserRoleFromArguments() {
         if (getArguments() != null) {
             mUserRole = getArguments().getString(ARG_USER_ROLE);
         }
@@ -67,103 +92,153 @@ public class ProfileFragment extends Fragment {
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        statsContainer = view.findViewById(R.id.container_stats);
-        textActiveHours = view.findViewById(R.id.text_active_hours);
-        vehicleContainer = view.findViewById(R.id.container_vehicle);
+        initializeUIComponents(view);
+        captureOriginalPaddings();
+        setupEventListeners();
 
-        editFullName = view.findViewById(R.id.edit_first_name);
-        editAddress = view.findViewById(R.id.edit_address);
-        editPhone = view.findViewById(R.id.edit_phone);
-        imageProfile = view.findViewById(R.id.image_profile);
-        btnChangePhoto = view.findViewById(R.id.btn_change_photo);
-
-        // Postavljanje listener-a za promenu slike profila
-        imageProfile.setOnClickListener(v -> {
-            imagePickerLauncher.launch("image/*");
-        });
-
-        btnChangePhoto.setOnClickListener(v -> {
-            imagePickerLauncher.launch("image/*");
-        });
-
-        // Listener za dugme za promenu lozinke
-        Button btnChangePassword = view.findViewById(R.id.btn_change_password);
-        btnChangePassword.setOnClickListener(v -> {
-            showChangePasswordDialog();
-        });
-
-        // Determine role
+        // Configure UI based on user role
         isDriver = "driver".equalsIgnoreCase(mUserRole);
         updateRoleSpecificUI();
 
-        // view-only mode
-        applyViewModeStyle(editFullName);
-        applyViewModeStyle(editAddress);
-        applyViewModeStyle(editPhone);
+        applyViewModeStyle(editFullName, fullNamePadding);
+        applyViewModeStyle(editAddress, addressPadding);
+        applyViewModeStyle(editPhone, phonePadding);
 
         return view;
     }
 
+    private void initializeUIComponents(View view) {
+        // Driver-specific containers
+        statsContainer = view.findViewById(R.id.container_stats);
+        textActiveHours = view.findViewById(R.id.text_active_hours);
+        vehicleContainer = view.findViewById(R.id.container_vehicle);
+
+        // Personal info fields
+        editFullName = view.findViewById(R.id.edit_first_name);
+        editAddress = view.findViewById(R.id.edit_address);
+        editPhone = view.findViewById(R.id.edit_phone);
+
+        // Profile image and controls
+        imageProfile = view.findViewById(R.id.image_profile);
+        btnChangePhoto = view.findViewById(R.id.btn_change_photo);
+        btnEdit = view.findViewById(R.id.btn_edit);
+        btnSave = view.findViewById(R.id.btn_save);
+    }
+
+    private void captureOriginalPaddings() {
+        fullNamePadding = storePaddingValues(editFullName);
+        addressPadding = storePaddingValues(editAddress);
+        phonePadding = storePaddingValues(editPhone);
+    }
+
+    private int[] storePaddingValues(EditText editText) {
+        return new int[] {
+                editText.getPaddingLeft(),
+                editText.getPaddingTop(),
+                editText.getPaddingRight(),
+                editText.getPaddingBottom()
+        };
+    }
+
+    /**
+     * Sets up click listeners for all interactive UI elements.
+     */
+    private void setupEventListeners() {
+        imageProfile.setOnClickListener(v -> launchImagePicker());
+        btnChangePhoto.setOnClickListener(v -> launchImagePicker());
+
+        btnEdit.setOnClickListener(v -> toggleEditMode(true));
+        btnSave.setOnClickListener(v -> toggleEditMode(false));
+
+        Button btnChangePassword = imageProfile.getRootView().findViewById(R.id.btn_change_password);
+        btnChangePassword.setOnClickListener(v -> PasswordChangeDialogHelper.showChangePasswordDialog(getContext()));
+    }
+
+    private void launchImagePicker() {
+        imagePickerLauncher.launch("image/*");
+    }
+
     private void updateRoleSpecificUI() {
         if (isDriver) {
-            // Show stats, active hours and vehicle info for drivers
-            if (statsContainer != null)
-                statsContainer.setVisibility(View.VISIBLE);
-            if (textActiveHours != null)
-                textActiveHours.setVisibility(View.VISIBLE);
-            if (vehicleContainer != null)
-                vehicleContainer.setVisibility(View.VISIBLE);
+            showDriverUI();
         } else {
-            // Hide driver-specific sections for regular users
-            if (statsContainer != null)
-                statsContainer.setVisibility(View.GONE);
-            if (textActiveHours != null)
-                textActiveHours.setVisibility(View.GONE);
-            if (vehicleContainer != null)
-                vehicleContainer.setVisibility(View.GONE);
+            hideDriverUI();
         }
     }
 
-    private void showChangePasswordDialog() {
-        View dialogView = LayoutInflater.from(getContext())
-                .inflate(R.layout.dialog_change_password, null);
-
-        EditText oldPass = dialogView.findViewById(R.id.edit_old_password);
-        EditText newPass = dialogView.findViewById(R.id.edit_new_password);
-        EditText confirmPass = dialogView.findViewById(R.id.edit_confirm_password);
-
-        ImageView toggleOldPass = dialogView.findViewById(R.id.toggle_old_password);
-        ImageView toggleNewPass = dialogView.findViewById(R.id.toggle_new_password);
-        ImageView toggleConfirmPass = dialogView.findViewById(R.id.toggle_confirm_password);
-
-        toggleOldPass.setOnClickListener(v -> togglePasswordVisibility(oldPass));
-        toggleNewPass.setOnClickListener(v -> togglePasswordVisibility(newPass));
-        toggleConfirmPass.setOnClickListener(v -> togglePasswordVisibility(confirmPass));
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Change password")
-                .setView(dialogView)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    // todo : validacija i backend poziv
-                    Toast.makeText(requireContext(), "Password changed", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+    private void showDriverUI() {
+        setVisibility(statsContainer, View.VISIBLE);
+        setVisibility(textActiveHours, View.VISIBLE);
+        setVisibility(vehicleContainer, View.VISIBLE);
     }
 
-    private void togglePasswordVisibility(EditText editText) {
-        int currentType = editText.getInputType();
-        if (currentType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
-            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        } else {
-            editText.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+    private void hideDriverUI() {
+        setVisibility(statsContainer, View.GONE);
+        setVisibility(textActiveHours, View.GONE);
+        setVisibility(vehicleContainer, View.GONE);
+    }
+
+    private void setVisibility(View view, int visibility) {
+        if (view != null) {
+            view.setVisibility(visibility);
         }
-        editText.setSelection(editText.getText().length());
     }
 
-    private void applyViewModeStyle(EditText editText) {
+    private void restorePadding(EditText editText, int[] paddingValues) {
+        if (paddingValues != null && paddingValues.length == 4) {
+            editText.setPadding(paddingValues[0], paddingValues[1], paddingValues[2], paddingValues[3]);
+        }
+    }
+
+    private void toggleEditMode(boolean enabled) {
+        isEditMode = enabled;
+
+        if (enabled) {
+            enterEditMode();
+        } else {
+            exitEditMode();
+        }
+    }
+
+    private void enterEditMode() {
+        enableEditFields(true);
+
+        btnEdit.setVisibility(View.GONE);
+        btnSave.setVisibility(View.VISIBLE);
+
+        applyEditModeStyle(editFullName);
+        applyEditModeStyle(editAddress);
+        applyEditModeStyle(editPhone);
+    }
+
+    private void exitEditMode() {
+        enableEditFields(false);
+
+        btnEdit.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.GONE);
+
+        applyViewModeStyle(editFullName, fullNamePadding);
+        applyViewModeStyle(editAddress, addressPadding);
+        applyViewModeStyle(editPhone, phonePadding);
+    }
+
+    private void enableEditFields(boolean enabled) {
+        editFullName.setEnabled(enabled);
+        editAddress.setEnabled(enabled);
+        editPhone.setEnabled(enabled);
+    }
+
+    private void applyViewModeStyle(EditText editText, int[] originalPadding) {
         editText.setEnabled(false);
         editText.setBackground(null);
+        editText.setTextColor(getResources().getColor(R.color.black));
+
+        // Restore original paddings
+        restorePadding(editText, originalPadding);
+    }
+
+    private void applyEditModeStyle(EditText editText) {
+        editText.setBackground(getResources().getDrawable(R.drawable.editable_field_bg));
         editText.setTextColor(getResources().getColor(R.color.black));
     }
 }
