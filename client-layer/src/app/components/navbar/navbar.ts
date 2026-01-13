@@ -64,19 +64,19 @@ export class NavbarComponent {
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
-  this.authService.login({
-    id: '1',
-    name: 'John Driver',
-    email: 'driver@test.com',
-    type: 'admin'
-  });
-
   // this.authService.login({
-  //   id: '2',
-  //   name: 'Jane Passenger',
-  //   email: 'passenger@test.com',
-  //   type: 'passenger'
+  //   id: '1',
+  //   name: 'John Driver',
+  //   email: 'driver@test.com',
+  //   type: 'admin'
   // });
+
+  this.authService.login({
+    id: '2',
+    name: 'Jane Passenger',
+    email: 'passenger@test.com',
+    type: 'passenger'
+  });
 
     effect(() => {
       const userType = this.authService.userType();
