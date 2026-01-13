@@ -1,0 +1,5 @@
+<!--drawable da profilna bude krug-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@android:color/transparent"/>
+</shape>
