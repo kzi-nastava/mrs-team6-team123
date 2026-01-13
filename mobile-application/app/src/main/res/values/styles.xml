@@ -16,6 +16,7 @@
     </style>
     <style name="ChatMessageReceived" parent="ChatMessageBase">
         <item name="android:background">@drawable/received_message_bg</item>
+    </style>
     <style name="Widget.SecondaryButton" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>

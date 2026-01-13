@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton chatButton;
 
     private boolean isLoggedIn = true;
-    private String userRole = "user"; // "driver" | "admin"
+    private String userRole = "driver"; // "driver" | "admin"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 listDialog.show(getSupportFragmentManager(), "ChatListDialog");
             } else {
                 ChatDialogFragment dialog = ChatDialogFragment.newInstance(
-                        getString(R.string.support_chat)
-                );
+                        getString(R.string.support_chat));
                 dialog.show(getSupportFragmentManager(), "ChatDialog");
             }
         });
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
         Menu menu = drawerMenuView.getMenu();
-        if (userRole.equals("admin")) {
+        if (userRole.equals("admin") || userRole.equals("driver")) {
             menu.findItem(R.id.favorites).setVisible(false);
         } else if (userRole.equals("user") || userRole.equals("driver")) {
             menu.findItem(R.id.drivers).setVisible(false);
@@ -110,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = null;
             if (id == R.id.history) {
                 fragment = new RideHistoryFragment();
+            } else if (id == R.id.favorites) {
+                fragment = new FavoriteRoutesFragment();
             }
 
             if (fragment != null) {
