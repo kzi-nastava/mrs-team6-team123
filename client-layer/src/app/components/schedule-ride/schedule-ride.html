@@ -45,9 +45,17 @@
         </div>
       </div>
 
-
       <button (click)="addPassenger()" class="btn-add-item">+ add passenger</button>
-
+      <div *ngFor="let passenger of passengers; let i = index" class="passenger-item">
+        <input
+          type="text"
+          [(ngModel)]="passenger.name"
+          (ngModelChange)="updatePassengerName(i, passenger.name)"
+          placeholder="passenger name"
+          class="passenger-input"
+        />
+        <button (click)="removePassenger()" class="btn-remove-passenger">✕</button>
+      </div>
       <textarea
         [(ngModel)]="additionalInstructions"
         placeholder="Additional instructions..."
@@ -102,7 +110,7 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <button (click)="bookRide()" class="btn-book">Book Ride</button>
+    <button (click)="bookRide()" class="btn-book">Book Ride</button>
+  </div>
 </div>
