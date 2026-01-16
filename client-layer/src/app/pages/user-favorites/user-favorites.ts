@@ -42,4 +42,9 @@ export class UserFavoritesComponent {
       deleteText: 'Remove'
     }
   ];
+
+  removeFavorite(index: number) {
+    this.favorites.splice(index, 1);
+    this.favorites = [...this.favorites];
+  }
 }

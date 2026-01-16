@@ -16,6 +16,20 @@ export class RouteCardComponent {
     deleteText: string;
   };
 
+  //when book button pressed we need pop up a booking confirmation
+
+  bookFavorite() {
+    console.log('Book ride clicked');
+    alert('Ride booked successfully!');
+    this.book.emit();
+  }
+
+  deleteFavorite() {
+    console.log('Delete favorite clicked');
+    alert('Favorite route deleted.');
+    this.delete.emit();
+  }
+
   @Output() book = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
 }
