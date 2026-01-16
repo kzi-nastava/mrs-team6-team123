@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, Output } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
+import { ReportDriverComponent } from '../../report-driver/report-driver';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-ride-actions',
@@ -10,7 +12,10 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./ride-actions.css'],
 })
 export class RideActionsComponent {
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    private dialog: MatDialog
+  ) {}
 
   userType = computed(() => this.auth.getUserType());
 
@@ -41,7 +46,16 @@ export class RideActionsComponent {
   }
 
   onReport() {
-    this.reportClicked.emit();
+    const dialogRef = this.dialog.open(ReportDriverComponent, {
+      width: '350px',
+      height: '350px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Report submitted:', result);
+      }
+    });
   }
 
   onGoInactive() {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             android:layout_marginEnd="16dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="#F8F9FA">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -34,7 +34,7 @@
                     android:layout_gravity="center"
                     android:layout_marginBottom="28dp"
                     android:text="Login"
-                    android:textColor="#2C3E50"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="28sp"
                     android:textStyle="bold" />
 
@@ -46,7 +46,7 @@
                     app:boxCornerRadiusBottomStart="10dp"
                     app:boxCornerRadiusTopEnd="10dp"
                     app:boxCornerRadiusTopStart="10dp"
-                    app:boxStrokeColor="#5D7C5B">
+                    app:boxStrokeColor="?attr/colorPrimary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/email_input"
@@ -55,7 +55,8 @@
                         android:hint="Email"
                         android:inputType="textEmailAddress"
                         android:padding="12dp"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -66,7 +67,7 @@
                     app:boxCornerRadiusBottomStart="10dp"
                     app:boxCornerRadiusTopEnd="10dp"
                     app:boxCornerRadiusTopStart="10dp"
-                    app:boxStrokeColor="#5D7C5B"
+                    app:boxStrokeColor="?attr/colorPrimary"
                     app:endIconMode="password_toggle">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -76,7 +77,8 @@
                         android:hint="Password"
                         android:inputType="textPassword"
                         android:padding="12dp"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
@@ -85,10 +87,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="16dp"
-                    android:backgroundTint="#5D7C5B"
+                    android:backgroundTint="?attr/colorPrimary"
                     android:padding="12dp"
                     android:text="Login"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/white"
                     android:textSize="15sp"
                     app:cornerRadius="24dp" />
 
@@ -105,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Forgot password?"
-                        android:textColor="#5D7C5B"
+                        android:textColor="?attr/colorPrimary"
                         android:textSize="14sp"
                         android:gravity="start"
                         android:clickable="true"
@@ -119,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Register"
-                        android:textColor="#5D7C5B"
+                        android:textColor="?attr/colorPrimary"
                         android:textSize="14sp"
                         android:gravity="end"
                         android:clickable="true"

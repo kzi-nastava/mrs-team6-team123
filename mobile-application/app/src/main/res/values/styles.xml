@@ -2,7 +2,44 @@
 <resources>
     <!-- Primary green button style used across the app -->
     <style name="Widget.PrimaryButton" parent="Widget.Material3.Button">
-        <item name="android:backgroundTint">@color/green</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+    <style name="ChatMessageBase">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:maxWidth">260dp</item>
+        <item name="android:fontFamily">@font/nobile_regular</item>
+    </style>
+    <style name="ChatMessageSent" parent="ChatMessageBase">
+        <item name="android:background">@drawable/sent_message_bg</item>
+    </style>
+    <style name="ChatMessageReceived" parent="ChatMessageBase">
+        <item name="android:background">@drawable/received_message_bg</item>
+    </style>
+    <style name="Widget.SecondaryButton" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">?attr/colorTertiaryContainer</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+    <style name="TextHeading">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">30dp</item>
+    </style>
+    <style name="TextSubHeading">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+    <style name="TextParagraph">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/nobile_regular</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">18dp</item>
     </style>
 </resources>

@@ -3,21 +3,16 @@ package com.example.mobile_application;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ImageButton;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_application.map.MapFragment;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -26,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
+    private ImageButton chatButton;
 
     private boolean isLoggedIn = true;
     private String userRole = "driver"; // "driver" | "admin"
@@ -39,11 +35,23 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerMenuView = findViewById(R.id.navigation_view);
         bottomNavigationView = findViewById(R.id.navbar);
+        chatButton = findViewById(R.id.btnChat);
+
+        chatButton.setOnClickListener(v -> {
+            if ("admin".equals(userRole)) {
+                ChatListDialogFragment listDialog = new ChatListDialogFragment();
+                listDialog.show(getSupportFragmentManager(), "ChatListDialog");
+            } else {
+                ChatDialogFragment dialog = ChatDialogFragment.newInstance(
+                        getString(R.string.support_chat));
+                dialog.show(getSupportFragmentManager(), "ChatDialog");
+            }
+        });
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
         Menu menu = drawerMenuView.getMenu();
-        if (userRole.equals("admin")) {
+        if (userRole.equals("admin") || userRole.equals("driver")) {
             menu.findItem(R.id.favorites).setVisible(false);
         } else if (userRole.equals("user") || userRole.equals("driver")) {
             menu.findItem(R.id.drivers).setVisible(false);
@@ -51,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!isLoggedIn) {
+            chatButton.setVisibility(View.GONE);
             menu = bottomNavigationView.getMenu();
             menu.findItem(R.id.nav_hamburger).setVisible(false);
         }
@@ -100,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = null;
             if (id == R.id.history) {
                 fragment = new RideHistoryFragment();
+            } else if (id == R.id.favorites) {
+                fragment = new FavoriteRoutesFragment();
             }
 
             if (fragment != null) {

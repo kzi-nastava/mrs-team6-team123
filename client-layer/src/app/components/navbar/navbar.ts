@@ -45,7 +45,7 @@ export class NavbarComponent {
 
   driverLinks = [
     { route: '/driver/home', icon: 'home.png' },
-    { route: '/driver/ride-history', icon: 'history.png' },
+    { route: '/driver/driver-ride-history', icon: 'history.png' },
     { route: '/driver/favorites', icon: 'favorites.png' },
     { route: '/driver/notifications', icon: 'notification.png' },
     { route: '/driver/reports', icon: 'report.png' },
@@ -57,26 +57,26 @@ export class NavbarComponent {
     { route: '/admin/ride-history', icon: 'history.png' },
     { route: '/admin/drivers', icon: 'drivers.png' },
     { route: '/admin/reports', icon: 'report.png' },
-    { route: '/admin/pricing', icon: 'pricing.png' },
+    { route: '/admin-pricing', icon: 'pricing.png' },
     { route: '/admin/notifications', icon: 'notification.png' },
     { route: '/profile', icon: 'user.png' }
   ]
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
-  this.authService.login({
-    id: '1',
-    name: 'John Driver',
-    email: 'driver@test.com',
-    type: 'driver'
-  });
-
   // this.authService.login({
-  //   id: '2',
-  //   name: 'Jane Passenger',
-  //   email: 'passenger@test.com',
-  //   type: 'passenger'
+  //   id: '1',
+  //   name: 'John Driver',
+  //   email: 'driver@test.com',
+  //   type: 'admin'
   // });
+
+  this.authService.login({
+    id: '2',
+    name: 'Jane Passenger',
+    email: 'passenger@test.com',
+    type: 'passenger'
+  });
 
     effect(() => {
       const userType = this.authService.userType();

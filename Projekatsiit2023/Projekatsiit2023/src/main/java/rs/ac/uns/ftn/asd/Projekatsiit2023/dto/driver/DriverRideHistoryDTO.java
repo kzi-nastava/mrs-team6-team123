@@ -1,0 +1,25 @@
+package rs.ac.uns.ftn.asd.Projekatsiit2023.dto.driver;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Setter
+@Getter
+public class DriverRideHistoryDTO {
+    private Long rideId;
+    private List<Long> passengerIds;
+    private String startLocation;
+    private String endLocation;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
+    private double price;
+    private boolean panicTriggered;
+    private Long canceledByUserId;
+
+    public DriverRideHistoryDTO() {
+    }
+
+}

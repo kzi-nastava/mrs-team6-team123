@@ -4,7 +4,7 @@
     android:id="@+id/main_toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@color/gray"
+    android:background="?attr/colorSurfaceContainer"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:elevation="4dp">
@@ -20,7 +20,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/logo"
-            android:contentDescription="Logo" />
+            android:contentDescription="@string/logo" />
 
         <Space
             android:layout_width="8dp"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/taxi_name"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/emblema_one_regular"
             android:textSize="20sp"
             android:textStyle="bold"/>

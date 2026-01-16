@@ -2,8 +2,9 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.UserProfileRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.UserProfileResponseDTO;
+
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.user.UserProfileRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dto.user.UserProfileResponseDTO;
 
 import java.net.URI;
 import java.util.ArrayList;

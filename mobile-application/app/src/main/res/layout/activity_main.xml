@@ -10,7 +10,8 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface">
 
         <include
             layout="@layout/view_toolbar" />
@@ -19,7 +20,18 @@
             android:id="@+id/main_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/btnChat"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitCenter"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="10dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/chat"
+            android:src="@drawable/chat" />
 
         <include
             layout="@layout/view_navbar" />
@@ -32,7 +44,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
-        android:background="@color/white"
-        app:itemTextColor="@color/black"/>
+        android:background="?attr/colorSurface"
+        app:itemTextColor="?attr/colorOnSurface"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

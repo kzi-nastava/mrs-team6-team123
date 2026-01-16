@@ -1,6 +1,6 @@
 .chat-window {
   position: fixed;
-  bottom: 50px; /* iznad dugmeta */
+  bottom: 50px;
   right: 50px;
   width: 350px;
   height: 500px;
@@ -88,4 +88,11 @@
 
 .chat-input button:hover {
   background-color: #436744;
+}
+
+@media (max-width: 767px) {
+  .chat-window {
+    width: 75%;
+    height: 50%;
+  }
 }
