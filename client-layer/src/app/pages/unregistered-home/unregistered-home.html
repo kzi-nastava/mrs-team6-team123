@@ -3,12 +3,29 @@
     <app-map></app-map>
 
     <div class="right-panel">
-        <!-- COMPONENT FOR RIDE ESTIMATION -->
-        <button 
-          (click)="openRateDialog()" 
-          class="rate-ride-button">
-          rate
-        </button>
+      <div class="welcome-section">
+        <h2>Welcome</h2>
+        <p>See available vehicles on the map and get instant ride estimates</p>
+      </div>
+
+      <button 
+        mat-raised-button 
+        color="primary"
+        class="estimate-ride-btn"
+        (click)="openEstimateDialog()">
+        <span class="btn-icon">🚗</span>
+        Estimate Ride
+      </button>
+
+      <button 
+        mat-raised-button 
+        color="accent"
+        class="rate-ride-btn"
+        (click)="openRateDialog()">
+        <span class="btn-icon">⭐</span>
+        Rate Ride
+      </button>
+
     </div>
   </div>
 </div>

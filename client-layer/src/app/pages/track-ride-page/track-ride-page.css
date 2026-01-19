@@ -1,6 +1,7 @@
-.track-ride {
+.track-ride-container {
   height: calc(100vh - 64px);
   overflow: hidden;
+  position: relative;
 }
 
 .content-wrapper {
@@ -10,9 +11,69 @@
 
 .right-panel {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   background-color: #ffffff;
   overflow-y: auto;
+  max-width: 450px;
+}
+
+.actions-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 16px;
+}
+
+.actions-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+}
+
+.action-btn {
+  width: 100%;
+  height: 48px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  border-radius: 24px !important;
+  margin-bottom: 12px;
+}
+
+.info-text {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.info-text p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.support-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: #e8f5e9;
+  border-radius: 16px;
+  border: 2px solid #4caf50;
+}
+
+.support-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0 0 8px 0;
+}
+
+.support-section p {
+  margin: 0;
+  font-size: 14px;
+  color: #2e7d32;
+  line-height: 1.5;
 }
 
 @media (max-width: 767px) {
@@ -21,7 +82,19 @@
   }
 
   .right-panel {
-    padding: 12px;
+    padding: 16px;
     height: auto;
+    max-width: 100%;
+    padding-bottom: 80px; /* Space for floating panic button */
+  }
+
+  .actions-section {
+    margin-top: 16px;
+    padding: 16px;
+  }
+
+  .support-section {
+    margin-top: 16px;
+    padding: 16px;
   }
 }
