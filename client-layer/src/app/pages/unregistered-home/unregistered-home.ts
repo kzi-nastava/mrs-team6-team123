@@ -7,7 +7,7 @@ import { RateRideComponent } from '../../components/rate-ride/rate-ride';
 @Component({
   selector: 'app-unregistered-home',
   standalone: true,
-  imports: [MapComponent, RateRideComponent],
+  imports: [MapComponent],
   templateUrl: './unregistered-home.html',
   styleUrls: ['./unregistered-home.css'],
 })
