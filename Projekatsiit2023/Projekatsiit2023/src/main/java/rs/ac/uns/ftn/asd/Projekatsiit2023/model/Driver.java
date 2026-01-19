@@ -1,29 +1,28 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.model;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 
 @Setter
 @Getter
-public class Driver {
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private String status; // PENDING_ACTIVATION, ACTIVE, INACTIVE, BLOCKED
+@NoArgsConstructor
+
+@Entity
+@Table(name = "drivers")
+public class Driver extends User {
+    @Column(nullable = false)
+    private DriverStatus status;
+
+    @Column(nullable = false)
     private boolean active; // current availability
+
+    @Column(nullable = false)
     private int activeMinutesLast24h; // working time
 
-    // Vehicle
-    private String vehicleModel;
-    private String vehicleType;
-    private String licensePlate;
-    private int seats;
-    private boolean babyTransport;
-    private boolean petTransport;
-
-    public Driver() {
-    }
-
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "vehicle_id", unique = true)
+    private Vehicle vehicle;
 }
