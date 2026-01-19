@@ -1,0 +1,71 @@
+<div class="cancel-dialog" *ngIf="!showSuccess">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Cancel Ride</h2>
+    <button class="close-btn" (click)="onClose()">×</button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <div class="ride-info">
+      <h3>Current Ride Details</h3>
+      
+      <div class="info-card">
+        <div class="info-item">
+          <span class="label">From:</span>
+          <span class="value">{{ rideDetails.startLocation }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">To:</span>
+          <span class="value">{{ rideDetails.destination }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Scheduled time:</span>
+          <span class="value">{{ rideDetails.scheduledTime }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Driver:</span>
+          <span class="value">{{ rideDetails.driverName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Reason for cancellation</mat-label>
+      <textarea
+        matInput
+        placeholder="Please provide a reason for canceling this ride"
+        [(ngModel)]="cancellationReason"
+        rows="4"
+      ></textarea>
+    </mat-form-field>
+
+    <div class="warning-box">
+      <p>⚠️ Note: You can only cancel a ride 10 minutes before its scheduled start time.</p>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button 
+      mat-raised-button 
+      class="secondary-btn"
+      (click)="onClose()">
+      Go Back
+    </button>
+    <button 
+      mat-raised-button 
+      color="warn"
+      (click)="cancelRide()">
+      Cancel Ride
+    </button>
+  </div>
+</div>
+
+<div class="success-overlay" *ngIf="showSuccess">
+  <div class="success-card">
+    <span class="success-icon">✓</span>
+    <h3>Ride Canceled Successfully</h3>
+    <p>Your ride has been canceled. You will receive a confirmation email shortly.</p>
+  </div>
+</div>

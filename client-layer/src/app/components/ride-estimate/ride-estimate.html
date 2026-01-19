@@ -1,0 +1,79 @@
+<div class="estimate-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>Estimate Ride</h2>
+    <button class="close-btn" (click)="onClose()">×</button>
+  </div>
+
+  <div mat-dialog-content class="modal-content">
+    <div class="estimate-form" *ngIf="!showResult">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Starting location</mat-label>
+        <input 
+          matInput 
+          placeholder="Enter starting address"
+          [(ngModel)]="startLocation"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Destination</mat-label>
+        <input 
+          matInput 
+          placeholder="Enter destination address"
+          [(ngModel)]="destination"
+        />
+      </mat-form-field>
+
+      <button 
+        mat-raised-button 
+        color="primary" 
+        class="estimate-btn"
+        (click)="calculateEstimate()">
+        Calculate Estimate
+      </button>
+    </div>
+
+    <div class="estimate-result" *ngIf="showResult">
+      <div class="result-header">
+        <h3>Ride Estimate</h3>
+      </div>
+      
+      <div class="result-card">
+        <div class="result-item">
+          <span class="label">Distance:</span>
+          <span class="value">{{ estimatedDistance }} km</span>
+        </div>
+        
+        <div class="result-item">
+          <span class="label">Estimated time:</span>
+          <span class="value">{{ estimatedTime }} minutes</span>
+        </div>
+        
+        <div class="result-item">
+          <span class="label">Estimated price:</span>
+          <span class="value price">{{ estimatedPrice }} RSD</span>
+        </div>
+      </div>
+
+      <div class="map-preview">
+        <p class="map-placeholder">🗺️ Map showing selected route would appear here</p>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          mat-raised-button 
+          class="secondary-btn"
+          (click)="showResult = false">
+          Change Route
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="onBookRide()"
+          *ngIf="data?.isRegistered">
+          Book This Ride
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
