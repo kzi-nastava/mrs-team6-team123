@@ -44,7 +44,7 @@ export class ScheduleRideComponent {
 
   vehicleOptions = [
     { value: 'standard', label: 'Standard' },
-    { value: 'luxury', label: 'Comfort' },
+    { value: 'luxury', label: 'Luxury' },
     { value: 'van', label: 'Van' }
   ];
 
