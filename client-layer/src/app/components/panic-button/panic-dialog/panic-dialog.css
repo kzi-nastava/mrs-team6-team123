@@ -1,0 +1,268 @@
+.panic-dialog {
+  min-width: 550px;
+  max-width: 650px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+}
+
+.close-btn:hover {
+  color: #666;
+}
+
+.dialog-content {
+  padding: 24px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.info-box {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.info-box h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+}
+
+.info-box ul {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.info-box li {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.current-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.current-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+}
+
+.info-item .icon {
+  font-size: 20px;
+}
+
+.info-item .label {
+  font-size: 12px;
+  color: #999;
+  margin: 0 0 4px 0;
+}
+
+.info-item .value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 0;
+}
+
+.warning-box {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.warning-box p {
+  margin: 0;
+  font-size: 13px;
+  color: #856404;
+}
+
+/* Aktivirani PANIC stil */
+.panic-activated {
+  text-align: center;
+}
+
+.alert-animation {
+  width: 80px;
+  height: 80px;
+  margin: 20px auto;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.panic-activated h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.status-messages {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #999;
+}
+
+.status-item.completed {
+  color: #5d7c5b;
+  font-weight: 500;
+}
+
+.status-item .check {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  text-align: center;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.help-info {
+  background: #e8f5e9;
+  border: 1px solid #5d7c5b;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.main-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.sub-message {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 12px 0;
+}
+
+.contact-info {
+  font-size: 14px;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.contact-info strong {
+  font-weight: 600;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.activate-btn {
+  background: #dc3545 !important;
+  color: white !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  padding: 12px 28px !important;
+  border-radius: 24px !important;
+  border: none !important;
+  cursor: pointer;
+}
+
+.activate-btn:hover {
+  background: #c82333 !important;
+}
+
+.cancel-panic-btn {
+  padding: 12px 24px !important;
+  border-radius: 24px !important;
+  border: 2px solid #6c757d !important;
+  background: white !important;
+  color: #6c757d !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+}
+
+.cancel-panic-btn:hover {
+  background: #f8f9fa !important;
+}
+
+@media (max-width: 600px) {
+  .panic-dialog {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

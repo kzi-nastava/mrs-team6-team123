@@ -1,0 +1,10 @@
+<button 
+  class="panic-btn"
+  [class.floating]="buttonStyle === 'floating'"
+  [class.inline]="buttonStyle === 'inline'"
+  (click)="openPanicDialog()"
+  mat-raised-button
+  color="warn">
+  <span class="panic-icon">🚨</span>
+  <span class="panic-text">PANIC</span>
+</button>
