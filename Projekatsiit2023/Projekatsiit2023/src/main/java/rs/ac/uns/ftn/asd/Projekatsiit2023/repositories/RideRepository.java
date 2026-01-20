@@ -4,6 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 
+import java.util.List;
+
 @Repository
 public interface RideRepository extends JpaRepository<Ride, Long> {
+    List<Ride> findByDriverId(Long driverId);
 }

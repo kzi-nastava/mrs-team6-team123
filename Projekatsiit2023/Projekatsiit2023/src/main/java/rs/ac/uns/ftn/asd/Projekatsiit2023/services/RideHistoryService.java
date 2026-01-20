@@ -1,0 +1,51 @@
+package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
+
+import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRideHistoryDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class RideHistoryService {
+    private final RideRepository rideRepository;
+
+    public RideHistoryService(RideRepository rideRepository) {
+        this.rideRepository = rideRepository;
+    }
+
+    public List<DriverRideHistoryDTO> getDriverRideHistory(Long driverId, LocalDateTime from, LocalDateTime to) {
+        List<Ride> rides = rideRepository.findByDriverId(driverId);
+        List<DriverRideHistoryDTO> rideHistory = new ArrayList<>();
+        for (Ride ride : rides) {
+            if ((from == null || !ride.getDate().isBefore(from)) &&
+                (to == null || !ride.getDate().isAfter(to))) {
+                rideHistory.add(mapRideToRideHistoryDTO(ride));
+            }
+        }
+        return rideHistory;
+    }
+
+    private DriverRideHistoryDTO mapRideToRideHistoryDTO(Ride ride) {
+        DriverRideHistoryDTO dto = new DriverRideHistoryDTO();
+        dto.setRideId(ride.getId());
+        for (var passenger : ride.getPassengers()) {
+            dto.getPassengerIds().add(passenger.getId());
+        }
+        dto.setStartLocation(ride.getStartLocation());
+        dto.setEndLocation(ride.getEndLocation());
+        dto.setStartedAt(ride.getStartedAt());
+        dto.setEndedAt(ride.getEndedAt());
+        dto.setDate(ride.getDate());
+        dto.setPrice(ride.getPrice());
+        dto.setPanicTriggered(ride.isPanicTriggered());
+        if (ride.getCanceledBy() != null) {
+            dto.setCanceledByUserId(ride.getCanceledBy().getId());
+        }
+        dto.setRouteId(ride.getRoute().getId());
+        return dto;
+    }
+}

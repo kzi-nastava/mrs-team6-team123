@@ -49,6 +49,9 @@ public class Ride {
     private LocalDateTime endedAt;
 
     @Column(nullable = false)
+    private LocalDateTime date;
+
+    @Column(nullable = false)
     private double price;
 
     @Column(nullable = false)
@@ -74,4 +77,8 @@ public class Ride {
 
     @Column(nullable = false)
     private boolean driverReported;
+
+    private int driverRating;
+
+    private int vehicleRating;
 }
