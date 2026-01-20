@@ -11,6 +11,9 @@ interface Stop {
   id: string;
   address: string;
 }
+interface Passenger {
+  name: string;
+}
 
 @Component({
   selector: 'app-schedule-ride',
@@ -33,7 +36,7 @@ export class ScheduleRideComponent {
   stops: Stop[] = [];
   hasPet = false;
   hasBaby = false;
-  passengers = 1;
+  passengers: Passenger[] = [];
   vehicleType = 'economy';
   scheduleType = 'now';
   scheduledTime = this.getCurrentTime();
@@ -41,7 +44,7 @@ export class ScheduleRideComponent {
 
   vehicleOptions = [
     { value: 'standard', label: 'Standard' },
-    { value: 'luxury', label: 'Comfort' },
+    { value: 'luxury', label: 'Luxury' },
     { value: 'van', label: 'Van' }
   ];
 
@@ -60,12 +63,19 @@ export class ScheduleRideComponent {
   }
 
   addPassenger() {
-    this.passengers++;
+    const newPassenger: Passenger = {
+      name: ``
+    };
+    this.passengers.push(newPassenger);
   }
 
   removePassenger() {
-    if (this.passengers > 1) {
-      this.passengers--;
+    this.passengers.pop();
+  }
+
+  updatePassengerName(index: number, name: string) {
+    if (this.passengers[index]) {
+      this.passengers[index].name = name;
     }
   }
 

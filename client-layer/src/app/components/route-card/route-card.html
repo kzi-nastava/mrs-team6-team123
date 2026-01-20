@@ -9,8 +9,14 @@
   </div>
 
   <div class="route-actions">
-    <button class="btn-book" (click)="book.emit()">{{ data.bookText }}</button>
-    <button class="btn-delete" type="button" aria-label="Remove favorite" (click)="delete.emit()">
+    <button class="btn-book" (click)="bookFavorite()">{{ data.bookText }}</button>
+
+    <button
+      class="btn-delete"
+      type="button"
+      aria-label="Remove favorite"
+      (click)="deleteFavorite()"
+    >
       <span class="sr-only">Remove</span>
     </button>
   </div>
