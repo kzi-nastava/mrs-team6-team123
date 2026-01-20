@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRideHistoryDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideHistoryService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -23,14 +24,14 @@ public class RideHistoryController {
     @GetMapping("/{driverId}/rides")
     public ResponseEntity<?> getDriverRideHistory(
             @PathVariable Long driverId,
-            @RequestParam(required = false) LocalDateTime from,
-            @RequestParam(required = false) LocalDateTime to) {
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to) {
         try {
             List<DriverRideHistoryDTO> response = service.getDriverRideHistory(driverId, from, to);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while fetching driver's ride history.");
+                    .body(e);
         }
 
     }

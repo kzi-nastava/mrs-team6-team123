@@ -5,6 +5,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRideHistoryDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class RideHistoryService {
         this.rideRepository = rideRepository;
     }
 
-    public List<DriverRideHistoryDTO> getDriverRideHistory(Long driverId, LocalDateTime from, LocalDateTime to) {
+    public List<DriverRideHistoryDTO> getDriverRideHistory(Long driverId, LocalDate from, LocalDate to) {
         List<Ride> rides = rideRepository.findByDriverId(driverId);
         List<DriverRideHistoryDTO> rideHistory = new ArrayList<>();
         for (Ride ride : rides) {

@@ -4,7 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -12,12 +15,12 @@ import java.util.List;
 @NoArgsConstructor
 public class DriverRideHistoryDTO {
     private Long rideId;
-    private List<Long> passengerIds;
+    private List<Long> passengerIds = new ArrayList<>();
     private String startLocation;
     private String endLocation;
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
-    private LocalDateTime date;
+    private LocalTime startedAt;
+    private LocalTime endedAt;
+    private LocalDate date;
     private double price;
     private boolean panicTriggered;
     private Long canceledByUserId;
