@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -34,7 +36,7 @@ public class Ride {
             joinColumns = @JoinColumn(name = "ride_id"),
             inverseJoinColumns = @JoinColumn(name = "passenger_id")
     )
-    private List<Passenger> passengers;
+    private List<Passenger> passengers = new ArrayList<>();
 
     @Column(nullable = false)
     private String startLocation;
@@ -43,10 +45,19 @@ public class Ride {
     private String endLocation;
 
     @Column(nullable = false)
-    private LocalDateTime startedAt;
+    private double endLatitude;
 
     @Column(nullable = false)
-    private LocalDateTime endedAt;
+    private double endLongitude;
+
+    @Column(nullable = false)
+    private LocalTime startedAt;
+
+    @Column(nullable = false)
+    private LocalTime endedAt;
+
+    @Column(nullable = false)
+    private LocalDate date;
 
     @Column(nullable = false)
     private double price;
@@ -74,4 +85,19 @@ public class Ride {
 
     @Column(nullable = false)
     private boolean driverReported;
+
+    @Column(nullable = false)
+    private boolean rideStopped;
+
+    private double driverRating;
+
+    private double vehicleRating;
+
+    @OneToMany(
+            mappedBy = "ride",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<IrregularityReport> irregularityReports = new ArrayList<>();
 }

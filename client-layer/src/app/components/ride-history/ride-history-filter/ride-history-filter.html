@@ -1,5 +1,6 @@
 <div class="filters">
-  <input type="date" placeholder="From">
-  <input type="date" placeholder="To">
-  <button class="btn">Filter</button>
+  <input type="date" [(ngModel)]="fromDate" placeholder="From">
+  <input type="date" [(ngModel)]="toDate" placeholder="To">
+  <button class="btn" (click)="applyFilter()">Filter</button>
+  <button class="btn-clear" (click)="clearFilter()">Clear</button>
 </div>

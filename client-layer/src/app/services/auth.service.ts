@@ -32,6 +32,6 @@ export class AuthService {
 
   getUserType() {
     //return this.userType();
-    return 'admin';
+    return 'driver';
   }
 }

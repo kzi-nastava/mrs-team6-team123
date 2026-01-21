@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
 
 @Getter
 @Setter
@@ -19,8 +20,9 @@ public class Vehicle {
     @Column(nullable = false)
     private String vehicleModel;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String vehicleType;
+    private VehicleType vehicleType;
 
     @Column(nullable = false, unique = true)
     private String licensePlate;

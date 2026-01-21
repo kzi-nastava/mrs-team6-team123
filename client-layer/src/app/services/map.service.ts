@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
+import 'leaflet-routing-machine';
+
+declare module 'leaflet' {
+  namespace Routing {
+    function control(options: any): any;
+  }
+}
 
 @Injectable({ providedIn: 'root' })
 export class MapService {
@@ -34,6 +41,43 @@ export class MapService {
       marker.addTo(this.map);
       this.vehicleMarkers.set(vehicleId, marker);
     }
+  }
+
+  addRoute(startLat: number, startLng: number, endLat: number, endLng: number) {
+    const start = L.latLng(startLat, startLng);
+    const end = L.latLng(endLat, endLng);
+
+    const routingControl = L.Routing.control({
+      waypoints: [start, end],
+      addWaypoints: false,
+      draggableWaypoints: false,
+      fitSelectedRoutes: true,
+      show: false,
+      lineOptions: {
+        styles: [{ color: '#2abc2f', weight: 5 }]
+      },
+      createMarker: (i: any, wp: any) => {
+        if (i === 0) {
+          return L.marker(wp.latLng, {
+            icon: L.icon({
+              iconUrl: 'start-icon.png',
+              iconSize: [32, 32],
+              iconAnchor: [16, 32]
+            })
+          }).bindPopup('Start Location');
+        }
+
+        return L.marker(wp.latLng, {
+          icon: L.icon({
+            iconUrl: 'end-icon.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+          })
+        }).bindPopup('End Location');
+      }
+    }).addTo(this.map);
+
+    return routingControl;
   }
 
   addPolyline(points: L.LatLngExpression[], options?: L.PolylineOptions) {
