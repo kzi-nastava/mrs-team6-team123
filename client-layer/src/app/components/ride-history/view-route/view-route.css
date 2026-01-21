@@ -34,26 +34,26 @@
   height: 100%;
 }
 
-.passengers {
+.passengers, .reports {
   margin-top: 16px;
   padding: 12px 0;
   border-top: 1px solid #dcdcdc;
   border-bottom: 1px solid #dcdcdc;
 }
 
-.passengers h3 {
+.passengers h3, .reports h3 {
   margin: 0 0 8px 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
 }
 
-.passengers ul {
+.passengers ul, .reports ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.passengers li {
+.passengers li, .reports li {
   padding: 6px 0;
   font-size: 14px;
 }

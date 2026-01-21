@@ -13,4 +13,5 @@ export interface DriverRideHistory {
   startLng: number;
   endLat: number;
   endLng: number;
+  reports: string[];
 }
