@@ -27,6 +27,7 @@ public class RideHistoryService {
                 rideHistory.add(mapRideToRideHistoryDTO(ride));
             }
         }
+        sortByDateDescending(rideHistory);
         return rideHistory;
     }
 
@@ -56,5 +57,9 @@ public class RideHistoryService {
         dto.setEndLat(ride.getEndLatitude());
         dto.setEndLng(ride.getEndLongitude());
         return dto;
+    }
+
+    private void sortByDateDescending(List<DriverRideHistoryDTO> rideHistory) {
+        rideHistory.sort((r1, r2) -> r2.getDate().compareTo(r1.getDate()));
     }
 }
