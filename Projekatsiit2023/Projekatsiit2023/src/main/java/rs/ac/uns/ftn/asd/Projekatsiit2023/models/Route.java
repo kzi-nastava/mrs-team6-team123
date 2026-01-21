@@ -21,4 +21,16 @@ public class Route {
 
     @Column(nullable = false)
     private String endLocation;
+
+    @Column(nullable = false)
+    private double startLatitude;
+
+    @Column(nullable = false)
+    private double startLongitude;
+
+    @Column(nullable = false)
+    private double endLatitude;
+
+    @Column(nullable = false)
+    private double endLongitude;
 }

@@ -6,14 +6,16 @@
   </thead>
   <tbody>
     <tr *ngFor="let ride of rides">
-      <td *ngFor="let col of columns" [attr.data-label]="col">
-          <button *ngIf="col === 'Route'" class="btn-route" (click)="showRoute()">
-            view
-          </button>
+      <td *ngFor="let col of columns">
 
-          <span *ngIf="col !== 'Route'">
-            {{ ride[col] }}
-          </span>
+        <button *ngIf="col === 'Details'" class="btn-route" (click)="showRoute(ride)">
+          view
+        </button>
+
+        <span *ngIf="col !== 'Details'">
+          {{ getRideValue(ride, attributes[col]) }}
+        </span>
+
       </td>
     </tr>
   </tbody>

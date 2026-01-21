@@ -1,5 +1,12 @@
 <div class="page">
   <h1>Ride history</h1>
-  <app-ride-history-filter></app-ride-history-filter>
-  <app-ride-history-table [rides]="rides" [columns]="columns"></app-ride-history-table>
+  <app-ride-history-filter
+    (filterApplied)="loadRideHistory($event)"
+    (filterCleared)="loadRideHistory()">
+  </app-ride-history-filter>
+  <app-ride-history-table 
+    [rides]="rides" 
+    [columns]="columns"
+    [attributes]="attributes">
+  </app-ride-history-table>
 </div>
