@@ -92,4 +92,12 @@ public class Ride {
     private double driverRating;
 
     private double vehicleRating;
+
+    @OneToMany(
+            mappedBy = "ride",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<IrregularityReport> irregularityReports = new ArrayList<>();
 }

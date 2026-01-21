@@ -28,4 +28,5 @@ public class DriverRideHistoryDTO {
     private double startLng;
     private double endLat;
     private double endLng;
+    private List<String> reports = new ArrayList<>();
 }
