@@ -71,18 +71,18 @@ export class NavbarComponent {
   //   type: 'admin'
   // });
 
-  this.authService.login({
-    id: '2',
-    name: 'Jane Passenger',
-    email: 'passenger@test.com',
-    type: 'passenger'
-  });
-  //   this.authService.login({
-  //   id: '3',
-  //   name: 'Lana Admin',
-  //   email: 'admin@test.com',
-  //   type: 'admin'
+  // this.authService.login({
+  //   id: '2',
+  //   name: 'Jane Passenger',
+  //   email: 'passenger@test.com',
+  //   type: 'passenger'
   // });
+    this.authService.login({
+    id: '3',
+    name: 'Lana Admin',
+    email: 'admin@test.com',
+    type: 'admin'
+  });
 
     effect(() => {
       const userType = this.authService.userType();
