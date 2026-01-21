@@ -15,14 +15,17 @@ import java.util.List;
 @NoArgsConstructor
 public class DriverRideHistoryDTO {
     private Long rideId;
-    private List<Long> passengerIds = new ArrayList<>();
+    private List<String> passengers = new ArrayList<>();
     private String startLocation;
     private String endLocation;
     private LocalTime startedAt;
     private LocalTime endedAt;
     private LocalDate date;
     private double price;
-    private boolean panicTriggered;
-    private Long canceledByUserId;
-    private Long routeId;
+    private String panicTriggered;
+    private String canceledBy;
+    private double startLat;
+    private double startLng;
+    private double endLat;
+    private double endLng;
 }

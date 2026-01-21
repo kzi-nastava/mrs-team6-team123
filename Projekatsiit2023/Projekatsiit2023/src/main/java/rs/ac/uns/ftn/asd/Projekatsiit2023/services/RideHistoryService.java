@@ -34,7 +34,7 @@ public class RideHistoryService {
         DriverRideHistoryDTO dto = new DriverRideHistoryDTO();
         dto.setRideId(ride.getId());
         for (var passenger : ride.getPassengers()) {
-            dto.getPassengerIds().add(passenger.getId());
+            dto.getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
         }
         dto.setStartLocation(ride.getStartLocation());
         dto.setEndLocation(ride.getEndLocation());
@@ -42,11 +42,19 @@ public class RideHistoryService {
         dto.setEndedAt(ride.getEndedAt());
         dto.setDate(ride.getDate());
         dto.setPrice(ride.getPrice());
-        dto.setPanicTriggered(ride.isPanicTriggered());
+        if (ride.isPanicTriggered())
+            dto.setPanicTriggered("Yes");
+        else
+            dto.setPanicTriggered("No");
         if (ride.getCanceledBy() != null) {
-            dto.setCanceledByUserId(ride.getCanceledBy().getId());
+            dto.setCanceledBy(ride.getCanceledBy().getFirstName() + " " + ride.getCanceledBy().getLastName());
+        } else {
+            dto.setCanceledBy("/");
         }
-        dto.setRouteId(ride.getRoute().getId());
+        dto.setStartLat(ride.getRoute().getStartLatitude());
+        dto.setStartLng(ride.getRoute().getStartLongitude());
+        dto.setEndLat(ride.getEndLatitude());
+        dto.setEndLng(ride.getEndLongitude());
         return dto;
     }
 }
