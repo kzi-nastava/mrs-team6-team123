@@ -1,13 +1,16 @@
 export interface DriverRideHistory {
   rideId: number;
-  passengerIds: number[];
+  passengers: string[];
   startLocation: string;
   endLocation: string;
   startedAt: string;   // "HH:mm"
   endedAt: string;     // "HH:mm"
   date: string;        // "yyyy-MM-dd"
   price: number;
-  panicTriggered: boolean;
-  canceledByUserId?: number;
-  routeId: number;
+  panicTriggered: string;
+  canceledBy?: string;
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
 }

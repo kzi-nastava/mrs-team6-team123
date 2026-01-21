@@ -12,17 +12,16 @@ import { RideHistoryService } from '../../../services/ride-history.service';
   styleUrls: ['./driver-ride-history.css'],
 })
 export class DriverRideHistoryComponent {
-  columns = ['Date', 'From', 'To', 'Started at', 'Ended at', 'Canceled', 'PANIC', 'Price', 'Route'];
+  columns = ['Date', 'From', 'To', 'Started at', 'Ended at', 'Canceled', 'PANIC', 'Price', 'Details'];
   attributes: Record<string, keyof DriverRideHistory> = {
     'Date': 'date',
     'From': 'startLocation',
     'To': 'endLocation',
     'Started at': 'startedAt',
     'Ended at': 'endedAt',
-    'Canceled': 'canceledByUserId',
+    'Canceled': 'canceledBy',
     'PANIC': 'panicTriggered',
-    'Price': 'price',
-    'Route': 'routeId'
+    'Price': 'price'
   }
 
   rides: DriverRideHistory[] = [];

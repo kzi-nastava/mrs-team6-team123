@@ -8,11 +8,11 @@
     <tr *ngFor="let ride of rides">
       <td *ngFor="let col of columns">
 
-        <button *ngIf="col === 'Route'" class="btn-route" (click)="showRoute()">
+        <button *ngIf="col === 'Details'" class="btn-route" (click)="showRoute(ride)">
           view
         </button>
 
-        <span *ngIf="col !== 'Route'">
+        <span *ngIf="col !== 'Details'">
           {{ getRideValue(ride, attributes[col]) }}
         </span>
 

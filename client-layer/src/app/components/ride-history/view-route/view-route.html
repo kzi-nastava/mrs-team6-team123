@@ -1,7 +1,19 @@
 <div class="view-route">
     <h1>Route</h1>
     <div class="map-wrapper">
-        <app-map></app-map>
+        <app-map 
+            [mode]="'staticRoute'"
+            [ride]="ride">
+        </app-map>
+    </div>
+    <div class="passengers">
+        <h3>Passengers</h3>
+
+        <ul>
+            <li *ngFor="let passenger of data.ride.passengers">
+                {{ passenger }}
+            </li>
+        </ul>
     </div>
     <button class="btn-close" (click)="onClose()">
         close

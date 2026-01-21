@@ -18,10 +18,11 @@ export class RideHistoryTableComponent {
 
   constructor(private dialog: MatDialog) {}
 
-  showRoute() {
+  showRoute(ride: DriverRideHistory) {
     this.dialog.open(ViewRouteComponent, {
       width: '400px',
-      height: '450px'
+      height: '450px',
+      data: { ride }
     });
   }
 
