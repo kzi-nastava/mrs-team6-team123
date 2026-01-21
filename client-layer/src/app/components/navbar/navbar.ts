@@ -75,7 +75,7 @@ export class NavbarComponent {
     id: '2',
     name: 'Jane Passenger',
     email: 'passenger@test.com',
-    type: 'driver'
+    type: 'admin'
   });
   //   this.authService.login({
   //   id: '3',
