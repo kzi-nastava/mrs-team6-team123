@@ -65,9 +65,9 @@ export class NavbarComponent {
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
   this.authService.login({
-    id: '1',
-    name: 'John Driver',
-    email: 'driver@test.com',
+    id: '2',
+    name: 'Jane Passenger',
+    email: 'passenger@test.com',
     type: 'admin'
   });
 
