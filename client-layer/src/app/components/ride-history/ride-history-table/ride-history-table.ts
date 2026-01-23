@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewRouteComponent } from '../view-route/view-route';
-import { DriverRideHistory } from '../../../models/driver-ride-history';
+import { DriverRideHistory } from '../../../models/driver-ride-history.model';
 
 @Component({
   selector: 'app-ride-history-table',

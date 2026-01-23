@@ -1,17 +1,17 @@
 import { Routes } from '@angular/router';
-import { RegisteredHome } from './pages/registered-home/registered-home';
+import { RegisteredHome } from './pages/user/registered-home/registered-home';
 import { UnregisteredHomeComponent } from './pages/unregistered-home/unregistered-home';
-import { UserFavoritesComponent } from './pages/user-favorites/user-favorites';
+import { UserFavoritesComponent } from './pages/user/user-favorites/user-favorites';
 import { ProfileComponent } from './pages/profile/profile';
 import { LoginComponent } from './pages/auth/login/login';
 import { RegisterComponent } from './pages/auth/register/register';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password';
-import { AdminHomeComponent } from './pages/admin-home/admin-home';
+import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
 import { RateRideComponent } from './components/rate-ride/rate-ride';
-import { AdminPricingComponent } from './pages/admin-pricing/admin-pricing';
-import { DriverRegistration } from './pages/driver-registration/driver-registration';
+import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
+import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },

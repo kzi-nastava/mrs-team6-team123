@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MapComponent } from '../../map/map';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DriverRideHistory } from '../../../models/driver-ride-history';
+import { DriverRideHistory } from '../../../models/driver-ride-history.model';
 import { CommonModule } from '@angular/common';
 
 @Component({

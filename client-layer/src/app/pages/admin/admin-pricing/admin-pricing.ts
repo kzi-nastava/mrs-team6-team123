@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Pricing } from '../../models/pricing';
-import { PricingService } from '../../services/pricing.service';
+import { Pricing } from '../../../models/pricing.model';
+import { PricingService } from '../../../services/pricing.service';
 
 @Component({
   selector: 'app-admin-pricing',
@@ -24,11 +24,11 @@ export class AdminPricingComponent {
     this.pricingService
     .getPricing()
     .subscribe({
-      next: (data) => {
+      next: (data: Pricing[]) => {
         console.log('Pricing from backend:', data);
         this.prices = data;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading pricing', err);
       }
     })
@@ -37,15 +37,6 @@ export class AdminPricingComponent {
   confirmPrice(priceItem: Pricing) {
     this.pricingService
     .changePricing(priceItem)
-    .subscribe({
-      next: (response) => {
-        console.log("Saved pricing", priceItem);
-      },
-      error: (err) => {
-        console.error("Error saving pricing", err);
-      }
-      
-    })
     priceItem.price = priceItem.newPrice;
   }
 }

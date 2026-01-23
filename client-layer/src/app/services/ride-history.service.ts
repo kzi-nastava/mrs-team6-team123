@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DriverRideHistory } from '../models/driver-ride-history';
+import { DriverRideHistory } from '../models/driver-ride-history.model';
 
 @Injectable({
   providedIn: 'root'

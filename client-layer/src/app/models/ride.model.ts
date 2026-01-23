@@ -1,0 +1,46 @@
+import { RideStatus, VehicleType } from "./enums";
+
+export interface RideResponse {
+  rideId: number;
+  driverId: number;
+  status: RideStatus;
+  estimatedTimeMinutes: number;
+  estimatedPrice: number;
+}
+
+export interface RideOrderRequest {
+  creatorId: number;
+  passengerIds?: number[];
+  startLocation: string;
+  endLocation: string;
+  scheduledAt?: string; // ISO date string, null for immediate
+  babySeat: boolean;
+  petFriendly: boolean;
+  vehicleType: VehicleType;
+  waypoints?: string[];
+}
+
+export interface CancelRideRequest {
+  userId: number;
+  reason: string;
+}
+
+export interface CancelRideResponse {
+  rideId: number;
+  cancelledBy: number;
+  reason: string;
+  message: string;
+}
+
+export interface StopRideRequest {
+  currentLocation: string;
+  stoppedAt: string;
+}
+
+export interface StopRideResponse {
+  rideId: number;
+  stoppedLocation: string;
+  stoppedAt: string;
+  recalculatedPrice: number;
+  message: string;
+}

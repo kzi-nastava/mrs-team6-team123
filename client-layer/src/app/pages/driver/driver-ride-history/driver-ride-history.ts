@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RideHistoryFilterComponent } from '../../../components/ride-history/ride-history-filter/ride-history-filter';
 import { RideHistoryTableComponent } from '../../../components/ride-history/ride-history-table/ride-history-table';
-import { DriverRideHistory } from '../../../models/driver-ride-history';
+import { DriverRideHistory } from '../../../models/driver-ride-history.model';
 import { RideHistoryService } from '../../../services/ride-history.service';
 
 @Component({
