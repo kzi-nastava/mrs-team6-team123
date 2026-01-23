@@ -5,10 +5,16 @@ import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
 
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
+    private final TrackRideService trackRideService;
+
+    public RideController(TrackRideService trackRideService) {
+        this.trackRideService = trackRideService;
+    }
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
@@ -37,13 +43,13 @@ public class RideController {
     }
 
     @GetMapping("/{rideId}/tracking")
-    public ResponseEntity<RideTrackingResponseDTO> trackRide(@PathVariable Long rideId) {
-        RideTrackingResponseDTO response = new RideTrackingResponseDTO();
-        response.setRideId(rideId);
-        response.setCurrentLocation("45.2671 N, 19.8335 E");
-        response.setNextStop("Boulevard 2");
-        response.setTimeLeft(15);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> trackRide(@PathVariable Long rideId) {
+        try {
+            RideTrackingResponseDTO response = trackRideService.trackRide(rideId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping("/{rideId}/finish")
