@@ -65,10 +65,11 @@ export class NavbarComponent {
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
   this.authService.login({
-    id: '2',
-    name: 'Jane Passenger',
+    id: 2,
+    firstName: 'Jane',
+    lastName: 'Passenger',
     email: 'passenger@test.com',
-    type: 'admin'
+    role: 'ADMIN'
   });
 
   // this.authService.login({
@@ -85,11 +86,11 @@ export class NavbarComponent {
 
     effect(() => {
       const userType = this.authService.userType();
-      if (userType === 'driver') {
+      if (userType === 'DRIVER') {
         this.links = [...this.driverLinks];
-      } else if (userType === 'passenger') {
+      } else if (userType === 'PASSENGER') {
         this.links = [...this.registeredUserLinks];
-      } else if (userType === 'admin') {
+      } else if (userType === 'ADMIN') {
         this.links = [...this.adminLinks];
       } else {
         this.links = [...this.guestLinks];

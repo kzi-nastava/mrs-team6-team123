@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouteCardComponent } from '../../components/route-card/route-card';
+import { RouteCardComponent } from '../../../components/route-card/route-card';
 
 @Component({
   selector: 'app-user-favorites',
