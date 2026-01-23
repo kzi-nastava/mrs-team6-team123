@@ -23,6 +23,12 @@ public class Driver extends User {
     @Column(nullable = false)
     private int activeMinutesLast24h; // working time
 
+    @Column(nullable = false)
+    private int totalRides = 0; // total number of completed rides
+
+    @Column(nullable = false)
+    private double rating = 0.0; // average driver rating
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id", unique = true)
     private Vehicle vehicle;

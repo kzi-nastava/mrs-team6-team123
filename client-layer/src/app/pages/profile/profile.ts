@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ɵsetUnknownPropertyStrictMode, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { UserProfile } from '../../models/user';
+import { UserService } from '../../services/user.service';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -13,57 +16,94 @@ import { AuthService } from '../../services/auth.service';
 export class ProfileComponent implements OnInit {
   userType: string | null = null;
   isEditMode = false;
-  
-  profileData = {
-    name: 'Dan Brown',
-    email: 'danbrown@example.com',
-    fullName: 'Dan J. Brown',
-    homeAddress: 'Main Str. 12',
-    phone: '01010111',
-    
-    hoursActive: '6h 12m',
-    totalRides: 122,
-    rating: 4.7,
-    vehicleModel: 'Mercedes Benz Sprinter',
-    vehicleType: 'Van',
-    licensePlate: '112233',
-    capacity: 7,
-    babiesAllowed: true,
-    petsAllowed: true
+  userProfile: UserProfile | null = null;
+  profileData : UserProfile = {
+    id: 3,
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    phone: '',
+    userRole: 'PASSENGER'
   };
 
   editFormData = {
-    fullName: '',
+    firstName: '',
+    lastName: '',
     phone: '',
-    homeAddress: ''
+    address: ''
   };
 
-  constructor(private authService: AuthService) {}
+  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.userType = this.authService.userType();
+    const userId = 3;
+    this.loadUser(userId);
+
+  }
+
+  loadUser(userId: number) {
+    this.userService.getUserProfile(userId).subscribe({
+      next: (user) => {
+        console.log('Full user object received from backend:', user);
+        console.log('User role from backend:', user.userRole);
+        console.log('Type of userRole:', typeof user.userRole);
+        
+        this.profileData = { ...user };
+        
+        // Set userType based on role from backend
+        this.userType = user.userRole === 'DRIVER' ? 'driver' : 'passenger';
+        console.log('Calculated userType:', this.userType);
+        console.log('Condition check - user.userRole === DRIVER:', user.userRole === 'DRIVER');
+
+        this.editFormData = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone,
+          address: user.address
+        };
+        
+        // Manually trigger change detection
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading user profile:', err);
+      }
+    });
   }
 
   toggleEditMode() {
-    if (!this.isEditMode) {
-      // copy current values
+    if(!this.isEditMode) {
+      // Populate form data with current profile data
       this.editFormData = {
-        fullName: this.profileData.fullName,
+        firstName: this.profileData.firstName,
+        lastName: this.profileData.lastName,
         phone: this.profileData.phone,
-        homeAddress: this.profileData.homeAddress
+        address: this.profileData.address
       };
     }
     this.isEditMode = !this.isEditMode;
+
   }
 
   saveProfile() {
-    // Update profile data
-    this.profileData.fullName = this.editFormData.fullName;
-    this.profileData.phone = this.editFormData.phone;
-    this.profileData.homeAddress = this.editFormData.homeAddress;
-    
-    // Exit
-    this.isEditMode = false;
+    const userId = this.profileData.id;
+    const updatedData = {
+      firstName: this.editFormData.firstName,
+      lastName: this.editFormData.lastName,
+      email: this.profileData.email,
+      phone: this.editFormData.phone,
+      address: this.editFormData.address
+    };
+    this.userService.updateUserProfile(userId, updatedData).subscribe({
+      next: (updatedProfile) => {
+        this.profileData = updatedProfile;
+        this.isEditMode = false;
+      },
+      error: (err) => {
+        console.error('Error updating profile', err);
+      }
+    });
   }
 
   cancelEdit() {
