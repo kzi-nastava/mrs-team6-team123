@@ -5,23 +5,23 @@ import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
-
-import java.util.ArrayList;
-import java.util.List;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.UserService;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     // 2.3 Profil korisnika - GET
     @GetMapping("/{userId}")
     public ResponseEntity<UserProfileResponseDTO> getProfile(@PathVariable Long userId) {
-        UserProfileResponseDTO response = new UserProfileResponseDTO();
-        response.setId(userId);
-        response.setFirstName("Test");
-        response.setLastName("User");
-        response.setEmail("user@example.com");
-        response.setPhone("+381601234567");
+        UserProfileResponseDTO response = userService.getUserProfile(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -29,26 +29,6 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserProfileResponseDTO> updateProfile(@PathVariable Long userId,
             @RequestBody UserProfileRequestDTO request) {
-        UserProfileResponseDTO response = new UserProfileResponseDTO();
-        response.setId(userId);
-        response.setFirstName(request.getFirstName());
-        response.setLastName(request.getLastName());
-        response.setEmail(request.getEmail());
-        response.setPhone(request.getPhone());
-        return ResponseEntity.ok(response);
-    }
-
-    // Optional: list users with filter param (name)
-    @GetMapping
-    public ResponseEntity<List<UserProfileResponseDTO>> listUsers(@RequestParam(required = false) String name) {
-        List<UserProfileResponseDTO> users = new ArrayList<>();
-        UserProfileResponseDTO u = new UserProfileResponseDTO();
-        u.setId(1L);
-        u.setFirstName("Ana");
-        u.setLastName("Ivić");
-        u.setEmail("ana@example.com");
-        u.setPhone("+381601234567");
-        users.add(u);
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.updateProfile(userId, request));
     }
 }

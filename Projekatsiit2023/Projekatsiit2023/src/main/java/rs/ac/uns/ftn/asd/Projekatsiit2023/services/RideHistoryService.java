@@ -23,7 +23,7 @@ public class RideHistoryService {
         List<DriverRideHistoryDTO> rideHistory = new ArrayList<>();
         for (Ride ride : rides) {
             if ((from == null || !ride.getDate().isBefore(from)) &&
-                (to == null || !ride.getDate().isAfter(to))) {
+                    (to == null || !ride.getDate().isAfter(to))) {
                 rideHistory.add(mapRideToRideHistoryDTO(ride));
             }
         }
