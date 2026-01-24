@@ -12,16 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RideTrackingResponseDTO {
     private Long rideId;
-    private String driver;
-    private String startedAt;
-    private String from;
-    private String to;
-    private String nextStop;
-    private double nextStopLatitude;
-    private double nextStopLongitude;
-    private double currentLatitude;
-    private double currentLongitude;
-    private double price;
-    private int timeLeft;
-    private List<String> passengers = new ArrayList<>();
+    private List<GeoPointDTO> stops = new ArrayList<>();
+    private int stopsMade = 0;
+    private RideInfoDTO info = new RideInfoDTO();
 }

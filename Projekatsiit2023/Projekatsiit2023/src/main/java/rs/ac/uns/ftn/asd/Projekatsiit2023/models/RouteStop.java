@@ -24,4 +24,7 @@ public class RouteStop {
 
     @Column(nullable = false)
     private double longitude;
+
+    @Column(nullable = false)
+    private int stopOrder;
 }

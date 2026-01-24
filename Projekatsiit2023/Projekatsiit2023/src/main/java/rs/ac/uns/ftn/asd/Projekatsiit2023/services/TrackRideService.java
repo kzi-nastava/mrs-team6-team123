@@ -1,9 +1,9 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideTrackingResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.RouteStop;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
 import java.util.Optional;
@@ -11,6 +11,7 @@ import java.util.Optional;
 @Service
 public class TrackRideService {
     private final RideRepository repository;
+    double AVERAGE_SPEED_KMH = 45.0;
 
     public TrackRideService(RideRepository repository) {
         this.repository = repository;
@@ -27,31 +28,55 @@ public class TrackRideService {
 
     public RideTrackingResponseDTO mapRideToRideTrackingDTO(Optional<Ride> ride) {
         RideTrackingResponseDTO dto = new RideTrackingResponseDTO();
-        // TODO: current coordinates, time left
         dto.setRideId(ride.get().getId());
-        dto.setDriver(ride.get().getDriver().getFirstName() + " " + ride.get().getDriver().getLastName());
-        dto.setStartedAt(ride.get().getStartedAt().toString());
-        dto.setFrom(ride.get().getRoute().getStartLocation());
-        dto.setTo(ride.get().getRoute().getEndLocation());
-        dto.setPrice(ride.get().getPrice());
-        for (var passenger : ride.get().getPassengers()) {
-            dto.getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
+        dto.getStops().add(mapStopToGeoPointDTO(
+                ride.get().getRoute().getStartLatitude(),
+                ride.get().getRoute().getStartLongitude(),
+                ride.get().getRoute().getStartLocation()));
+        for (var stop : ride.get().getRoute().getStops()) {
+            dto.getStops().add(mapStopToGeoPointDTO(
+                    stop.getLatitude(),
+                    stop.getLongitude(),
+                    stop.getLocation()));
         }
-        RouteStop nextStop = findNextStop(ride);
-        if (nextStop == null) {
-            throw new RuntimeException("Ride has already ended");
-        }
-        dto.setNextStop(nextStop.getLocation());
-        dto.setNextStopLatitude(nextStop.getLatitude());
-        dto.setNextStopLongitude(nextStop.getLongitude());
+        dto.getStops().add(mapStopToGeoPointDTO(
+                ride.get().getRoute().getEndLatitude(),
+                ride.get().getRoute().getEndLongitude(),
+                ride.get().getRoute().getEndLocation()
+        ));
+        dto.setStopsMade(ride.get().getStopsMade());
+        setRideInfo(dto, ride.get());
         return dto;
     }
 
-    private RouteStop findNextStop(Optional<Ride> ride) {
-        int stopsMade = ride.get().getStopsMade();
-        if (stopsMade == ride.get().getRoute().getStops().size()) {
-            return null;
+    private GeoPointDTO mapStopToGeoPointDTO(double lat, double lng, String location) {
+        GeoPointDTO geoPointDTO = new GeoPointDTO();
+        geoPointDTO.setLatitude(lat);
+        geoPointDTO.setLongitude(lng);
+        geoPointDTO.setLocation(location);
+        return geoPointDTO;
+    }
+
+    private int calculateTimeLeft(Ride ride) {
+        int totalSegments = ride.getRoute().getStops().size() + 1;
+        double progress = (double) ride.getStopsMade() / totalSegments;
+        double remainingDistance = ride.getTotalDistance() * (1 - progress);
+        double remainingTimeHours = remainingDistance / AVERAGE_SPEED_KMH;
+        return (int) Math.ceil(remainingTimeHours * 60);
+    }
+
+    private void setRideInfo(RideTrackingResponseDTO dto, Ride ride) {
+        dto.getInfo().setDriver(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
+        dto.getInfo().setStartedAt(ride.getStartedAt().toString());
+        dto.getInfo().setFrom(ride.getRoute().getStartLocation());
+        dto.getInfo().setTo(ride.getRoute().getEndLocation());
+        dto.getInfo().setPrice(ride.getPrice());
+        for (var passenger : ride.getPassengers()) {
+            dto.getInfo().getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
         }
-        return ride.get().getRoute().getStops().get(stopsMade);
+        dto.getInfo().setTimeLeft(calculateTimeLeft(ride));
+        for (var report : ride.getIrregularityReports()) {
+            dto.getInfo().getReports().add(report.getDescription());
+        }
     }
 }

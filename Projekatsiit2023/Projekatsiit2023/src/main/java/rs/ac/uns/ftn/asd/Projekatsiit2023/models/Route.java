@@ -43,5 +43,6 @@ public class Route {
             orphanRemoval = true,
             fetch = FetchType.EAGER
     )
+    @OrderBy("stopOrder ASC")
     private List<RouteStop> stops = new ArrayList<>();
 }
