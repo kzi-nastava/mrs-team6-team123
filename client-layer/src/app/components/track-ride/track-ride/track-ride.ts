@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { RideInfoComponent, Ride } from '../ride-info/ride-info';
 import { RideActionsComponent } from '../ride-actions/ride-actions';
+import { TrackRideResponse } from '../../../models/track-ride.model';
 
 @Component({
   selector: 'app-track-ride',
@@ -10,5 +11,5 @@ import { RideActionsComponent } from '../ride-actions/ride-actions';
   styleUrls: ['./track-ride.css'],
 })
 export class TrackRideComponent {
-  @Input() ride!: Ride;
+  @Input() ride!: TrackRideResponse;
 }

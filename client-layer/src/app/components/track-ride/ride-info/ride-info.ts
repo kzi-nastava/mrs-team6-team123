@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Input } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
+import { RideInfo, TrackRideResponse } from '../../../models/track-ride.model';
 
 export interface Ride {
   from: string;
@@ -21,7 +22,7 @@ export interface Ride {
   styleUrls: ['./ride-info.css'],
 })
 export class RideInfoComponent {
-  @Input() ride!: Ride;
+  @Input() ride!: TrackRideResponse;
 
   constructor(public auth: AuthService) {}
 
@@ -36,6 +37,6 @@ export class RideInfoComponent {
   }
 
   get passengers() {
-    return this.ride?.passengers || [];
+    return this.ride?.info.passengers || [];
   }
 }
