@@ -7,6 +7,7 @@ import lombok.Setter;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,9 @@ public class Ride {
 
     @Column(nullable = false)
     private double endLongitude;
+    
+    @Column
+    private LocalDateTime scheduledAt;
 
     @Column(nullable = false)
     private LocalTime startedAt;
