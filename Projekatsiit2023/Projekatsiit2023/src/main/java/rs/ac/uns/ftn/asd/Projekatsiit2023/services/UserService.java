@@ -1,20 +1,24 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.VehicleDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -22,7 +26,7 @@ public class UserService {
 
     public UserProfileResponseDTO getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return mapUserToUserResponseDTO(user);
     }
 
@@ -36,6 +40,36 @@ public class UserService {
         user.setAddress(dto.getAddress());
         userRepository.save(user);
         return mapUserToUserResponseDTO(user);
+    }
+
+    public void changeUserPassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Validate current password
+        if (!passwordMatches(currentPassword, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
+        }
+
+        // Set new password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (storedPassword == null || storedPassword.isBlank()) {
+            return false;
+        }
+
+        boolean storedIsBcrypt = storedPassword.startsWith("$2a$")
+                || storedPassword.startsWith("$2b$")
+                || storedPassword.startsWith("$2y$");
+
+        if (storedIsBcrypt) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+
+        return storedPassword.equals(rawPassword);
     }
 
     private UserProfileResponseDTO mapUserToUserResponseDTO(User user) {

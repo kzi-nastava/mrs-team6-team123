@@ -4,18 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UserProfile } from '../../models/user';
 import { UserService } from '../../services/user.service';
+import { ChangePasswordFormComponent } from '../../components/change-password-form/change-password-form';
 import { first } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChangePasswordFormComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css'],
 })
 export class ProfileComponent implements OnInit {
   userType: string | null = null;
   isEditMode = false;
+  showChangePasswordForm = false;
   userProfile: UserProfile | null = null;
   profileData : UserProfile = {
     id: 3,
@@ -111,6 +113,6 @@ export class ProfileComponent implements OnInit {
   }
 
   changePassword() {
-    console.log('Change password clicked');
+    this.showChangePasswordForm = true;
   }
 }

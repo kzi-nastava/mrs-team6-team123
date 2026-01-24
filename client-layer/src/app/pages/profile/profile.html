@@ -1,4 +1,11 @@
 <div class="profile-container">
+  <!-- Change Password Form Modal -->
+  <app-change-password-form 
+    *ngIf="showChangePasswordForm" 
+    [userId]="profileData.id"
+    (close)="showChangePasswordForm = false">
+  </app-change-password-form>
+
   <div class="profile-header">
     <h1>Profile info</h1>
     <div class="header-buttons" *ngIf="!isEditMode">
