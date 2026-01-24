@@ -18,11 +18,9 @@ export class RideService {
 
   // 2.1.2 Ride Estimation
   estimateRide(request: RideEstimationRequest): Observable<RideEstimationResponse> {
-    return this.http.post<RideEstimationResponse>(
-      `${this.apiUrl}/ride-estimation`,
-      request
-    );
+    return this.http.post<RideEstimationResponse>(this.apiUrl, request);
   }
+
 
   // 2.6.1 Start Ride
   startRide(rideId: number): Observable<RideResponse> {

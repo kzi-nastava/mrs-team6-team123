@@ -5,40 +5,81 @@
   </div>
 
   <div mat-dialog-content class="modal-content">
-    <div class="estimate-form" *ngIf="!showResult">
+    
+    <!-- DEBUG INFO -->
+    <div style="background: #f0f0f0; padding: 8px; margin-bottom: 16px; font-size: 12px;">
+      <strong>Debug:</strong> 
+      loading={{ loading }}, 
+      showResult={{ showResult }}, 
+      error={{ !!errorMessage }}
+    </div>
+
+    <!-- FORMA ZA UNOS -->
+    <div class="estimate-form" *ngIf="!showResult && !loading">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Starting location</mat-label>
         <input 
           matInput 
-          placeholder="Enter starting address"
+          placeholder="e.g., 45.2671, 19.8335"
           [(ngModel)]="startLocation"
         />
+        <mat-hint>Enter coordinates (latitude, longitude)</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Destination</mat-label>
         <input 
           matInput 
-          placeholder="Enter destination address"
+          placeholder="e.g., 45.2550, 19.8450"
           [(ngModel)]="destination"
         />
+        <mat-hint>Enter coordinates (latitude, longitude)</mat-hint>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Vehicle Type</mat-label>
+        <mat-select [(ngModel)]="vehicleType">
+          <mat-option *ngFor="let type of vehicleTypes" [value]="type.value">
+            {{ type.label }} (Base: {{ type.basePrice }} RSD)
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- ERROR MESSAGE -->
+      <div class="error-message" *ngIf="errorMessage">
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <!-- CALCULATE BUTTON -->
       <button 
         mat-raised-button 
         color="primary" 
         class="estimate-btn"
-        (click)="calculateEstimate()">
-        Calculate Estimate
+        (click)="calculateEstimate()"
+        [disabled]="loading">
+        <span *ngIf="!loading">Calculate Estimate</span>
+        <span *ngIf="loading">Calculating...</span>
       </button>
     </div>
 
-    <div class="estimate-result" *ngIf="showResult">
+    <!-- LOADING SPINNER -->
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Calculating your ride estimate...</p>
+    </div>
+
+    <!-- REZULTAT -->
+    <div class="estimate-result" *ngIf="showResult && !loading">
       <div class="result-header">
         <h3>Ride Estimate</h3>
       </div>
       
       <div class="result-card">
+        <div class="result-item">
+          <span class="label">Vehicle Type:</span>
+          <span class="value">{{ vehicleType }}</span>
+        </div>
+
         <div class="result-item">
           <span class="label">Distance:</span>
           <span class="value">{{ estimatedDistance }} km</span>
@@ -56,14 +97,14 @@
       </div>
 
       <div class="map-preview">
-        <p class="map-placeholder">🗺️ Map showing selected route would appear here</p>
+        <p class="map-placeholder">🗺️ Route calculated via OpenStreetMap</p>
       </div>
 
       <div class="action-buttons">
         <button 
           mat-raised-button 
           class="secondary-btn"
-          (click)="showResult = false">
+          (click)="showResult = false; errorMessage = ''">
           Change Route
         </button>
         <button 

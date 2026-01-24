@@ -8,6 +8,7 @@
       [(ngModel)]="email"
       name="email"
       required
+      [disabled]="loading"
     />
 
     <input
@@ -16,13 +17,25 @@
       [(ngModel)]="password"
       name="password"
       required
+      [disabled]="loading"
     />
 
-    <button type="submit">Login</button>
+    <!-- ERROR MESSAGE -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'Logging in...' : 'Login' }}
+    </button>
   </form>
 
   <div class="auth-links">
-    <button class="link-btn" (click)="goToReset()">Forgot password?</button>
-    <button class="link-btn" (click)="goToRegister()">Create account</button>
+    <button class="link-btn" (click)="goToReset()" [disabled]="loading">
+      Forgot password?
+    </button>
+    <button class="link-btn" (click)="goToRegister()" [disabled]="loading">
+      Create account
+    </button>
   </div>
 </div>
