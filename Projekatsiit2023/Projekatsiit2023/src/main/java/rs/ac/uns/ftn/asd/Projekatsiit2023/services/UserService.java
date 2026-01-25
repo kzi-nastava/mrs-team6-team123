@@ -1,8 +1,6 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,7 +16,6 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -46,13 +43,11 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // Validate current password
         if (!passwordMatches(currentPassword, user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
         }
 
-        // Set new password
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(newPassword); // plaintext for now
         userRepository.save(user);
     }
 
@@ -61,15 +56,8 @@ public class UserService {
             return false;
         }
 
-        boolean storedIsBcrypt = storedPassword.startsWith("$2a$")
-                || storedPassword.startsWith("$2b$")
-                || storedPassword.startsWith("$2y$");
-
-        if (storedIsBcrypt) {
-            return passwordEncoder.matches(rawPassword, storedPassword);
-        }
-
-        return storedPassword.equals(rawPassword);
+        String incoming = rawPassword == null ? "" : rawPassword;
+        return storedPassword.equals(incoming.trim());
     }
 
     private UserProfileResponseDTO mapUserToUserResponseDTO(User user) {

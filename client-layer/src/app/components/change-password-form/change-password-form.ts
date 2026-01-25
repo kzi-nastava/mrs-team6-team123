@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-change-password-form',
@@ -19,6 +20,7 @@ export class ChangePasswordFormComponent {
   showConfirmPassword = false;
   
   errorMessage = '';
+  successMessage = '';
   isLoading = false;
 
   passwordData = {
@@ -27,7 +29,7 @@ export class ChangePasswordFormComponent {
     confirmPassword: ''
   };
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {}
 
   togglePasswordVisibility(field: string) {
     if (field === 'current') {
@@ -57,21 +59,28 @@ export class ChangePasswordFormComponent {
     }
 
     this.errorMessage = '';
+    this.successMessage = '';
     this.isLoading = true;
 
     // Call backend service
-    this.userService.changeUserPassword(this.userId, this.passwordData.currentPassword, this.passwordData.newPassword).subscribe({
-      next: () => {
-        console.log('Password changed successfully');
-        this.isLoading = false;
-        this.closeForm();
-      },
-      error: (err) => {
-        console.error('Error changing password:', err);
-        this.errorMessage = err.error?.message || 'Failed to change password. Current password may be incorrect.';
-        this.isLoading = false;
-      }
-    });
+    this.userService.changeUserPassword(this.userId, this.passwordData.currentPassword, this.passwordData.newPassword)
+      .pipe(finalize(() => { this.isLoading = false; this.cdr.detectChanges(); }))
+      .subscribe({
+        next: () => {
+          console.log('Password changed successfully');
+          this.errorMessage = '';
+          this.successMessage = 'Password changed successfully';
+          // show confirmation briefly, then close
+          setTimeout(() => this.closeForm(), 1200);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error changing password:', err);
+          this.errorMessage = err.error?.message || 'Failed to change password. Current password may be incorrect.';
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   closeForm() {
