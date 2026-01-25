@@ -36,14 +36,23 @@ public class EmailService {
 
     public void sendPasswordResetEmail(String to, String resetLink) {
         try {
+            System.out.println("📧 Sending password reset email...");
+            System.out.println("   To: " + to);
+            System.out.println("   Link: " + resetLink);
+            
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("taxiappftn@gmail.com");
             message.setTo(to);
             message.setSubject("Reset Your Password");
-            message.setText("Click the link to reset your password:\n\n" + resetLink);
+            message.setText("Click the link to reset your password:\n\n" + resetLink + 
+                          "\n\nThis link expires in 1 hour.\n\n" +
+                          "If you didn't request this, please ignore this email.");
             
             mailSender.send(message);
+            System.out.println("✅ Password reset email sent to: " + to);
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
