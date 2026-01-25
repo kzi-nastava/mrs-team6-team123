@@ -30,6 +30,11 @@ export class UserService {
     return this.http.post<void>(`${this.apiUrl}/${userId}/change-password`, payload);
   }
 
+  // Upload profile photo
+  uploadProfilePhoto(userId: number, formData: FormData): Observable<UserProfile> {
+    return this.http.post<UserProfile>(`${this.apiUrl}/${userId}/profile-photo`, formData);
+  }
+
   // List Users (optional, for admin)
   listUsers(nameFilter?: string): Observable<UserProfile[]> {
     let params = new HttpParams();

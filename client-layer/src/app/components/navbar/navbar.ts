@@ -69,7 +69,7 @@ export class NavbarComponent {
     firstName: 'Jane',
     lastName: 'Passenger',
     email: 'passenger@test.com',
-    role: 'ADMIN'
+    role: 'DRIVER'
   });
 
   // this.authService.login({

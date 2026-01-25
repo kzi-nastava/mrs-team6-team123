@@ -1,9 +1,10 @@
 <div class="profile-container">
   <!-- Change Password Form Modal -->
-  <app-change-password-form 
-    *ngIf="showChangePasswordForm" 
+  <app-change-password-form
+    *ngIf="showChangePasswordForm"
     [userId]="profileData.id"
-    (close)="showChangePasswordForm = false">
+    (close)="showChangePasswordForm = false"
+  >
   </app-change-password-form>
 
   <div class="profile-header">
@@ -22,10 +23,22 @@
     <div class="left-section">
       <div class="profile-card">
         <div class="profile-avatar">
-          <img src="/icons8-user-48.png" alt="User Profile" class="avatar-icon" />
-          <button class="edit-avatar-btn" title="Change profile picture">
+          <img [src]="profileData.profileImage || '/icons8-user-48.png'" alt="User Profile" class="avatar-icon" />
+          <button
+            class="edit-avatar-btn"
+            type="button"
+            (click)="triggerFileInput()"
+            title="Change profile picture"
+          >
             <img src="/edit-pen.png" alt="Edit" class="edit-icon" />
           </button>
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            style="display: none"
+          />
         </div>
         <div class="profile-details">
           <h2>{{ profileData.firstName }} {{ profileData.lastName }}</h2>
