@@ -123,6 +123,21 @@
   margin: 8px 0;
 }
 
+.info-text {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.redirect-info {
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
 /* responsive */
 @media (max-width: 480px) {
   .auth-container {

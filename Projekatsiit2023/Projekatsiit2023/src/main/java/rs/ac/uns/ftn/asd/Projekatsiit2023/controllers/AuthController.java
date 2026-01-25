@@ -51,13 +51,23 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
-        // TODO: Implementirati
-        return ResponseEntity.ok("Password reset link has been sent to your email.");
+        try {
+            String message = authService.forgotPassword(request);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
-        // TODO: Implementirati
-        return ResponseEntity.ok("Password has been successfully reset.");
+        try {
+            String message = authService.resetPassword(request);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 }
