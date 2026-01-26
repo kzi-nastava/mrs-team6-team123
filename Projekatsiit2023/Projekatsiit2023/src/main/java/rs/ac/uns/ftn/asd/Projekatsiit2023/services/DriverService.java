@@ -1,24 +1,36 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.PasswordResetToken;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PasswordResetTokenRepository;
+
+import java.util.UUID;
 
 @Service
 public class DriverService {
 
     private final DriverRepository driverRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
-    public DriverService(DriverRepository driverRepository) {
+    public DriverService(DriverRepository driverRepository,
+                        PasswordResetTokenRepository passwordResetTokenRepository,
+                        EmailService emailService) {
         this.driverRepository = driverRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
     }
 
+    @Transactional
     public DriverResponseDTO registerDriver(DriverRegistrationRequestDTO request) {
         Driver driver = new Driver();
         driver.setFirstName(request.getFirstName());
@@ -27,7 +39,7 @@ public class DriverService {
         driver.setPhone(request.getPhone());
         driver.setAddress(request.getAddress());
 
-        // Temp password
+        // Temp password - will be replaced when driver sets their own
         driver.setPassword("temp123");
         driver.setUserRole(UserRole.DRIVER);
         driver.setAccountActivated(false);
@@ -51,6 +63,16 @@ public class DriverService {
         driver.setVehicle(vehicle);
 
         Driver saved = driverRepository.save(driver);
+
+        // Generate password reset token for driver to set their own password
+        String tokenString = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken(tokenString, saved);
+        passwordResetTokenRepository.save(resetToken);
+
+        // Send email with password setup link
+        String setupLink = "http://localhost:4200/reset-password?token=" + tokenString;
+        emailService.sendDriverWelcomeEmail(saved.getEmail(), saved.getFirstName(), setupLink);
+
         return mapToResponse(saved);
     }
 

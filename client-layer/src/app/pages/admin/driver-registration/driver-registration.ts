@@ -33,9 +33,25 @@ export class DriverRegistration {
     { value: 'VAN', label: 'Van' },
   ];
 
+
   constructor(private driverService: DriverService) {}
 
   submit(form?: NgForm) {
+    // Validate all required fields
+    if (!this.driverForm.firstName.trim() || !this.driverForm.lastName.trim() ||
+        !this.driverForm.email.trim() || !this.driverForm.address.trim() ||
+        !this.driverForm.phone.trim() || !this.driverForm.vehicleModel.trim() ||
+        !this.driverForm.licensePlate.trim()) {
+      alert('All fields are required');
+      return;
+    }
+
+    // Seats validation
+    if (this.driverForm.seats < 1 || this.driverForm.seats > 10) {
+      alert('Seats must be between 1 and 10');
+      return;
+    }
+
     // Map frontend form to backend DTO
     const request: DriverRegistrationRequest = {
       firstName: this.driverForm.firstName,
