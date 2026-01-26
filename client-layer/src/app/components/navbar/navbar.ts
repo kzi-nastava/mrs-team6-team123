@@ -67,6 +67,7 @@ export class NavbarComponent {
        this.authService.userType.set('ADMIN');
 
 
+
     effect(() => {
       const userType = this.authService.userType();
       if (userType === 'DRIVER') {

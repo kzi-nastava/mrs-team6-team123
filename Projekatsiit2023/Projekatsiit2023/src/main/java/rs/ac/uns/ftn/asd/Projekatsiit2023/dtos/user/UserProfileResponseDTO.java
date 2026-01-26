@@ -20,6 +20,7 @@ public class UserProfileResponseDTO {
     private Integer totalRides;
     private Double rating;
     private VehicleDTO vehicle;
+    private String profileImage;
 
     public UserProfileResponseDTO() {
     }
