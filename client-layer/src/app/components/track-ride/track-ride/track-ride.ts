@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { RideInfoComponent, Ride } from '../ride-info/ride-info';
+import { RideInfoComponent } from '../ride-info/ride-info';
 import { RideActionsComponent } from '../ride-actions/ride-actions';
 import { TrackRideResponse } from '../../../models/track-ride.model';
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { TrackRideComponent } from '../../components/track-ride/track-ride/track-ride';
 import { MapComponent } from '../../components/map/map';
 import { PanicButtonComponent } from '../../components/panic-button/panic-button';
@@ -25,13 +25,14 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./track-ride-page.css'],
 })
 export class TrackRidePageComponent implements OnInit{
-  ride?: TrackRideResponse;
-  rideId: number = 1;
+  ride!: TrackRideResponse;
+  rideId: number = 2;
 
   constructor(
     private dialog: MatDialog,
     private rideService: RideService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +44,7 @@ export class TrackRidePageComponent implements OnInit{
       next: (data) => {
         this.ride = data;
         console.log('Ride data:', this.ride);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching ride:', err);

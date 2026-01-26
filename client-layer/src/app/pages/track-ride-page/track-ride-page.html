@@ -3,58 +3,9 @@
     <app-map></app-map>
 
     <div class="right-panel">
-      <!-- Ride Tracking Component -->
-      <app-track-ride [ride]="ride"></app-track-ride>
+      <app-track-ride 
+        *ngIf="ride" 
+        [ride]="ride">
+      </app-track-ride>
 
-      <!-- Action Buttons Section -->
-      <div class="actions-section" *ngIf="ride.status === 'active'">
-        <!-- Passenger Actions -->
-        <div class="passenger-actions" *ngIf="userRole === 'passenger'">
-          <h3>Ride Actions</h3>
-          
-          <button 
-            mat-raised-button 
-            color="warn"
-            class="action-btn"
-            (click)="openCancelDialog()"
-            >
-            Cancel Ride
-          </button>
-
-          <div class="info-text" *ngIf="ride.status === 'active'">
-            <p>💡 If you need to stop early, please inform your driver</p>
-          </div>
-        </div>
-
-        <!-- Driver Actions -->
-        <div class="driver-actions" *ngIf="userRole === 'driver'">
-          <h3>Driver Actions</h3>
-          
-          <button 
-            mat-raised-button 
-            color="accent"
-            class="action-btn"
-            (click)="openStopDialog()">
-            Stop Ride Early
-          </button>
-
-          <div class="info-text">
-            <p>💡 Use this if passenger requests early stop</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Support Section -->
-      <div class="support-section">
-        <h4>Need Help?</h4>
-        <p>Contact support 24/7 or use the emergency button if you feel unsafe</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Floating Panic Button (visible for both passengers and drivers) -->
-  <app-panic-button 
-    [rideInfo]="rideInfo"
-    [buttonStyle]="'floating'">
-  </app-panic-button>
 </div>

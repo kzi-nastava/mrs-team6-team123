@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { RideHistoryFilterComponent } from '../../../components/ride-history/ride-history-filter/ride-history-filter';
 import { RideHistoryTableComponent } from '../../../components/ride-history/ride-history-table/ride-history-table';
 import { DriverRideHistory } from '../../../models/driver-ride-history.model';
@@ -27,7 +27,10 @@ export class DriverRideHistoryComponent {
   rides: DriverRideHistory[] = [];
   driverId = 3;
 
-  constructor(private rideHistoryService: RideHistoryService) {}
+  constructor(
+    private rideHistoryService: RideHistoryService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadRideHistory();
@@ -40,6 +43,7 @@ export class DriverRideHistoryComponent {
       next: (data) => {
         console.log('Rides from backend:', data);
         this.rides = data;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading ride history', err);
