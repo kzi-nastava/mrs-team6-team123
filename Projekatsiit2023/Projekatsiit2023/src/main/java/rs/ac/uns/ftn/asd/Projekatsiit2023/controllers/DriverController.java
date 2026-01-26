@@ -8,6 +8,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestD
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.IrregularityReport;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
 
@@ -18,15 +19,13 @@ import java.net.URI;
 @CrossOrigin(origins = "http://localhost:4200")
 public class DriverController {
     private final IrregularityReportService reportService;
-
-    public DriverController(IrregularityReportService reportService) {
-        this.reportService = reportService;
-    }
-
     private final DriverService driverService;
 
-    public DriverController(DriverService driverService) {
+    public DriverController(
+            DriverService driverService,
+            IrregularityReportService reportService) {
         this.driverService = driverService;
+        this.reportService = reportService;
     }
 
     // 2.2.3 Registracija vozača
