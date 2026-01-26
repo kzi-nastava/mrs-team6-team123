@@ -1,20 +1,29 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.VehicleDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final String uploadDir = "uploads/profile-images/";
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -22,7 +31,7 @@ public class UserService {
 
     public UserProfileResponseDTO getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return mapUserToUserResponseDTO(user);
     }
 
@@ -38,6 +47,64 @@ public class UserService {
         return mapUserToUserResponseDTO(user);
     }
 
+    public void changeUserPassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!passwordMatches(currentPassword, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
+        }
+
+        user.setPassword(newPassword); // plaintext for now
+        userRepository.save(user);
+    }
+
+    public UserProfileResponseDTO uploadProfilePhoto(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        try {
+            if (!file.isEmpty()) {
+                // Delete old image
+                if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                    String oldFileName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
+                    Path oldFilePath = Paths.get(uploadDir).toAbsolutePath().resolve(oldFileName);
+                    Files.deleteIfExists(oldFilePath);
+                }
+
+                // Create upload directory if it doesn't exist
+                Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // Save with unique filename
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Save URL to DB
+                String imageUrl = "http://localhost:8080/uploads/profile-images/" + fileName;
+                user.setProfileImage(imageUrl);
+                userRepository.save(user);
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to upload profile photo: " + e.getMessage());
+        }
+
+        return mapUserToUserResponseDTO(user);
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (storedPassword == null || storedPassword.isBlank()) {
+            return false;
+        }
+
+        String incoming = rawPassword == null ? "" : rawPassword;
+        return storedPassword.equals(incoming.trim());
+    }
+
     private UserProfileResponseDTO mapUserToUserResponseDTO(User user) {
         UserProfileResponseDTO dto = new UserProfileResponseDTO();
         dto.setId(user.getId());
@@ -47,6 +114,7 @@ public class UserService {
         dto.setAddress(user.getAddress());
         dto.setPhone(user.getPhone());
         dto.setUserRole(user.getUserRole());
+        dto.setProfileImage(user.getProfileImage());
 
         // If user is a driver, include driver-specific data
         if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {

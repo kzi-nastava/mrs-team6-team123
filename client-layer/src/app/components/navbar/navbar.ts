@@ -65,6 +65,7 @@ export class NavbarComponent {
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
 
+
     effect(() => {
       const userType = this.authService.userType();
       if (userType === 'DRIVER') {

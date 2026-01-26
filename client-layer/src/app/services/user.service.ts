@@ -17,9 +17,22 @@ export class UserService {
     return this.http.get<UserProfile>(`${this.apiUrl}/${userId}`);
   }
 
-  // 2.3 Update User Profile
+  // 2.3 Update User Profile 
   updateUserProfile(userId: number, data: UpdateUserProfileRequest): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.apiUrl}/${userId}`, data);
+  }
+
+  changeUserPassword(userId: number, currentPassword: string, newPassword: string): Observable<void> {
+    const payload = {
+      currentPassword,
+      newPassword
+    };
+    return this.http.post<void>(`${this.apiUrl}/${userId}/change-password`, payload);
+  }
+
+  // Upload profile photo
+  uploadProfilePhoto(userId: number, formData: FormData): Observable<UserProfile> {
+    return this.http.post<UserProfile>(`${this.apiUrl}/${userId}/profile-photo`, formData);
   }
 
   // List Users (optional, for admin)
