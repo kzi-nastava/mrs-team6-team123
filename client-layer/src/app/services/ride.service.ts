@@ -7,12 +7,13 @@ import {
   RideEstimationResponse 
 } from '../models/ride-estimation.model';
 import { CancelRideRequest, CancelRideResponse, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
+import { TrackRideResponse } from '../models/track-ride.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RideService {
-  private apiUrl = `${environment.apiUrl}`;
+  private apiUrl = `${environment.apiUrl}/api/rides`;
 
   constructor(private http: HttpClient) {}
 
@@ -21,6 +22,9 @@ export class RideService {
     return this.http.post<RideEstimationResponse>(this.apiUrl, request);
   }
 
+  trackRide(rideId: number): Observable<TrackRideResponse> {
+    return this.http.get<TrackRideResponse>(`${this.apiUrl}/${rideId}/tracking`)
+  }
 
   // 2.6.1 Start Ride
   startRide(rideId: number): Observable<RideResponse> {

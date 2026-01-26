@@ -1,11 +1,17 @@
 <div class="track-ride-container">
   <div class="content-wrapper">
-    <app-map></app-map>
+    <app-map 
+      [mode]="'TRACK'"
+      [track]="ride">
+    </app-map>
 
     <div class="right-panel">
-      <!-- Ride Tracking Component -->
-      <app-track-ride [ride]="ride"></app-track-ride>
+      <app-track-ride 
+        *ngIf="ride" 
+        [ride]="ride">
+      </app-track-ride>
 
+</div>
       <!-- Action Buttons Section -->
       <div class="actions-section" *ngIf="ride.status === 'active'">
         <!-- Passenger Actions -->

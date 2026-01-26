@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Ride } from '../track-ride/ride-info/ride-info';
+
 
 @Component({
   selector: 'app-active-rides-card',
@@ -12,7 +12,7 @@ import { Ride } from '../track-ride/ride-info/ride-info';
   styleUrls: ['./active-rides-card.css'],
 })
 export class ActiveRidesCardComponent {
-  @Input() data!: Ride;
+  @Input() data!: any//Ride;
 
   constructor(private router: Router) {}
 

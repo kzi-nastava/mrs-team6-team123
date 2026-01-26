@@ -104,4 +104,7 @@ public class Ride {
             fetch = FetchType.EAGER
     )
     private List<IrregularityReport> irregularityReports = new ArrayList<>();
+
+    @Column(nullable = false)
+    private int stopsMade = 0;
 }

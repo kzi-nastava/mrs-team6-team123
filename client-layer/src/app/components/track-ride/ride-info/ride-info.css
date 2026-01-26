@@ -5,14 +5,14 @@
 
 .admin-info,
 .basic-info,
-.next-stop,
 .price-info,
-.passengers-info {
+.passengers-info,
+.reports-info {
   margin-bottom: 16px;
   padding-bottom: 8px;
 }
 
-.passengers-info {
+.reports-info {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
@@ -28,7 +28,8 @@
   font-weight: bold;
 }
 
-.passengers-list p {
+.passengers-list p,
+.reports-list p {
   margin: 4px 0;
 }
 

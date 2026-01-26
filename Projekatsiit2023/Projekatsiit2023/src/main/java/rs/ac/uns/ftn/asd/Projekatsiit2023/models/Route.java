@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,4 +36,13 @@ public class Route {
 
     @Column(nullable = false)
     private double endLongitude;
+
+    @OneToMany(
+            mappedBy = "route",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    @OrderBy("stopOrder ASC")
+    private List<RouteStop> stops = new ArrayList<>();
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Pricing } from '../../../models/pricing.model';
 import { PricingService } from '../../../services/pricing.service';
@@ -14,7 +14,10 @@ import { PricingService } from '../../../services/pricing.service';
 export class AdminPricingComponent {
   prices: Pricing[] = [];
 
-  constructor(private pricingService: PricingService) {}
+  constructor(
+    private pricingService: PricingService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.getPricing();
@@ -27,6 +30,7 @@ export class AdminPricingComponent {
       next: (data: Pricing[]) => {
         console.log('Pricing from backend:', data);
         this.prices = data;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Error loading pricing', err);
