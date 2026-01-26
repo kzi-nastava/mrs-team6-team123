@@ -12,7 +12,7 @@ export interface UserProfile {
   totalRides?: number;
   rating?: number;
   vehicle?: Vehicle;
-  
+  profileImage?: string;
 }
 
 export interface UpdateUserProfileRequest {
@@ -21,4 +21,5 @@ export interface UpdateUserProfileRequest {
   email: string;
   phone: string;
   address: string;
+  profileImage?: string;
 }
