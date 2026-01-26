@@ -26,6 +26,10 @@ export class RideService {
     return this.http.get<TrackRideResponse>(`${this.apiUrl}/${rideId}/tracking`)
   }
 
+  finishRide(rideId: number) {
+    return this.http.post<any>(`${this.apiUrl}/${rideId}/finish`, null);
+  }
+
   // 2.6.1 Start Ride
   startRide(rideId: number): Observable<RideResponse> {
     return this.http.post<RideResponse>(

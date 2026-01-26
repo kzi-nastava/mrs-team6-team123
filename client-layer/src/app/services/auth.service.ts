@@ -79,6 +79,6 @@ export class AuthService {
 
   getUserType() {
     //return this.userRole();
-    return 'PASSENGER';
+    return 'DRIVER';
   }
 }
