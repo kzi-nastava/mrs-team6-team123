@@ -27,4 +27,8 @@ public class RouteStop {
 
     @Column(nullable = false)
     private int stopOrder;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "route_id", nullable = false)
+    private Route route;
 }
