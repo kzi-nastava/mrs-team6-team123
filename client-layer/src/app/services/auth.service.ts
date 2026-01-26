@@ -83,6 +83,6 @@ export class AuthService {
 
   getUserType() {
     //return this.userRole();
-    return 'ADMIN';
+    return 'PASSENGER';
   }
 }

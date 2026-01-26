@@ -7,7 +7,7 @@
     <div class="basic-info" *ngIf="rideInfo">
         <p><strong>From:</strong> {{ rideInfo.from }}</p>
         <p><strong>To:</strong> {{ rideInfo.to }}</p>
-        <p class="time-left"><strong>{{ rideInfo.timeLeft }}m</strong></p>
+        <p class="time-left"><strong>{{ rideInfo.duration }}m</strong></p>
     </div>
 
     <div class="price-info" *ngIf="isDriver && rideInfo">

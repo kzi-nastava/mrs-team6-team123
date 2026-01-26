@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { ReportDriverComponent } from '../../report-driver/report-driver';
 import { MatDialog } from '@angular/material/dialog';
+import { TrackRideResponse } from '../../../models/track-ride.model';
 
 @Component({
   selector: 'app-ride-actions',
@@ -12,6 +13,8 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./ride-actions.css'],
 })
 export class RideActionsComponent {
+  @Input() ride!: TrackRideResponse;
+
   constructor(
     public auth: AuthService,
     private dialog: MatDialog
@@ -20,15 +23,15 @@ export class RideActionsComponent {
   userType = computed(() => this.auth.getUserType());
 
   get isAdmin() {
-    return this.userType() === 'admin';
+    return this.userType() === 'ADMIN';
   }
 
   get isDriver() {
-    return this.userType() === 'driver';
+    return this.userType() === 'DRIVER';
   }
 
   get isPassenger() {
-    return this.userType() === 'passenger';
+    return this.userType() === 'PASSENGER';
   }
 
   @Output() panicClicked = new EventEmitter<void>();

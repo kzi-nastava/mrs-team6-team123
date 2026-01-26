@@ -1,6 +1,9 @@
 <div class="track-ride-container">
   <div class="content-wrapper">
-    <app-map></app-map>
+    <app-map 
+      [mode]="'TRACK'"
+      [track]="ride">
+    </app-map>
 
     <div class="right-panel">
       <app-track-ride 

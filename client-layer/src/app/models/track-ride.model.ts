@@ -10,7 +10,7 @@ export interface RideInfo {
     from: string;
     to: string;
     price: number;
-    timeLeft: number;
+    duration: number;
     passengers: string[];
     reports: string[];
 }

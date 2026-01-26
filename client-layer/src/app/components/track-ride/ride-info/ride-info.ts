@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, Input } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { RideInfo } from '../../../models/track-ride.model';
 
@@ -13,7 +13,9 @@ import { RideInfo } from '../../../models/track-ride.model';
 export class RideInfoComponent {
   @Input() rideInfo!: RideInfo;
 
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService
+  ) {}
 
   userType = computed(() => this.auth.getUserType());
 

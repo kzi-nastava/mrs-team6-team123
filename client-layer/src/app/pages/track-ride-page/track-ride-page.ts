@@ -9,7 +9,6 @@ import { CancelRideDialogComponent } from '../../components/cancel-ride/cancel-r
 import { StopRideDialogComponent } from '../../components/stop-ride/stop-ride';
 import { TrackRideResponse } from '../../models/track-ride.model';
 import { RideService } from '../../services/ride.service';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-track-ride-page',
@@ -31,7 +30,6 @@ export class TrackRidePageComponent implements OnInit{
   constructor(
     private dialog: MatDialog,
     private rideService: RideService,
-    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
