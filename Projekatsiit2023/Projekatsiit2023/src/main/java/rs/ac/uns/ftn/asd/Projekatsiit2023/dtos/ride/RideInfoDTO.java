@@ -16,7 +16,7 @@ public class RideInfoDTO {
     private String from;
     private String to;
     private double price;
-    private int timeLeft;
+    private int duration;
     private List<String> passengers = new ArrayList<>();
     private List<String> reports = new ArrayList<>();
 }

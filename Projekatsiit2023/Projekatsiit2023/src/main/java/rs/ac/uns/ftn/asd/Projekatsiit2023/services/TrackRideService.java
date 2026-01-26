@@ -57,11 +57,8 @@ public class TrackRideService {
         return geoPointDTO;
     }
 
-    private int calculateTimeLeft(Ride ride) {
-        int totalSegments = ride.getRoute().getStops().size() + 1;
-        double progress = (double) ride.getStopsMade() / totalSegments;
-        double remainingDistance = ride.getTotalDistance() * (1 - progress);
-        double remainingTimeHours = remainingDistance / AVERAGE_SPEED_KMH;
+    private int calculateDuration(Ride ride) {
+        double remainingTimeHours = ride.getTotalDistance() / AVERAGE_SPEED_KMH;
         return (int) Math.ceil(remainingTimeHours * 60);
     }
 
@@ -74,7 +71,7 @@ public class TrackRideService {
         for (var passenger : ride.getPassengers()) {
             dto.getInfo().getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
         }
-        dto.getInfo().setTimeLeft(calculateTimeLeft(ride));
+        dto.getInfo().setDuration(calculateDuration(ride));
         for (var report : ride.getIrregularityReports()) {
             dto.getInfo().getReports().add(report.getDescription());
         }
