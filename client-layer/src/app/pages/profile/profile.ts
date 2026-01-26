@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserProfile } from '../../models/user';
 import { UserService } from '../../services/user.service';
 import { ChangePasswordFormComponent } from '../../components/change-password-form/change-password-form';
-import { first } from 'rxjs';
+import { first, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -20,9 +20,11 @@ export class ProfileComponent implements OnInit {
   userType: string | null = null;
   isEditMode = false;
   showChangePasswordForm = false;
+  isSaving = false;
+  saveError = '';
   userProfile: UserProfile | null = null;
   profileData : UserProfile = {
-    id: 3,
+    id: 0,
     firstName: '',
     lastName: '',
     email: '',
@@ -38,12 +40,46 @@ export class ProfileComponent implements OnInit {
     address: ''
   };
 
-  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    const userId = 3;
-    this.loadUser(userId);
+    this.authService.currentUser$
+      .pipe(first())
+      .subscribe({
+        next: (authUser) => {
+          const userId = authUser?.userId ?? this.getStoredUserId();
 
+          if (!userId) {
+            console.warn('No logged-in user found; cannot load profile.');
+            return;
+          }
+
+          this.loadUser(userId);
+        },
+        error: (err) => {
+          console.error('Error retrieving logged-in user info:', err);
+        }
+      });
+
+  }
+
+  private getStoredUserId(): number | null {
+    const storedUser = localStorage.getItem('current_user');
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(storedUser) as { userId?: number };
+      return parsed.userId ?? null;
+    } catch (err) {
+      console.warn('Failed to parse stored user info:', err);
+      return null;
+    }
   }
 
   loadUser(userId: number) {
@@ -89,6 +125,10 @@ export class ProfileComponent implements OnInit {
   }
 
   saveProfile() {
+    if (this.isSaving) return;
+    this.isSaving = true;
+    this.saveError = '';
+
     const userId = this.profileData.id;
     const updatedData = {
       firstName: this.editFormData.firstName,
@@ -97,15 +137,29 @@ export class ProfileComponent implements OnInit {
       phone: this.editFormData.phone,
       address: this.editFormData.address
     };
-    this.userService.updateUserProfile(userId, updatedData).subscribe({
-      next: (updatedProfile) => {
-        this.profileData = updatedProfile;
-        this.isEditMode = false;
-      },
-      error: (err) => {
-        console.error('Error updating profile', err);
-      }
-    });
+    this.userService.updateUserProfile(userId, updatedData)
+      .pipe(finalize(() => {
+        this.isSaving = false;
+      }))
+      .subscribe({
+        next: (updatedProfile) => {
+          // If user is a driver, changes go for admin approval
+          const isDriver = this.userType === 'driver' || updatedProfile?.userRole === 'DRIVER';
+          if (isDriver) {
+            this.profileData = { ...this.profileData, ...updatedData } as UserProfile;
+            window.alert('Changes sent for admin approval.');
+          } else {
+            this.profileData = updatedProfile;
+          }
+          this.isEditMode = false;
+          this.cdr.detectChanges();
+          console.log('Profile save handled; edit mode off. Driver pending flow:', isDriver);
+        },
+        error: (err) => {
+          console.error('Error updating profile', err);
+          this.saveError = 'Failed to save changes. Please try again.';
+        }
+      });
   }
 
   cancelEdit() {

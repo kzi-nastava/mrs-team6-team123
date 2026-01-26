@@ -64,6 +64,8 @@ export class NavbarComponent {
 
   constructor(private authService: AuthService) {
       // TEST: Uncomment one to test
+       //this.authService.userType.set('ADMIN');
+
 
 
     effect(() => {
