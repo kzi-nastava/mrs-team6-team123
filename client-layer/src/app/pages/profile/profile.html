@@ -13,9 +13,14 @@
       <button class="btn-edit-profile" (click)="toggleEditMode()">edit profile</button>
     </div>
     <div class="header-buttons" *ngIf="isEditMode">
-      <button class="btn-save" (click)="saveProfile()">save</button>
-      <button class="btn-cancel" (click)="cancelEdit()">cancel</button>
+      <button class="btn-save" type="button" (click)="saveProfile()" [disabled]="isSaving">
+        save
+      </button>
+      <button class="btn-cancel" type="button" (click)="cancelEdit()" [disabled]="isSaving">
+        cancel
+      </button>
     </div>
+    <div *ngIf="saveError" class="save-error">{{ saveError }}</div>
   </div>
 
   <div class="profile-content">
@@ -23,7 +28,11 @@
     <div class="left-section">
       <div class="profile-card">
         <div class="profile-avatar">
-          <img [src]="profileData.profileImage || '/icons8-user-48.png'" alt="User Profile" class="avatar-icon" />
+          <img
+            [src]="profileData.profileImage || '/icons8-user-48.png'"
+            alt="User Profile"
+            class="avatar-icon"
+          />
           <button
             class="edit-avatar-btn"
             type="button"

@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <form class="form-shell" (ngSubmit)="submit()" novalidate>
+  <form class="form-shell" #driverFormRef="ngForm" (ngSubmit)="submit(driverFormRef)" novalidate>
     <div class="form-grid">
       <section class="card-block">
         <h2>Driver information</h2>

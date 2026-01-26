@@ -11,13 +11,8 @@
         <!-- Passenger Actions -->
         <div class="passenger-actions" *ngIf="userRole === 'passenger'">
           <h3>Ride Actions</h3>
-          
-          <button 
-            mat-raised-button 
-            color="warn"
-            class="action-btn"
-            (click)="openCancelDialog()"
-            >
+
+          <button mat-raised-button color="warn" class="action-btn" (click)="openCancelDialog()">
             Cancel Ride
           </button>
 
@@ -29,12 +24,8 @@
         <!-- Driver Actions -->
         <div class="driver-actions" *ngIf="userRole === 'driver'">
           <h3>Driver Actions</h3>
-          
-          <button 
-            mat-raised-button 
-            color="accent"
-            class="action-btn"
-            (click)="openStopDialog()">
+
+          <button mat-raised-button color="accent" class="action-btn" (click)="openStopDialog()">
             Stop Ride Early
           </button>
 
@@ -53,8 +44,5 @@
   </div>
 
   <!-- Floating Panic Button (visible for both passengers and drivers) -->
-  <app-panic-button 
-    [rideInfo]="rideInfo"
-    [buttonStyle]="'floating'">
-  </app-panic-button>
+  <app-panic-button [rideInfo]="rideInfo" [buttonStyle]="'floating'"> </app-panic-button>
 </div>
