@@ -13,15 +13,13 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
 @RequestMapping("/api/rides")
 public class RideController {
     private final TrackRideService trackRideService;
+    private final RideCancellationService cancellationService;
 
-    public RideController(TrackRideService trackRideService) {
-        this.trackRideService = trackRideService;
-    }
-
-     private final RideCancellationService cancellationService;
-
-     public RideController(RideCancellationService cancellationService) {
+    public RideController(
+             RideCancellationService cancellationService,
+             TrackRideService trackRideService) {
         this.cancellationService = cancellationService;
+        this.trackRideService = trackRideService;
     }
 
 
