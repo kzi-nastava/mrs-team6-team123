@@ -8,7 +8,7 @@ import { DriverRegistrationRequest, DriverResponse } from '../models/driver.mode
   providedIn: 'root'
 })
 export class DriverService {
-  private apiUrl = `${environment.apiUrl}/drivers`;
+  private apiUrl = `${environment.apiUrl}/api/drivers`;
 
   constructor(private http: HttpClient) {}
 

@@ -40,19 +40,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> {
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/drivers/**").permitAll()
                         .requestMatchers("/api/ride-estimation").permitAll()
                         .requestMatchers("/api/public-map/**").permitAll()
                         .requestMatchers("/api/rides/**").permitAll()
-                        .requestMatchers("/api/route").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
 
+        // Za H2 console
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
