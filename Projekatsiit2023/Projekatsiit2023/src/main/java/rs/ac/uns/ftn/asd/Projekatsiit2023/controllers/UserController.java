@@ -2,7 +2,9 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.ChangePasswordRequest;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.UserService;
@@ -30,5 +32,21 @@ public class UserController {
     public ResponseEntity<UserProfileResponseDTO> updateProfile(@PathVariable Long userId,
             @RequestBody UserProfileRequestDTO request) {
         return ResponseEntity.ok(userService.updateProfile(userId, request));
+    }
+
+    // Promena lozinke korisnika
+    @PostMapping("/{userId}/change-password")
+    public ResponseEntity<Void> changeUserPassword(@PathVariable Long userId,
+            @RequestBody ChangePasswordRequest request) {
+        userService.changeUserPassword(userId, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
+
+    // Upload profile photo
+    @PostMapping("/{userId}/profile-photo")
+    public ResponseEntity<UserProfileResponseDTO> uploadProfilePhoto(@PathVariable Long userId,
+            @RequestParam("profileImage") MultipartFile file) {
+        UserProfileResponseDTO response = userService.uploadProfilePhoto(userId, file);
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,21 +1,25 @@
-import { Component, OnInit, ɵsetUnknownPropertyStrictMode, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ɵsetUnknownPropertyStrictMode, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UserProfile } from '../../models/user';
 import { UserService } from '../../services/user.service';
+import { ChangePasswordFormComponent } from '../../components/change-password-form/change-password-form';
 import { first } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChangePasswordFormComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css'],
 })
 export class ProfileComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   userType: string | null = null;
   isEditMode = false;
+  showChangePasswordForm = false;
   userProfile: UserProfile | null = null;
   profileData : UserProfile = {
     id: 3,
@@ -45,16 +49,14 @@ export class ProfileComponent implements OnInit {
   loadUser(userId: number) {
     this.userService.getUserProfile(userId).subscribe({
       next: (user) => {
-        console.log('Full user object received from backend:', user);
-        console.log('User role from backend:', user.userRole);
-        console.log('Type of userRole:', typeof user.userRole);
-        
         this.profileData = { ...user };
         
         // Set userType based on role from backend
-        this.userType = user.userRole === 'DRIVER' ? 'driver' : 'passenger';
-        console.log('Calculated userType:', this.userType);
-        console.log('Condition check - user.userRole === DRIVER:', user.userRole === 'DRIVER');
+        if (user.userRole === 'ADMIN') this.userType = 'admin';
+        else if (user.userRole === 'DRIVER') this.userType = 'driver';
+        else this.userType = 'registered-user';
+
+        // Initialize edit form data
 
         this.editFormData = {
           firstName: user.firstName,
@@ -111,6 +113,34 @@ export class ProfileComponent implements OnInit {
   }
 
   changePassword() {
-    console.log('Change password clicked');
+    this.showChangePasswordForm = true;
+  }
+
+  triggerFileInput() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.uploadProfilePhoto(file);
+    }
+  }
+
+  uploadProfilePhoto(file: File) {
+    const formData = new FormData();  
+    formData.append('profileImage', file);
+
+    this.userService.uploadProfilePhoto(this.profileData.id, formData).subscribe({
+      next: (response) => {
+        // Update display with new image
+        this.profileData.profileImage = response.profileImage;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error uploading profile photo:', err);
+      }
+    });
   }
 }

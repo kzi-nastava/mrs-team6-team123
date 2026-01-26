@@ -12,6 +12,8 @@ import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/d
 import { RateRideComponent } from './components/rate-ride/rate-ride';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
+import { ActivateAccountComponent } from './pages/auth/activate-account/activate-account';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
@@ -27,5 +29,8 @@ export const routes: Routes = [
   { path: 'admin/drivers', component: DriverRegistration },
   { path: 'track-ride-page', component: TrackRidePageComponent },
   { path: 'rate-ride', component: RateRideComponent },
-  { path: 'admin-pricing', component: AdminPricingComponent }
+  { path: 'admin-pricing', component: AdminPricingComponent },
+  {path: 'activate',component: ActivateAccountComponent},
+  {path: 'forgot-password', component: ForgotPasswordComponent},
+  {path: 'reset-password', component: ResetPasswordComponent}
 ];

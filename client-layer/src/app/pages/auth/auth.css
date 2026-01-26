@@ -39,6 +39,12 @@
   box-shadow: 0 0 6px rgba(93, 124, 91, 0.25);
 }
 
+.auth-container input:disabled {
+  background: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* dugmad */
 .auth-container button {
   margin-top: 8px;
@@ -53,12 +59,17 @@
   transition: background-color 0.2s, transform 0.1s;
 }
 
-.auth-container button:hover {
+.auth-container button:hover:not(:disabled) {
   background: #4a6249;
 }
 
-.auth-container button:active {
+.auth-container button:active:not(:disabled) {
   transform: scale(0.97);
+}
+
+.auth-container button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 /* linkovi ispod forme */
@@ -79,8 +90,52 @@
   transition: color 0.2s;
 }
 
-.link-btn:hover {
+.link-btn:hover:not(:disabled) {
   color: #4a6249;
+}
+
+.link-btn:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Error message */
+.error-message {
+  background: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  padding: 12px;
+  color: #c62828;
+  font-size: 14px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+/* Success message */
+.success-message {
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  padding: 12px;
+  color: #2e7d32;
+  font-size: 14px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.info-text {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.redirect-info {
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  margin-top: 12px;
 }
 
 /* responsive */
@@ -92,5 +147,10 @@
 
   .auth-container h1 {
     font-size: 24px;
+  }
+
+  .auth-links {
+    flex-direction: column;
+    gap: 8px;
   }
 }

@@ -1,11 +1,13 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers.ride;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -15,6 +17,13 @@ public class RideController {
     public RideController(TrackRideService trackRideService) {
         this.trackRideService = trackRideService;
     }
+
+     private final RideCancellationService cancellationService;
+
+     public RideController(RideCancellationService cancellationService) {
+        this.cancellationService = cancellationService;
+    }
+
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
@@ -96,18 +105,16 @@ public class RideController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{rideId}/cancel")
-    public ResponseEntity<CancelRideResponseDTO> cancelRide(
-            @PathVariable Long rideId,
-            @RequestBody CancelRideRequestDTO cancelRequest) {
-        // TODO: Validate if ride can be cancelled (10 min before start for passengers)
-        // TODO: Check who is cancelling (driver or passenger)
-        // TODO: Send notifications to all parties
-        CancelRideResponseDTO response = new CancelRideResponseDTO();
-        response.setRideId(rideId);
-        response.setCancelledBy(cancelRequest.getUserId());
-        response.setReason(cancelRequest.getReason());
-        response.setMessage("Ride successfully cancelled.");
-        return ResponseEntity.ok(response);
+        @PostMapping("/{rideId}/cancel")
+            public ResponseEntity<?> cancelRide(
+                    @PathVariable Long rideId,
+                    @RequestBody CancelRideRequestDTO cancelRequest) {
+                try {
+                    CancelRideResponseDTO response = cancellationService.cancelRide(rideId, cancelRequest);
+                    return ResponseEntity.ok(response);
+                } catch (RuntimeException e) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(e.getMessage());
+                }
+            }
     }
-}
