@@ -10,7 +10,7 @@ import { UserRole } from '../models/enums';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/auth`;
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private currentUserSubject = new BehaviorSubject<LoginResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -24,12 +24,8 @@ export class AuthService {
     }
   }
 
-  login(user: UserProfile) {
-    this.currentUser.set(user);
-    this.userType.set(user.role);
-  }
   
-  /*
+  
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
@@ -41,7 +37,7 @@ export class AuthService {
         })
       );
   }
-  */
+
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('auth_token');
