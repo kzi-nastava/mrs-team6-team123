@@ -17,6 +17,7 @@ export interface RideInfo {
 
 export interface TrackRideResponse {
     rideId: number;
+    driverId: number;
     stops: RideStop[];
     stopsMade: number;
     info: RideInfo;

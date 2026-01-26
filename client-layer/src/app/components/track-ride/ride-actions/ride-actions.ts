@@ -51,7 +51,8 @@ export class RideActionsComponent {
   onReport() {
     const dialogRef = this.dialog.open(ReportDriverComponent, {
       width: '350px',
-      height: '350px'
+      height: '350px',
+      data: this.ride 
     });
 
     dialogRef.afterClosed().subscribe(result => {

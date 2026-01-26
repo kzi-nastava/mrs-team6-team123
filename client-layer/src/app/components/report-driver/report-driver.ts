@@ -1,30 +1,49 @@
-import { Component, Input } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, Input } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TrackRideResponse } from '../../models/track-ride.model';
+import { FormsModule } from '@angular/forms';
+import { ReportRequest } from '../../models/report.model';
+import { ReportService } from '../../services/report.service';
 
 @Component({
   selector: 'app-report-driver',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './report-driver.html',
   styleUrls: ['./report-driver.css'],
 })
 export class ReportDriverComponent {
-  //@Input data = {};
-
-  data = {
-    "driver": "John Doe",
-    "vehicle": "Peugeout AA123TX"
-  }
   comment = '';
 
-  constructor(public dialogRef: MatDialogRef<ReportDriverComponent>) {}
+  constructor (
+    public dialogRef: MatDialogRef<ReportDriverComponent>,
+    @Inject(MAT_DIALOG_DATA) public ride: TrackRideResponse,
+    public service: ReportService
+  ) {}
 
   close() {
     this.dialogRef.close();
   }
 
   submit() {
-    this.dialogRef.close({ comment: this.comment });
+    const reportRequest: ReportRequest = {
+      rideId: this.ride.rideId,
+      authorId: 2,
+      comment: this.comment
+    }
+    this.sendReport(reportRequest);
+    this.dialogRef.close(reportRequest);
+  }
+
+  private sendReport(report: ReportRequest) {
+    this.service.reportDriver(report).subscribe({
+      next: () => {
+        console.log('Report successfully sent');
+      },
+      error: (err) => {
+        console.error('Error sending report:', err);
+      }
+    });
   }
   
 }

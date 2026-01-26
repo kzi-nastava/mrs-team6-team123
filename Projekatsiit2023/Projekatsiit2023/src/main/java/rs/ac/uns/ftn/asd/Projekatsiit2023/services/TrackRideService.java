@@ -29,6 +29,7 @@ public class TrackRideService {
     public RideTrackingResponseDTO mapRideToRideTrackingDTO(Optional<Ride> ride) {
         RideTrackingResponseDTO dto = new RideTrackingResponseDTO();
         dto.setRideId(ride.get().getId());
+        dto.setDriverId(ride.get().getDriver().getId());
         dto.getStops().add(mapStopToGeoPointDTO(
                 ride.get().getRoute().getStartLatitude(),
                 ride.get().getRoute().getStartLongitude(),

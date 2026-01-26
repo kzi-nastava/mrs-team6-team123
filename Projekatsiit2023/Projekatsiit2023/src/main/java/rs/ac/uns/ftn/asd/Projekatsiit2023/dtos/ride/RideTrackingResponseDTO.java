@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RideTrackingResponseDTO {
     private Long rideId;
+    private Long driverId;
     private List<GeoPointDTO> stops = new ArrayList<>();
     private int stopsMade = 0;
     private RideInfoDTO info = new RideInfoDTO();
