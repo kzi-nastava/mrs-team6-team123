@@ -33,12 +33,12 @@ public class AuthService {
     private final ActivationTokenRepository activationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    public AuthService(UserRepository userRepository, 
-                      PasswordEncoder passwordEncoder,
-                      JwtTokenProvider jwtTokenProvider,
-                      EmailService emailService,
-                      ActivationTokenRepository activationTokenRepository,
-                      PasswordResetTokenRepository passwordResetTokenRepository) {
+    public AuthService(UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtTokenProvider jwtTokenProvider,
+            EmailService emailService,
+            ActivationTokenRepository activationTokenRepository,
+            PasswordResetTokenRepository passwordResetTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -111,16 +111,16 @@ public class AuthService {
         System.out.println("   Email: " + passenger.getEmail());
         System.out.println("   Role: " + passenger.getUserRole());
         System.out.println("   Class: " + passenger.getClass().getName());
-        
+
         User savedUser = userRepository.save(passenger);
-        
+
         System.out.println("✅ After save - User saved:");
         System.out.println("   ID: " + savedUser.getId());
         System.out.println("   Email: " + savedUser.getEmail());
         System.out.println("   Class: " + savedUser.getClass().getName());
-        
+
         userRepository.flush(); // Force commit to DB
-        
+
         long count = userRepository.count();
         System.out.println("📊 Total users in DB: " + count);
 
@@ -212,6 +212,7 @@ public class AuthService {
         // Resetuj lozinku
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setAccountActivated(true);
         userRepository.save(user);
 
         // Označi token kao iskorišćen

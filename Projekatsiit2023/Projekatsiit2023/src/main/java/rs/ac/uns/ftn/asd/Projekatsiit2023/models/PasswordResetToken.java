@@ -37,7 +37,7 @@ public class PasswordResetToken {
         this.token = token;
         this.user = user;
         this.createdAt = LocalDateTime.now();
-        this.expiresAt = LocalDateTime.now().plusHours(1); // 1 sat
+        this.expiresAt = LocalDateTime.now().plusHours(24); // 24 sata
     }
 
     public boolean isExpired() {
