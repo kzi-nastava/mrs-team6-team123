@@ -39,10 +39,13 @@ public class DriverService {
         driver.setPhone(request.getPhone());
         driver.setAddress(request.getAddress());
 
+        // Temp password - will be replaced when driver sets their own
         driver.setPassword("temp123");
         driver.setUserRole(UserRole.DRIVER);
         driver.setAccountActivated(false);
         driver.setAccountBlocked(false);
+
+        // Driver defaults
         driver.setStatus(DriverStatus.PENDING_APPROVAL);
         driver.setActive(false);
         driver.setActiveMinutesLast24h(0);
@@ -61,10 +64,12 @@ public class DriverService {
 
         Driver saved = driverRepository.save(driver);
 
+        // Generate password reset token for driver to set their own password
         String tokenString = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken(tokenString, saved);
         passwordResetTokenRepository.save(resetToken);
 
+        // Send email with password setup link
         String setupLink = "http://localhost:4200/reset-password?token=" + tokenString;
         emailService.sendDriverWelcomeEmail(saved.getEmail(), saved.getFirstName(), setupLink);
 
