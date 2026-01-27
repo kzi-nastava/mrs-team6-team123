@@ -10,6 +10,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.services.FinishRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RateRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideStopService;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -108,28 +109,27 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/stop")
-    public ResponseEntity<StopRideResponseDTO> stopRide(
-            @PathVariable Long rideId,
-            @RequestBody StopRideRequestDTO stopRequest) {
-        StopRideResponseDTO response = new StopRideResponseDTO();
-        response.setRideId(rideId);
-        response.setStoppedLocation(stopRequest.getCurrentLocation());
-        response.setStoppedAt(stopRequest.getStoppedAt());
-        response.setRecalculatedPrice(850.0);
-        response.setMessage("Ride stopped successfully.");
-        return ResponseEntity.ok(response);
-    }
-
-        @PostMapping("/{rideId}/cancel")
-            public ResponseEntity<?> cancelRide(
-                    @PathVariable Long rideId,
-                    @RequestBody CancelRideRequestDTO cancelRequest) {
-                try {
-                    CancelRideResponseDTO response = cancellationService.cancelRide(rideId, cancelRequest);
-                    return ResponseEntity.ok(response);
-                } catch (RuntimeException e) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(e.getMessage());
-                }
+        public ResponseEntity<?> stopRide(
+                @PathVariable Long rideId,
+                @RequestBody StopRideRequestDTO stopRequest) {
+            try {
+                StopRideResponseDTO response = rideStopService.stopRide(rideId, stopRequest);
+                return ResponseEntity.ok(response);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
+        }
+
+    @PostMapping("/{rideId}/cancel")
+        public ResponseEntity<?> cancelRide(
+                @PathVariable Long rideId,
+                @RequestBody CancelRideRequestDTO cancelRequest) {
+            try {
+                CancelRideResponseDTO response = cancellationService.cancelRide(rideId, cancelRequest);
+                return ResponseEntity.ok(response);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(e.getMessage());
+            }
+        }
     }
