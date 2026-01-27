@@ -12,6 +12,7 @@ import {
   ResetPasswordRequest
 } from '../models/auth.model';
 import { UserRole } from '../models/enums';
+import { UserService } from './user.service';
 
 export interface CurrentUser {
   userId: number;

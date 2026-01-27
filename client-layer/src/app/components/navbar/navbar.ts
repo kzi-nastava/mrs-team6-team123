@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, effect, computed } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -24,6 +25,7 @@ export class NavbarComponent {
 
   links: { route: string; icon: string }[] = [];
   menuActive = false;
+  userRole: string = 'GUEST';
 
   isLoggedIn = computed(() => this.authService.isLoggedIn());
 
@@ -65,24 +67,29 @@ export class NavbarComponent {
     { route: '/profile', icon: 'user.png' }
   ]
 
-  constructor(private authService: AuthService) {
-      // TEST: Uncomment one to test
-       //this.authService.userType.set('ADMIN');
-
-
-
-    effect(() => {
-      const userType = this.authService.userType();
-      if (userType === 'DRIVER') {
-        this.links = [...this.driverLinks];
-      } else if (userType === 'PASSENGER') {
-        this.links = [...this.registeredUserLinks];
-      } else if (userType === 'ADMIN') {
-        this.links = [...this.adminLinks];
-      } else {
-        this.links = [...this.guestLinks];
-      }
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {
+    // Subscribe to current user changes
+    this.authService.currentUser$.subscribe(user => {
+      this.userRole = user?.role || 'GUEST';
+      this.updateLinks();
+      this.cdr.markForCheck(); // Notify Angular of changes
     });
+  }
+
+  ngOnInit() {
+    this.updateLinks();
+  }
+
+  private updateLinks() {
+    if (this.userRole === 'DRIVER') {
+      this.links = [...this.driverLinks];
+    } else if (this.userRole === 'PASSENGER') {
+      this.links = [...this.registeredUserLinks];
+    } else if (this.userRole === 'ADMIN') {
+      this.links = [...this.adminLinks];
+    } else {
+      this.links = [...this.guestLinks];
+    }
   }
 
   toggleMenu() {
