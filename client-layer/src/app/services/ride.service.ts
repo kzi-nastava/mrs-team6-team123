@@ -8,6 +8,7 @@ import {
 } from '../models/ride-estimation.model';
 import { CancelRideRequest, CancelRideResponse, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
 import { TrackRideResponse } from '../models/track-ride.model';
+import { RateRideRequest, RateRideResponse } from '../models/rate-ride.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,18 @@ export class RideService {
 
   trackRide(rideId: number): Observable<TrackRideResponse> {
     return this.http.get<TrackRideResponse>(`${this.apiUrl}/${rideId}/tracking`)
+  }
+
+  finishRide(rideId: number) {
+    return this.http.post<any>(`${this.apiUrl}/${rideId}/finish`, null);
+  }
+
+  getRideForRating(rideId: number) {
+    return this.http.get<RateRideRequest>(`${this.apiUrl}/${rideId}/for-rating`);
+  }
+
+  rateRide(response: RateRideResponse) {
+    return this.http.post<RateRideResponse>(`${this.apiUrl}/${response.rideId}/rate`, response);
   }
 
   // 2.6.1 Start Ride

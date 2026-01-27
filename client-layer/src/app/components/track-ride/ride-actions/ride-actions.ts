@@ -5,6 +5,7 @@ import { ReportDriverComponent } from '../../report-driver/report-driver';
 import { MatDialog } from '@angular/material/dialog';
 import { TrackRideResponse } from '../../../models/track-ride.model';
 import { StopRideDialogComponent } from '../../stop-ride/stop-ride';
+import { RideService } from '../../../services/ride.service';
 
 @Component({
   selector: 'app-ride-actions',
@@ -18,7 +19,8 @@ export class RideActionsComponent {
 
   constructor(
     public auth: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public rideService: RideService
   ) {}
 
   userType = computed(() => this.auth.getUserType());
@@ -102,6 +104,20 @@ private getCurrentCoordinates(): string {
   }
 
   onFinish() {
-    this.finishClicked.emit();
+    this.rideService.finishRide(this.ride.rideId).subscribe({
+      next: () => {
+        console.log("Drive ended successfully");
+        window.alert('Drive is finished!');
+      },
+      error: (err) => {
+        console.error("Error finishing ride: ", err);
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Something went wrong';
+
+        window.alert(message);
+      }
+    });
   }
 }

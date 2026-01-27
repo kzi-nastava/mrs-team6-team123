@@ -30,6 +30,7 @@ export class UnregisteredHomeComponent {
     });
   }
 
+  /*
   openRateDialog() {
     const dialogRef = this.dialog.open(RateRideComponent, {
       width: '350px',
@@ -42,4 +43,5 @@ export class UnregisteredHomeComponent {
       }
     });
   }
+  */
 }

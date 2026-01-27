@@ -18,6 +18,7 @@ import { PassengerRideHistoryComponent } from './pages/user/passenger-ride-histo
 import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admin-ride-history';
 
 
+import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
 
 export const routes: Routes = [
   // Javne rute 
