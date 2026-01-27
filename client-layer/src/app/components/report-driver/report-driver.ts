@@ -39,6 +39,7 @@ export class ReportDriverComponent {
     this.service.reportDriver(report).subscribe({
       next: () => {
         console.log('Report successfully sent');
+        window.alert('Report sent successfully!');
       },
       error: (err) => {
         console.error('Error sending report:', err);

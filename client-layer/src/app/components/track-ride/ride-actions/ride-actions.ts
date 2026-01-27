@@ -72,6 +72,7 @@ export class RideActionsComponent {
     this.rideService.finishRide(this.ride.rideId).subscribe({
       next: () => {
         console.log("Drive ended successfully");
+        window.alert('Drive is finished!');
       },
       error: (err) => {
         console.error("Error finishing ride: ", err);

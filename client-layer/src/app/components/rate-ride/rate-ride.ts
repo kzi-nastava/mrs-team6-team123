@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
 import { RideService } from '../../services/ride.service';
 import { RateRideRequest, RateRideResponse } from '../../models/rate-ride.model';
 import { AuthService } from '../../services/auth.service';
@@ -67,7 +66,9 @@ export class RateRideComponent {
   }
 
   rateRide() {
-    var authorId = this.auth.getCurrentUserId();
+    //var authorId = this.auth.getCurrentUserId();
+
+    var authorId = 10;
 
     if (!authorId) {
       console.error('User not logged in');
@@ -88,6 +89,7 @@ export class RateRideComponent {
     this.rideService.rateRide(response).subscribe({
       next: () => {
         console.log('Ride rated successfully');
+        window.alert('Ride rated successfully!');
       },
       error: (err) => {
         console.error('Error rating ride:', err);
