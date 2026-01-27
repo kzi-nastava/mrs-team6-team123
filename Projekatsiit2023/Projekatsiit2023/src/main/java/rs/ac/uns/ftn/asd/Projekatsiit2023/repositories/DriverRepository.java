@@ -6,4 +6,5 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
+    boolean existsById(Long id);
 }

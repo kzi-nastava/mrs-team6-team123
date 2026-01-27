@@ -30,6 +30,11 @@ public class PanicAlertService {
         this.notificationService = notificationService;
     }
 
+    public PanicAlert getAlertById(Long alertId) {
+    return panicAlertRepository.findById(alertId)
+            .orElseThrow(() -> new RuntimeException("Panic alert not found"));
+}
+
     @Transactional
     public PanicAlert triggerPanic(Long rideId, Long userId, String currentLocation) {
         // Pronađi vožnju
