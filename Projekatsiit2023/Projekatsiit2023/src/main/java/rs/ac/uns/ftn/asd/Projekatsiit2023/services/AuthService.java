@@ -220,6 +220,7 @@ public LogoutResponseDTO logout(LogoutRequestDTO request) {
 
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setAccountActivated(true);
         userRepository.save(user);
 
         resetToken.setUsedAt(LocalDateTime.now());

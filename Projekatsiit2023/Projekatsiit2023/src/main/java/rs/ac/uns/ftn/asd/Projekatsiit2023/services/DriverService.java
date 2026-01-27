@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
@@ -21,13 +22,16 @@ public class DriverService {
     private final DriverRepository driverRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public DriverService(DriverRepository driverRepository,
-                        PasswordResetTokenRepository passwordResetTokenRepository,
-                        EmailService emailService) {
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService,
+            PasswordEncoder passwordEncoder) {
         this.driverRepository = driverRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -39,7 +43,9 @@ public class DriverService {
         driver.setPhone(request.getPhone());
         driver.setAddress(request.getAddress());
 
-        driver.setPassword("temp123");
+        // Temporary password - will be replaced when driver sets their own via password
+        // reset link
+        driver.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         driver.setUserRole(UserRole.DRIVER);
         driver.setAccountActivated(false);
         driver.setAccountBlocked(false);
