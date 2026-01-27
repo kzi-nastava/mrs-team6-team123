@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.FinishRideService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RateRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
 
@@ -16,14 +17,17 @@ public class RideController {
     private final TrackRideService trackRideService;
     private final RideCancellationService cancellationService;
     private final FinishRideService finishRideService;
+    private final RateRideService rateRideService;
 
     public RideController(
              RideCancellationService cancellationService,
              TrackRideService trackRideService,
-             FinishRideService finishRideService) {
+             FinishRideService finishRideService,
+             RateRideService rateRideService) {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.finishRideService = finishRideService;
+        this.rateRideService = rateRideService;
     }
 
 
@@ -84,15 +88,23 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/rate")
-    public ResponseEntity<RideRatingResponseDTO> rateRide(@RequestBody RideRatingRequestDTO request) {
-        RideRatingResponseDTO response = new RideRatingResponseDTO();
-        response.setRideId(request.getRideId());
-        // driverId and vehicleId will be found using rideId
-        response.setDriverId(20L);
-        response.setVehicleId(21L);
-        response.setDriverRating(request.getDriverRating());
-        response.setVehicleRating(request.getVehicleRating());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> rateRide(@RequestBody RideRatingResponseDTO response) {
+        try {
+            rateRideService.rateRide(response);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{rideId}/for-rating")
+    public ResponseEntity<?> getRideForRating(@PathVariable Long rideId) {
+        try {
+            RideRatingRequestDTO response = rateRideService.getRideForRating(rideId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping("/{rideId}/stop")
