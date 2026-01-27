@@ -6,7 +6,7 @@ import {
   RideEstimationRequest, 
   RideEstimationResponse 
 } from '../models/ride-estimation.model';
-import { CancelRideRequest, CancelRideResponse, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
+import { CancelRideRequest, CancelRideResponse, RideOrderRequest, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
 import { TrackRideResponse } from '../models/track-ride.model';
 
 @Injectable({

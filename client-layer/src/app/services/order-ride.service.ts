@@ -7,7 +7,7 @@ import { RideOrderRequest, RideResponse } from '../models/ride.model';
 @Injectable({
   providedIn: 'root'
 })
-export class RideService {
+export class OrderRideService {
   private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}

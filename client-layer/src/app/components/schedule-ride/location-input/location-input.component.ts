@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Subscription } from 'rxjs';
 import { GeocodeHit } from '../../../services/graphhopper.service';
-import { LocationAutocompleteService } from '../../../services/location-autocomplete.service';
+import { LocationAutocompleteService } from '../../../services/schedule_ride/location-autocomplete.service';
 
 @Component({
   selector: 'app-location-input',

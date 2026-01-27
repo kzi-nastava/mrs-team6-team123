@@ -1,27 +1,22 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { RideService } from '../../services/ride.service';
+import { OrderRideService } from '../../services/order-ride.service';
+import { UserService } from '../../services/user.service';
+import { PassengerManagementService } from '../../services/schedule_ride/passenger-management.service';
+import { StopManagementService } from '../../services/schedule_ride/stop-management.service';
 import { RideEstimationRequest, RideEstimationResponse } from '../../models/ride-estimation.model';
+import { RideOrderRequest, RideResponse } from '../../models/ride.model';
 import { VehicleType } from '../../models/enums';
 import { GeocodeHit } from '../../services/graphhopper.service';
 import { LocationInputComponent } from './location-input/location-input.component';
-
-interface Stop {
-  id: string;
-  address: string;
-  lat?: number;
-  lng?: number;
-}
-
-interface Passenger {
-  name: string;
-}
 
 @Component({
   selector: 'app-schedule-ride',
@@ -42,14 +37,23 @@ interface Passenger {
 export class ScheduleRideComponent {
   startAddress = '';
   endAddress = '';
-  stops: Stop[] = [];
   hasPet = false;
   hasBaby = false;
-  passengers: Passenger[] = [];
   vehicleType = 'STANDARD';
   scheduleType = 'now';
   scheduledTime = '';
   additionalInstructions = '';
+
+  @Output() locationsChanged = new EventEmitter<{
+    startLat?: number;
+    startLng?: number;
+    endLat?: number;
+    endLng?: number;
+    stops: Array<{ lat?: number; lng?: number }>;
+  }>();
+
+  get stops() { return this.stopManagement.stops; }
+  get passengers() { return this.passengerManagement.passengers; }
 
   vehicleOptions = [
     { value: 'STANDARD', label: 'Standard' },
@@ -67,32 +71,31 @@ export class ScheduleRideComponent {
 
   constructor(
     private rideService: RideService,
+    private orderRideService: OrderRideService,
+    private userService: UserService,
+    private passengerManagement: PassengerManagementService,
+    private stopManagement: StopManagementService,
     private cdr: ChangeDetectorRef
   ) {}
 
   addPassenger() {
-    this.passengers.push({ name: '' });
+    this.passengerManagement.addPassenger();
   }
 
   removePassenger() {
-    this.passengers.pop();
+    this.passengerManagement.removePassenger();
   }
 
-  updatePassengerName(index: number, name: string) {
-    if (this.passengers[index]) {
-      this.passengers[index].name = name;
-    }
+  updatePassengerInput(index: number, input: string) {
+    this.passengerManagement.updatePassenger(index, input);
   }
 
   addStop() {
-    this.stops.push({
-      id: Date.now().toString(),
-      address: ''
-    });
+    this.stopManagement.addStop();
   }
 
   removeStop(id: string) {
-    this.stops = this.stops.filter(stop => stop.id !== id);
+    this.stopManagement.removeStop(id);
     this.refreshEstimate();
   }
 
@@ -103,22 +106,31 @@ export class ScheduleRideComponent {
   onStartLocationSelected(hit: GeocodeHit) {
     this.startLat = hit.point.lat;
     this.startLng = hit.point.lng;
+    this.emitLocationChanges();
     this.refreshEstimate();
   }
 
   onEndLocationSelected(hit: GeocodeHit) {
     this.endLat = hit.point.lat;
     this.endLng = hit.point.lng;
+    this.emitLocationChanges();
     this.refreshEstimate();
   }
 
   onStopLocationSelected(stopId: string, hit: GeocodeHit) {
-    const stop = this.stops.find(s => s.id === stopId);
-    if (stop) {
-      stop.lat = hit.point.lat;
-      stop.lng = hit.point.lng;
-      this.refreshEstimate();
-    }
+    this.stopManagement.updateStopLocation(stopId, hit.point.lat, hit.point.lng);
+    this.emitLocationChanges();
+    this.refreshEstimate();
+  }
+
+  private emitLocationChanges() {
+    this.locationsChanged.emit({
+      startLat: this.startLat,
+      startLng: this.startLng,
+      endLat: this.endLat,
+      endLng: this.endLng,
+      stops: this.stopManagement.getValidStops()
+    });
   }
 
   onStartInputChanged(query: string) {
@@ -132,10 +144,7 @@ export class ScheduleRideComponent {
   }
 
   onStopInputChanged(stopId: string, query: string) {
-    const stop = this.stops.find(s => s.id === stopId);
-    if (stop) {
-      stop.lat = stop.lng = undefined;
-    }
+    this.stopManagement.clearStopLocation(stopId);
     this.estimatedPrice = null;
   }
 
@@ -148,8 +157,7 @@ export class ScheduleRideComponent {
     const request: RideEstimationRequest = {
       startLocation: `${this.startLat},${this.startLng}`,
       endLocation: `${this.endLat},${this.endLng}`,
-      intermediateStops: this.stops
-        .filter(s => s.lat !== undefined && s.lng !== undefined)
+      intermediateStops: this.stopManagement.getValidStops()
         .map(s => `${s.lat},${s.lng}`),
       vehicleType: this.vehicleType as VehicleType
     };
@@ -161,7 +169,7 @@ export class ScheduleRideComponent {
         this.estimating = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('Failed to estimate ride', err);
         this.estimatedPrice = null;
         this.estimating = false;
@@ -170,24 +178,73 @@ export class ScheduleRideComponent {
     });
   }
 
+  private getMaxPassengersForVehicle(vehicleType: string): number {
+    switch (vehicleType) {
+      case 'STANDARD':
+      case 'LUXURY':
+        return 4;
+      case 'VAN':
+        return 7;
+      default:
+        return 4;
+    }
+  }
+
   bookRide() {
     if (!this.startAddress || !this.endAddress) {
       alert('Please fill in both pickup and destination locations');
       return;
     }
-    console.log('Ride booked:', {
-      from: this.startAddress,
-      to: this.endAddress,
-      stops: this.stops,
-      passengers: this.passengers,
-      vehicleType: this.vehicleType,
-      hasPet: this.hasPet,
-      hasBaby: this.hasBaby,
-      scheduleType: this.scheduleType,
-      scheduledTime: this.scheduleType === 'now' ? 'Now' : this.scheduledTime,
-      additionalInstructions: this.additionalInstructions
+
+    if (!this.startLat || !this.endLat) {
+      alert('Please select valid locations from the suggestions');
+      return;
+    }
+
+    // Validate passenger count for vehicle type
+    const maxPassengers = this.getMaxPassengersForVehicle(this.vehicleType);
+    const totalPassengers = 1 + this.passengerManagement.passengers.filter(p => p.input.trim().length > 0).length;
+    
+    if (totalPassengers > maxPassengers) {
+      alert(`${this.vehicleType} can accommodate maximum ${maxPassengers} passengers. You have ${totalPassengers}.`);
+      return;
+    }
+
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      alert('Please log in to book a ride');
+      return;
+    }
+    const user = JSON.parse(userStr);
+
+    this.passengerManagement.resolvePassengerIds(user.id)
+      .then(passengerIds => this.submitRideOrder(user.id, passengerIds))
+      .catch(err => alert('One or more passenger emails not found. Please check and try again.'));
+  }
+
+  private submitRideOrder(creatorId: number, passengerIds: number[]) {
+    const request: RideOrderRequest = {
+      creatorId,
+      passengerIds,
+      startLocation: `${this.startLat},${this.startLng}`,
+      endLocation: `${this.endLat},${this.endLng}`,
+      waypoints: this.stopManagement.getValidStops()
+        .map(s => `${s.lat},${s.lng}`),
+      scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
+      babySeat: this.hasBaby,
+      petFriendly: this.hasPet,
+      vehicleType: this.vehicleType as VehicleType
+    };
+
+    this.orderRideService.orderRide(request).subscribe({
+      next: (response: RideResponse) => {
+        alert(`Ride booked successfully! Ride ID: ${response.rideId}. Estimated time: ${response.estimatedTimeMinutes} minutes.`);
+        // TODO: Navigate to tracking page or show ride details
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Failed to book ride', err);
+        alert('Failed to book ride. Please try again.');
+      }
     });
-    const time = this.scheduleType === 'now' ? 'now' : `at ${this.scheduledTime}`;
-    alert(`Ride requested for ${time}! Looking for drivers...`);
   }
 }

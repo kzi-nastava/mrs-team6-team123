@@ -9,4 +9,20 @@ import { ScheduleRideComponent } from '../../../components/schedule-ride/schedul
   styleUrl: './registered-home.css',
 })
 export class RegisteredHome {
+  rideForMap?: {
+    startLat?: number;
+    startLng?: number;
+    endLat?: number;
+    endLng?: number;
+  };
+
+  onLocationsChanged(locations: {
+    startLat?: number;
+    startLng?: number;
+    endLat?: number;
+    endLng?: number;
+    stops: Array<{ lat?: number; lng?: number }>;
+  }) {
+    this.rideForMap = locations;
+  }
 }

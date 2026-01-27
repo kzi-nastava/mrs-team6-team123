@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
-import { GraphhopperService, GeocodeHit } from './graphhopper.service';
+import { GraphhopperService, GeocodeHit } from '../graphhopper.service';
 
 @Injectable({
   providedIn: 'root'

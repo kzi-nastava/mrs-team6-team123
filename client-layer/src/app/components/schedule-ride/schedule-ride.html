@@ -40,9 +40,9 @@
       <div *ngFor="let passenger of passengers; let i = index" class="passenger-item">
         <input
           type="text"
-          [(ngModel)]="passenger.name"
-          (ngModelChange)="updatePassengerName(i, passenger.name)"
-          placeholder="passenger name"
+          [(ngModel)]="passenger.input"
+          (ngModelChange)="updatePassengerInput(i, passenger.input)"
+          placeholder="passenger email or name"
           class="passenger-input"
         />
         <button (click)="removePassenger()" class="btn-remove-passenger">✕</button>
