@@ -6,44 +6,35 @@
       <h3>Schedule a ride</h3>
 
       <!-- Starting Point -->
-      <div class="form-group">
-        <div class="input-with-icon">
-          <input
-            [(ngModel)]="startAddress"
-            placeholder="starting point"
-            type="text"
-            class="location-input"
-          />
-          <span class="icon">📍</span>
-        </div>
-      </div>
+      <app-location-input
+        label="Starting Point"
+        placeholder="starting point"
+        [(address)]="startAddress"
+        (locationSelected)="onStartLocationSelected($event)"
+        (inputChanged)="onStartInputChanged($event)"
+      ></app-location-input>
 
       <!-- Add Stop Button -->
       <button (click)="addStop()" class="btn-add-item">+ add stop</button>
 
       <div *ngFor="let stop of stops" class="stop-item">
-        <input
-          type="text"
-          [(ngModel)]="stop.address"
-          (change)="updateStop(stop.id, stop.address)"
+        <app-location-input
           placeholder="stop address"
-          class="stop-input"
-        />
+          [(address)]="stop.address"
+          (locationSelected)="onStopLocationSelected(stop.id, $event)"
+          (inputChanged)="onStopInputChanged(stop.id, $event)"
+        ></app-location-input>
         <button (click)="removeStop(stop.id)" class="btn-remove-stop">✕</button>
       </div>
 
       <!-- Destination -->
-      <div class="form-group">
-        <div class="input-with-icon">
-          <input
-            [(ngModel)]="endAddress"
-            placeholder="destination"
-            type="text"
-            class="location-input"
-          />
-          <span class="icon">📍</span>
-        </div>
-      </div>
+      <app-location-input
+        label="Destination"
+        placeholder="destination"
+        [(address)]="endAddress"
+        (locationSelected)="onEndLocationSelected($event)"
+        (inputChanged)="onEndInputChanged($event)"
+      ></app-location-input>
 
       <button (click)="addPassenger()" class="btn-add-item">+ add passenger</button>
       <div *ngFor="let passenger of passengers; let i = index" class="passenger-item">
@@ -68,8 +59,11 @@
       <h3>Ride preferences</h3>
 
       <!-- Vehicle Type -->
-      <select [(ngModel)]="vehicleType" class="select-vehicle">
-        <option value="economy">vehicle type</option>
+      <select
+        [(ngModel)]="vehicleType"
+        (ngModelChange)="onVehicleTypeChange()"
+        class="select-vehicle"
+      >
         <option *ngFor="let option of vehicleOptions" [value]="option.value">
           {{ option.label }}
         </option>
@@ -98,15 +92,11 @@
         <input type="time" [(ngModel)]="scheduledTime" class="time-input" />
       </div>
 
-      <!-- Details -->
-      <div class="ride-details">
-        <div class="detail-row">
-          <span>Estimated Time:</span>
-          <strong>{{ estimatedTime }}</strong>
-        </div>
+      <!-- Estimated Price -->
+      <div class="ride-details" *ngIf="estimatedPrice">
         <div class="detail-row">
           <span>Estimated Price:</span>
-          <strong>{{ estimatedPrice }}</strong>
+          <strong>{{ estimating ? 'Calculating...' : estimatedPrice }}</strong>
         </div>
       </div>
     </div>

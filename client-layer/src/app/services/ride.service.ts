@@ -14,12 +14,13 @@ import { TrackRideResponse } from '../models/track-ride.model';
 })
 export class RideService {
   private apiUrl = `${environment.apiUrl}/api/rides`;
+  private estimationUrl = `${environment.apiUrl}/api/ride-estimation`;
 
   constructor(private http: HttpClient) {}
 
   // 2.1.2 Ride Estimation
   estimateRide(request: RideEstimationRequest): Observable<RideEstimationResponse> {
-    return this.http.post<RideEstimationResponse>(this.apiUrl, request);
+    return this.http.post<RideEstimationResponse>(this.estimationUrl, request);
   }
 
   trackRide(rideId: number): Observable<TrackRideResponse> {
