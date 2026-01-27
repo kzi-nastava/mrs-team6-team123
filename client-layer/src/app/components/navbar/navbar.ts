@@ -64,11 +64,11 @@ export class NavbarComponent {
   ]
 
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {
-    // Subscribe to current user changes from auth service
+    // Subscribe to current user changes
     this.authService.currentUser$.subscribe(user => {
       this.userRole = user?.role || 'GUEST';
       this.updateLinks();
-      this.cdr.markForCheck();
+      this.cdr.markForCheck(); // Notify Angular of changes
     });
   }
 
