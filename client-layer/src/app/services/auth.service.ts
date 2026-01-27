@@ -5,6 +5,7 @@ import { ForgotPasswordRequest, LoginRequest, LoginResponse, RegistrationRequest
 import { HttpClient } from '@angular/common/http';
 import { UserProfile } from '../models/user.model';
 import { UserRole } from '../models/enums';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +18,14 @@ export class AuthService {
   currentUser = signal<UserProfile | null>(null);
   userType = signal<UserRole>('GUEST');
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private userService: UserService) {
     const storedUser = localStorage.getItem('current_user');
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
     }
   }
 
-  
-  
+
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
