@@ -5,21 +5,23 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { RideStopService, StopRideRequest } from '../../services/ride-stop.service';
 
 interface CurrentRide {
-  id: string;
+  id: number;
   passengerName: string;
   originalDestination: string;
   timeElapsed: number;
   distanceTraveled: number;
   originalPrice: number;
+  currentLocation?: string;
 }
 
 @Component({
   selector: 'app-stop-ride-dialog',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -30,77 +32,113 @@ interface CurrentRide {
   styleUrls: ['./stop-ride.css'],
 })
 export class StopRideDialogComponent implements OnInit {
-  currentLocation = '';
   showConfirmation = false;
+  isLoading = false;
+  errorMessage = '';
   
-  baseFare = 300; // Bazna cena
+  currentRide: CurrentRide;
+  currentLocation = '';
+  
+  baseFare = 0;
   distanceFare = 0;
   newTotalPrice = 0;
+  
+  finalPrice = 0;
+  finalLocation = '';
 
-  currentRide: CurrentRide;
+  private readonly PRICE_PER_KM = 120;
 
   constructor(
     public dialogRef: MatDialogRef<StopRideDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { currentRide: CurrentRide }
+    @Inject(MAT_DIALOG_DATA) public data: { currentRide: CurrentRide },
+    private rideStopService: RideStopService
   ) {
     this.currentRide = data.currentRide;
   }
 
   ngOnInit() {
-    this.getCurrentLocation();
-    this.calculateNewPrice();
+    console.log('Stop ride dialog opened for ride:', this.currentRide);
+    
+    this.currentLocation = this.currentRide.currentLocation || this.getCurrentLocation();
+    
+    this.calculatePriceBreakdown();
   }
 
-  getCurrentLocation() {
-    // Simulacija dobijanja trenutne lokacije - kasnije će biti preko GPS/mape
-    this.currentLocation = 'Bulevar Cara Lazara 34, Novi Sad';
-    console.log('Current location obtained:', this.currentLocation);
+  private getCurrentLocation(): string {
+    return '45.2550, 19.8450';
   }
 
-  calculateNewPrice() {
-    // Formula: cena_po_tipu_vozila + broj_kilometara * 120
-    this.distanceFare = this.currentRide.distanceTraveled * 120;
+  private calculatePriceBreakdown() {
+    const originalDistance = this.currentRide.originalPrice / this.PRICE_PER_KM;
+    this.baseFare = Math.max(0, this.currentRide.originalPrice - (originalDistance * this.PRICE_PER_KM));
+    
+    if (this.baseFare <= 0) {
+      this.baseFare = 300;
+    }
+    
+    this.distanceFare = Math.round(this.currentRide.distanceTraveled * this.PRICE_PER_KM);
+    
     this.newTotalPrice = this.baseFare + this.distanceFare;
+  }
+
+  continueRide() {
+    this.dialogRef.close({ stopped: false });
   }
 
   stopRide() {
     if (!this.currentLocation) {
-      alert('Unable to determine current location');
+      this.errorMessage = 'Cannot determine current location. Please try again.';
       return;
     }
 
-    console.log('STOP RIDE', {
-      rideId: this.currentRide.id,
-      newDestination: this.currentLocation,
-      stoppedAt: new Date().toISOString(),
-      distanceTraveled: this.currentRide.distanceTraveled,
-      newPrice: this.newTotalPrice,
-      originalPrice: this.currentRide.originalPrice
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const request: StopRideRequest = {
+      currentLocation: this.currentLocation,
+      stoppedAt: new Date().toISOString()
+    };
+
+    this.rideStopService.stopRide(this.currentRide.id, request).subscribe({
+      next: (response) => {
+        console.log('✅ Ride stopped successfully:', response);
+        this.isLoading = false;
+        
+        this.finalPrice = response.recalculatedPrice;
+        this.finalLocation = response.stoppedLocation;
+        this.newTotalPrice = response.recalculatedPrice;
+        
+        this.showConfirmation = true;
+
+        setTimeout(() => {
+          this.dialogRef.close({ 
+            stopped: true, 
+            newDestination: response.stoppedLocation,
+            newPrice: response.recalculatedPrice,
+            response: response
+          });
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('❌ Failed to stop ride:', error);
+        this.isLoading = false;
+        this.errorMessage = error.error || 'Failed to stop ride. Please try again.';
+      }
     });
-
-    // Prikaži potvrdu
-    this.showConfirmation = true;
-
-    // Zatvori dialog nakon 2.5 sekundi
-    setTimeout(() => {
-      this.dialogRef.close({ 
-        stopped: true, 
-        newDestination: this.currentLocation,
-        newPrice: this.newTotalPrice 
-      });
-    }, 2500);
   }
 
-  continueRide() {
-    // Nastavi sa vožnjom do originalnog odredišta
-    console.log('Continuing ride to original destination');
-    this.dialogRef.close({ stopped: false });
-  }
-
-  onClose() {
-    if (this.showConfirmation) {
-      return; // Ne dozvoli zatvaranje tokom prikaza potvrde
+  refreshLocation() {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.currentLocation = `${position.coords.latitude}, ${position.coords.longitude}`;
+          console.log('📍 Location updated:', this.currentLocation);
+        },
+        (error) => {
+          console.error('❌ Geolocation error:', error);
+          this.errorMessage = 'Could not get your location. Using last known position.';
+        }
+      );
     }
-    this.dialogRef.close({ stopped: false });
   }
 }

@@ -95,21 +95,28 @@
     </div>
   </div>
 
-  <div mat-dialog-actions class="dialog-actions">
-    <button 
-      *ngIf="!panicActivated"
-      mat-raised-button 
-      class="activate-btn"
-      (click)="activatePanic()">
-      ACTIVATE PANIC ALERT
-    </button>
 
-    <button 
-      *ngIf="panicActivated"
-      mat-stroked-button 
-      class="cancel-panic-btn"
-      (click)="cancelPanic()">
-      Cancel Alert (False Alarm)
-    </button>
+<div mat-dialog-actions class="dialog-actions">
+  <!-- Error message -->
+  <div class="error-message" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
   </div>
+
+  <button 
+    *ngIf="!panicActivated"
+    mat-raised-button 
+    class="activate-btn"
+    (click)="activatePanic()"
+    [disabled]="isLoading">
+    {{ isLoading ? 'SENDING ALERT...' : 'ACTIVATE PANIC ALERT' }}
+  </button>
+
+  <button 
+    *ngIf="panicActivated"
+    mat-stroked-button 
+    class="cancel-panic-btn"
+    (click)="cancelPanic()">
+    Cancel Alert (False Alarm)
+  </button>
+</div>
 </div>

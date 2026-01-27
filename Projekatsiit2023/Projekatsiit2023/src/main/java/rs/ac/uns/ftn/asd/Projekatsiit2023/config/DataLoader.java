@@ -27,13 +27,11 @@ public class DataLoader {
                                EntityManager entityManager) {
         return args -> {
             
-            // Proveri da li već ima podataka
             if (userRepository.count() > 0) {
                 System.out.println("ℹ️ Data already exists, skipping initialization.");
                 return;
             }
             
-            // 1. PRICING DATA
             if (pricingRepository.count() == 0) {
             if (pricingRepository.count() == 0) {
                 Pricing standard = new Pricing();

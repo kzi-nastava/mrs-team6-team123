@@ -1,7 +1,7 @@
 <div class="stop-ride-dialog" *ngIf="!showConfirmation">
   <div class="dialog-header">
     <h2 mat-dialog-title>Stop Ride</h2>
-    <button class="close-btn" (click)="onClose()">×</button>
+    <button class="close-btn" (click)="continueRide()" [disabled]="isLoading">×</button>
   </div>
 
   <div mat-dialog-content class="dialog-content">
@@ -40,15 +40,28 @@
       <p>⚠️ Passenger has requested to stop the ride early</p>
     </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Current location (will be set as new destination)</mat-label>
-      <input
-        matInput
-        placeholder="Current address will be auto-filled"
-        [(ngModel)]="currentLocation"
-        readonly
-      />
-    </mat-form-field>
+    <div class="location-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Current location (will be set as new destination)</mat-label>
+        <input
+          matInput
+          [(ngModel)]="currentLocation"
+          placeholder="Coordinates will be auto-filled"
+          [disabled]="isLoading"
+        />
+      </mat-form-field>
+      <button 
+        mat-stroked-button 
+        class="refresh-location-btn"
+        (click)="refreshLocation()"
+        [disabled]="isLoading">
+        📍 Refresh Location
+      </button>
+    </div>
+
+    <div class="error-box" *ngIf="errorMessage">
+      <p>❌ {{ errorMessage }}</p>
+    </div>
 
     <div class="price-info">
       <h3>Recalculated Price</h3>
@@ -62,9 +75,10 @@
           <span>{{ distanceFare }} RSD</span>
         </div>
         <div class="price-row total">
-          <span>New Total:</span>
+          <span>Estimated New Total:</span>
           <span class="highlight">{{ newTotalPrice }} RSD</span>
         </div>
+        <p class="price-note">* Final price will be calculated by the server based on actual distance</p>
       </div>
     </div>
   </div>
@@ -73,14 +87,16 @@
     <button 
       mat-raised-button 
       color="primary"
-      (click)="continueRide()">
+      (click)="continueRide()"
+      [disabled]="isLoading">
       Continue to Destination
     </button>
     <button 
       mat-raised-button 
       color="warn"
-      (click)="stopRide()">
-      Stop Ride Here
+      (click)="stopRide()"
+      [disabled]="isLoading">
+      {{ isLoading ? 'Stopping...' : 'Stop Ride Here' }}
     </button>
   </div>
 </div>
@@ -89,8 +105,8 @@
   <div class="confirmation-card">
     <span class="check-icon">✓</span>
     <h3>Ride Stopped Successfully</h3>
-    <p>New destination: {{ currentLocation }}</p>
-    <p>Final price: {{ newTotalPrice }} RSD</p>
+    <p>New destination: {{ finalLocation }}</p>
+    <p class="final-price">Final price: <strong>{{ newTotalPrice }} RSD</strong></p>
     <p class="info-text">Passenger has been notified</p>
   </div>
 </div>

@@ -27,9 +27,6 @@ public class PassengerRideHistoryService {
         this.passengerRepository = passengerRepository;
     }
 
-    /**
-     * Vraća istoriju vožnji za putnika sa filterima i sortiranjem
-     */
     public List<PassengerRideHistoryDTO> getPassengerRideHistory(
             Long passengerId,
             LocalDate fromDate,
@@ -40,10 +37,8 @@ public class PassengerRideHistoryService {
         Passenger passenger = passengerRepository.findById(passengerId)
                 .orElseThrow(() -> new RuntimeException("Passenger not found"));
 
-        // Dobavi sve vožnje
         List<Ride> allRides = rideRepository.findAll();
 
-        // Filtriraj vožnje gde je ovaj putnik učestvovao (kao kreator ili putnik)
         List<Ride> passengerRides = allRides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.FINISHED)
                 .filter(ride -> 
@@ -52,7 +47,6 @@ public class PassengerRideHistoryService {
                 )
                 .collect(Collectors.toList());
 
-        // Filtriraj po datumu
         if (fromDate != null) {
             passengerRides = passengerRides.stream()
                     .filter(ride -> !ride.getDate().isBefore(fromDate))
@@ -64,25 +58,19 @@ public class PassengerRideHistoryService {
                     .collect(Collectors.toList());
         }
 
-        // Mapiraj u DTO
         List<PassengerRideHistoryDTO> dtos = passengerRides.stream()
                 .map(this::mapToPassengerDTO)
                 .collect(Collectors.toList());
 
-        // Sortiraj
         dtos = sortRides(dtos, sortBy, sortOrder);
 
         return dtos;
     }
 
-    /**
-     * Vraća detalje jedne vožnje za putnika
-     */
     public PassengerRideHistoryDTO getRideDetails(Long rideId, Long passengerId) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
-        // Proveri da li je putnik učestvovao u vožnji
         boolean isParticipant = ride.getCreator().getId().equals(passengerId) ||
                 ride.getPassengers().stream().anyMatch(p -> p.getId().equals(passengerId));
 
@@ -104,30 +92,25 @@ public class PassengerRideHistoryService {
         dto.setDate(ride.getDate());
         dto.setPrice(ride.getPrice());
         
-        // Koordinate za mapu
         dto.setStartLat(ride.getRoute().getStartLatitude());
         dto.setStartLng(ride.getRoute().getStartLongitude());
         dto.setEndLat(ride.getEndLatitude());
         dto.setEndLng(ride.getEndLongitude());
         
-        // Vozač
         dto.setDriverId(ride.getDriver().getId());
         dto.setDriverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
         dto.setDriverPhoto(ride.getDriver().getProfileImage());
         dto.setDriverRating(ride.getDriver().getRating());
         
-        // Ocene ove vožnje
         dto.setRideDriverRating(ride.getDriverRating());
         dto.setRideVehicleRating(ride.getVehicleRating());
         dto.setRated(ride.isRideRated());
-        
-        // Prijave nekonzistentnosti
+
         List<String> reports = ride.getIrregularityReports().stream()
                 .map(report -> report.getDescription())
                 .collect(Collectors.toList());
         dto.setInconsistencyReports(reports);
-        
-        // Ruta za ponovo poručivanje
+
         dto.setRouteId(ride.getRoute().getId());
         
         return dto;

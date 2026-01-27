@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, effect } from '@angular/core';
+import { Component, Input, effect, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
 
 @Component({
   selector: 'app-navbar',
@@ -23,6 +24,8 @@ export class NavbarComponent {
 
   links: { route: string; icon: string }[] = [];
   menuActive = false;
+
+  isLoggedIn = computed(() => this.authService.isLoggedIn());
 
   guestLinks = [
     { route: '/unregistered-home', icon: 'home.png' },
@@ -85,4 +88,8 @@ export class NavbarComponent {
   toggleMenu() {
     this.menuActive = !this.menuActive;
   }
+
+    logout() {
+    this.authService.logout();
+    }
 }

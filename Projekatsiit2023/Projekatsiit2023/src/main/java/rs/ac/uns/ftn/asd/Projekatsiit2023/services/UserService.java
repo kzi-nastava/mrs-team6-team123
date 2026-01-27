@@ -58,11 +58,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // If user is a driver, create pending change request instead of direct update
         if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {
             Driver driver = (Driver) user;
 
-            // Check if there are actual changes
             boolean hasChanges = !user.getFirstName().equals(dto.getFirstName()) ||
                     !user.getLastName().equals(dto.getLastName()) ||
                     !user.getEmail().equals(dto.getEmail()) ||
@@ -73,7 +71,6 @@ public class UserService {
                 return mapUserToUserResponseDTO(user);
             }
 
-            // Create pending change request
             PendingDriverProfileChange pendingChange = new PendingDriverProfileChange();
             pendingChange.setDriver(driver);
             pendingChange.setFirstName(dto.getFirstName());
@@ -85,7 +82,6 @@ public class UserService {
 
             PendingDriverProfileChange saved = pendingChangeRepository.save(pendingChange);
 
-            // Build changes description for email
             StringBuilder changes = new StringBuilder();
             if (!user.getFirstName().equals(dto.getFirstName())) {
                 changes.append(String.format("First Name: %s → %s\n", user.getFirstName(), dto.getFirstName()));
@@ -103,7 +99,6 @@ public class UserService {
                 changes.append(String.format("Address: %s → %s\n", user.getAddress(), dto.getAddress()));
             }
 
-            // Send notification to admin
             String driverName = user.getFirstName() + " " + user.getLastName();
             emailService.sendDriverProfileChangeNotification(
                     ADMIN_EMAIL,
@@ -112,11 +107,9 @@ public class UserService {
                     saved.getId(),
                     changes.toString());
 
-            // Return current profile (unchanged)
             return mapUserToUserResponseDTO(user);
         }
 
-        // For non-drivers (passengers, admins), apply changes directly
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
@@ -144,25 +137,21 @@ public class UserService {
 
         try {
             if (!file.isEmpty()) {
-                // Delete old image
                 if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
                     String oldFileName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
                     Path oldFilePath = Paths.get(uploadDir).toAbsolutePath().resolve(oldFileName);
                     Files.deleteIfExists(oldFilePath);
                 }
 
-                // Create upload directory if it doesn't exist
                 Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
 
-                // Save with unique filename
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Save URL to DB
                 String imageUrl = "http://localhost:8080/uploads/profile-images/" + fileName;
                 user.setProfileImage(imageUrl);
                 userRepository.save(user);
@@ -198,19 +187,15 @@ public class UserService {
         dto.setUserRole(user.getUserRole());
         dto.setProfileImage(user.getProfileImage());
 
-        // If user is a driver, include driver-specific data
         if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {
             Driver driver = (Driver) user;
 
-            // Convert active minutes to hours format
             int minutes = driver.getActiveMinutesLast24h();
             dto.setHoursActive(String.format("%dh %dm", minutes / 60, minutes % 60));
 
-            // Get actual ride count and rating from database
             dto.setTotalRides(driver.getTotalRides());
             dto.setRating(driver.getRating());
 
-            // Map vehicle if exists
             if (driver.getVehicle() != null) {
                 dto.setVehicle(mapVehicleToDTO(driver.getVehicle()));
             }

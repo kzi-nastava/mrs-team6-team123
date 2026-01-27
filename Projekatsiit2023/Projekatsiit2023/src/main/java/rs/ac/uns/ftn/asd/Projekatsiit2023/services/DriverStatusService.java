@@ -24,9 +24,6 @@ public class DriverStatusService {
         this.rideRepository = rideRepository;
     }
 
-    /**
-     * Proverava da li vozač ima aktivnu vožnju (CREATED, ACCEPTED, ili STARTED)
-     */
     public boolean hasActiveRide(Long driverId) {
         List<Ride> driverRides = rideRepository.findByDriverId(driverId);
         
@@ -36,9 +33,7 @@ public class DriverStatusService {
                         || ride.getStatus() == RideStatus.STARTED);
     }
 
-    /**
-     * Vraća aktivnu vožnju vozača ako postoji
-     */
+
     public Ride getActiveRide(Long driverId) {
         List<Ride> driverRides = rideRepository.findByDriverId(driverId);
         
@@ -50,9 +45,7 @@ public class DriverStatusService {
                 .orElse(null);
     }
 
-    /**
-     * Postavlja vozača na aktivan status prilikom logina
-     */
+
     @Transactional
     public void activateDriverOnLogin(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
@@ -62,11 +55,7 @@ public class DriverStatusService {
         driverRepository.save(driver);
     }
 
-    /**
-     * Menja status vozača (aktivan/neaktivan)
-     * Ako vozač ima aktivnu vožnju i želi da postane neaktivan,
-     * ostaće aktivan do kraja vožnje (sistem to pamti kroz active=true ali ga ne dodeljuje novim vožnjama)
-     */
+
     @Transactional
     public DriverStatusResponseDTO changeDriverStatus(Long driverId, boolean wantsToBeActive) {
         Driver driver = driverRepository.findById(driverId)
@@ -79,24 +68,18 @@ public class DriverStatusService {
         response.setHasActiveRide(hasActiveRide);
 
         if (wantsToBeActive) {
-            // Vozač želi da postane aktivan
             driver.setActive(true);
             driverRepository.save(driver);
             response.setActive(true);
             response.setMessage("You are now active and available for rides.");
         } else {
-            // Vozač želi da postane neaktivan
             if (hasActiveRide) {
-                // Ima aktivnu vožnju - ostaje aktivan ali ga sistem neće dodeljivati novim vožnjama
-                // Koristimo activeMinutesLast24h kao flag: -1 znači "pending deactivation"
                 driver.setActiveMinutesLast24h(-1);
                 driverRepository.save(driver);
-                response.setActive(true); // još uvek je tehnički aktivan
+                response.setActive(true);
                 response.setMessage("You have an active ride. You will become inactive after the ride is finished.");
             } else {
-                // Nema aktivnu vožnju - može odmah postati neaktivan
                 driver.setActive(false);
-                // Resetuj flag ako je bio postavljen
                 if (driver.getActiveMinutesLast24h() < 0) {
                     driver.setActiveMinutesLast24h(0);
                 }
@@ -109,32 +92,23 @@ public class DriverStatusService {
         return response;
     }
 
-    /**
-     * Proverava da li vozač čeka deaktivaciju (pozvati nakon završetka vožnje)
-     */
     @Transactional
     public void checkPendingDeactivation(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        // Ako je activeMinutesLast24h == -1, vozač je tražio deaktivaciju tokom vožnje
         if (driver.getActiveMinutesLast24h() == -1) {
             driver.setActive(false);
-            driver.setActiveMinutesLast24h(0); // resetuj flag
+            driver.setActiveMinutesLast24h(0);
             driverRepository.save(driver);
         }
     }
 
-    /**
-     * Proverava da li vozač može da se odjavi
-     */
     public boolean canLogout(Long driverId) {
         return !hasActiveRide(driverId);
     }
 
-    /**
-     * Vraća trenutni status vozača
-     */
+
     public DriverStatusResponseDTO getDriverStatus(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
@@ -155,30 +129,22 @@ public class DriverStatusService {
         return response;
     }
 
-    /**
-     * Proverava da li vozač može biti dodeljen novoj vožnji
-     * (aktivan, nema pending deactivation, nema 8+ sati rada)
-     */
     public boolean isAvailableForNewRide(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        // Nije aktivan
         if (!driver.isActive()) {
             return false;
         }
 
-        // Čeka deaktivaciju
         if (driver.getActiveMinutesLast24h() == -1) {
             return false;
         }
 
-        // Ima više od 8 sati rada (480 minuta)
         if (driver.getActiveMinutesLast24h() >= 480) {
             return false;
         }
 
-        // Već ima aktivnu vožnju
         if (hasActiveRide(driverId)) {
             return false;
         }

@@ -25,10 +25,6 @@ public class PanicAlertController {
         this.panicAlertService = panicAlertService;
     }
 
-    /**
-     * POST /api/panic
-     * Aktivira PANIC dugme - može putnik ili vozač
-     */
     @PostMapping
     public ResponseEntity<?> triggerPanic(@RequestBody PanicAlertRequestDTO request) {
         try {
@@ -43,10 +39,6 @@ public class PanicAlertController {
         }
     }
 
-    /**
-     * GET /api/panic
-     * Admin dobija sve PANIC alerte
-     */
     @GetMapping
     public ResponseEntity<List<PanicAlertResponseDTO>> getAllAlerts() {
         List<PanicAlertResponseDTO> alerts = panicAlertService.getAllAlerts()
@@ -56,10 +48,6 @@ public class PanicAlertController {
         return ResponseEntity.ok(alerts);
     }
 
-    /**
-     * GET /api/panic/unresolved
-     * Admin dobija samo neobrađene PANIC alerte
-     */
     @GetMapping("/unresolved")
     public ResponseEntity<List<PanicAlertResponseDTO>> getUnresolvedAlerts() {
         List<PanicAlertResponseDTO> alerts = panicAlertService.getAllUnresolvedAlerts()
@@ -69,10 +57,6 @@ public class PanicAlertController {
         return ResponseEntity.ok(alerts);
     }
 
-    /**
-     * GET /api/panic/{alertId}
-     * Detalji o jednom PANIC alertu
-     */
     @GetMapping("/{alertId}")
     public ResponseEntity<?> getAlertById(@PathVariable Long alertId) {
         try {
@@ -83,10 +67,6 @@ public class PanicAlertController {
         }
     }
 
-    /**
-     * PUT /api/panic/{alertId}/resolve
-     * Admin rešava PANIC alert
-     */
     @PutMapping("/{alertId}/resolve")
     public ResponseEntity<?> resolveAlert(
             @PathVariable Long alertId,
@@ -118,7 +98,6 @@ public class PanicAlertController {
         }
         dto.setResolutionNotes(alert.getResolutionNotes());
         
-        // Dodaj info o vožnji za lakši prikaz
         dto.setDriverId(alert.getRide().getDriver().getId());
         dto.setDriverName(alert.getRide().getDriver().getFirstName() + " " + alert.getRide().getDriver().getLastName());
         dto.setStartLocation(alert.getRide().getStartLocation());

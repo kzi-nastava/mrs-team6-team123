@@ -20,7 +20,7 @@ public class EmailService {
             System.out.println("   Link: " + activationLink);
 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("taxiappftn@gmail.com"); // DODAJ OVO!
+            message.setFrom("taxiappftn@gmail.com"); 
             message.setTo(to);
             message.setSubject("Activate Your Account");
             message.setText("Click the link to activate your account:\n\n" + activationLink +
@@ -30,7 +30,7 @@ public class EmailService {
             System.out.println("✅ Activation email sent successfully to: " + to);
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
-            e.printStackTrace(); // DODAJ OVO za detalje
+            e.printStackTrace(); 
         }
     }
 

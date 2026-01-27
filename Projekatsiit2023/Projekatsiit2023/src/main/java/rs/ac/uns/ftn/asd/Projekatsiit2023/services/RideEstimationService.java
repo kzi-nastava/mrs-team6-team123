@@ -24,7 +24,6 @@ public class RideEstimationService {
     }
 
     public RideEstimationResponseDTO estimate(RideEstimationRequestDTO request) {
-        // Validacija
         if (request.getStartLocation() == null || request.getStartLocation().trim().isEmpty()) {
             throw new IllegalArgumentException("Start location is required");
         }
@@ -35,15 +34,12 @@ public class RideEstimationService {
             throw new IllegalArgumentException("Vehicle type is required");
         }
 
-        // Parsiranje koordinata
         double[] startCoords = parseLocation(request.getStartLocation());
         double[] endCoords = parseLocation(request.getEndLocation());
 
-        // Kreiranje OSRM URL-a: lon,lat;lon,lat
         StringBuilder coords = new StringBuilder();
-        coords.append(startCoords[1]).append(",").append(startCoords[0]); // lon,lat
+        coords.append(startCoords[1]).append(",").append(startCoords[0]);
 
-        // Dodaj intermediate stops
         if (request.getIntermediateStops() != null && !request.getIntermediateStops().isEmpty()) {
             for (String stop : request.getIntermediateStops()) {
                 double[] stopCoords = parseLocation(stop);
@@ -53,7 +49,6 @@ public class RideEstimationService {
 
         coords.append(";").append(endCoords[1]).append(",").append(endCoords[0]);
 
-        // Poziv OSRM API
         String url = OSRM_URL + coords.toString() + "?overview=full&geometries=geojson";
         
         double distanceKm;
@@ -71,15 +66,12 @@ public class RideEstimationService {
                 if (routes != null && !routes.isEmpty()) {
                     Map<String, Object> route = routes.get(0);
                     
-                    // Distance u metrima → konvertuj u km
                     double distanceMeters = ((Number) route.get("distance")).doubleValue();
                     distanceKm = distanceMeters / 1000.0;
                     
-                    // Duration u sekundama → konvertuj u minute
                     double durationSeconds = ((Number) route.get("duration")).doubleValue();
                     estimatedTimeMin = (int) Math.ceil(durationSeconds / 60.0);
                     
-                    // Geometry (opciono - možeš koristiti za crtanje rute)
                     Map<String, Object> geometry = (Map<String, Object>) route.get("geometry");
                     if (geometry != null) {
                         routeGeometry = geometry.toString();
@@ -94,13 +86,11 @@ public class RideEstimationService {
             }
         } catch (Exception e) {
             System.err.println("OSRM Error, using fallback: " + e.getMessage());
-            // Fallback na Haversine
             distanceKm = calculateHaversineDistance(startCoords[0], startCoords[1], endCoords[0], endCoords[1]);
             estimatedTimeMin = (int) Math.ceil((distanceKm / 30.0) * 60);
             routeGeometry = "Fallback route (straight line)";
         }
 
-        // Računanje cene
         Pricing pricing = pricingRepository.findByVehicleType(request.getVehicleType());
         if (pricing == null) {
             throw new RuntimeException("Pricing not found for vehicle type: " + request.getVehicleType());
@@ -110,7 +100,6 @@ public class RideEstimationService {
         estimatedPrice = Math.round(estimatedPrice * 100.0) / 100.0;
         distanceKm = Math.round(distanceKm * 100.0) / 100.0;
 
-        // Response
         RideEstimationResponseDTO responseDTO = new RideEstimationResponseDTO();
         responseDTO.setStartLocation(request.getStartLocation());
         responseDTO.setEndLocation(request.getEndLocation());
@@ -145,7 +134,7 @@ public class RideEstimationService {
     }
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
-        final double R = 6371; // Earth radius in km
+        final double R = 6371;
         
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

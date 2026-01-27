@@ -1,5 +1,3 @@
-// AdminRideHistoryDTO.java - već postoji, ali treba proširiti
-
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride;
 
 import lombok.Getter;

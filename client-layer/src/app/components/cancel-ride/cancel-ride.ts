@@ -1,3 +1,5 @@
+// cancel-ride.ts
+
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5,13 +7,15 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { RideCancelService, CancelRideRequest } from '../../services/ride-cancel.service';
 
 interface RideDetails {
-  id: string;
+  id: number;
   startLocation: string;
   destination: string;
   scheduledTime: string;
   driverName: string;
+  userId: number;
 }
 
 @Component({
@@ -31,11 +35,14 @@ interface RideDetails {
 export class CancelRideDialogComponent implements OnInit {
   cancellationReason = '';
   showSuccess = false;
+  isLoading = false;
+  errorMessage = '';
   rideDetails: RideDetails;
 
   constructor(
     public dialogRef: MatDialogRef<CancelRideDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { rideDetails: RideDetails }
+    @Inject(MAT_DIALOG_DATA) public data: { rideDetails: RideDetails },
+    private rideCancelService: RideCancelService
   ) {
     this.rideDetails = data.rideDetails;
   }
@@ -46,35 +53,45 @@ export class CancelRideDialogComponent implements OnInit {
 
   cancelRide() {
     if (!this.cancellationReason.trim()) {
-      alert('Please provide a reason for cancellation');
+      this.errorMessage = 'Please provide a reason for cancellation';
       return;
     }
 
-    // Provera da li je vožnja bar 10 minuta u budućnosti
-    const scheduledTime = new Date(this.rideDetails.scheduledTime);
-    const now = new Date();
-    const timeDiff = (scheduledTime.getTime() - now.getTime()) / 1000 / 60; // u minutima
+    this.isLoading = true;
+    this.errorMessage = '';
 
-    if (timeDiff < 10) {
-      alert('You can only cancel a ride at least 10 minutes before its scheduled time');
-      return;
-    }
+    const request: CancelRideRequest = {
+      userId: this.rideDetails.userId,
+      reason: this.cancellationReason.trim()
+    };
 
-    console.log('CANCEL RIDE', {
-      rideId: this.rideDetails.id,
-      reason: this.cancellationReason
+    this.rideCancelService.cancelRide(this.rideDetails.id, request).subscribe({
+      next: (response) => {
+        console.log('✅ Ride cancelled successfully:', response);
+        this.isLoading = false;
+        this.showSuccess = true;
+
+        setTimeout(() => {
+          this.dialogRef.close({ 
+            cancelled: true, 
+            reason: this.cancellationReason,
+            response: response 
+          });
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('❌ Failed to cancel ride:', error);
+        this.isLoading = false;
+     
+        this.errorMessage = error.error || 'Failed to cancel ride. Please try again.';
+      }
     });
-
-    // Simulacija uspešnog otkazivanja
-    this.showSuccess = true;
-
-    // Zatvori dialog nakon 2 sekunde
-    setTimeout(() => {
-      this.dialogRef.close({ cancelled: true, reason: this.cancellationReason });
-    }, 2000);
   }
 
   onClose() {
+    if (this.isLoading) {
+      return;
+    }
     this.dialogRef.close({ cancelled: false });
   }
 }

@@ -85,7 +85,6 @@ public class RideController {
     public ResponseEntity<RideRatingResponseDTO> rateRide(@RequestBody RideRatingRequestDTO request) {
         RideRatingResponseDTO response = new RideRatingResponseDTO();
         response.setRideId(request.getRideId());
-        // driverId and vehicleId will be found using rideId
         response.setDriverId(20L);
         response.setVehicleId(21L);
         response.setDriverRating(request.getDriverRating());
