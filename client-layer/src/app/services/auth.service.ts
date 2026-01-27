@@ -77,6 +77,11 @@ export class AuthService {
     return this.currentUser();
   }
 
+  getCurrentUserId(): number | null {
+    const user = this.currentUser();
+    return user ? user.id : null;
+  }
+ 
   getUserType() {
     //return this.userRole();
     return 'DRIVER';

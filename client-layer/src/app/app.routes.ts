@@ -9,11 +9,11 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
-import { RateRideComponent } from './components/rate-ride/rate-ride';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
 import { ActivateAccountComponent } from './pages/auth/activate-account/activate-account';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password';
+import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
@@ -28,7 +28,7 @@ export const routes: Routes = [
   { path: 'admin-home', component: AdminHomeComponent},
   { path: 'admin/drivers', component: DriverRegistration },
   { path: 'track-ride-page', component: TrackRidePageComponent },
-  { path: 'rate-ride', component: RateRideComponent },
+  { path: 'rate-ride', component: RateRidePageComponent },
   { path: 'admin-pricing', component: AdminPricingComponent },
   {path: 'activate',component: ActivateAccountComponent},
   {path: 'forgot-password', component: ForgotPasswordComponent},

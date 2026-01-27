@@ -2,7 +2,7 @@
   <h1>Rate Drive</h1>
 
   <div class="rating-section">
-    <label><strong>Driver: </strong>{{ data.driver }}</label>
+    <label><strong>Driver: </strong>{{ ride.driver }}</label>
     <div class="stars">
     <span 
       class="star" 
@@ -13,7 +13,7 @@
   </div>
 
   <div class="rating-section">
-    <label><strong>Vehicle: </strong>{{ data.vehicle }}</label>
+    <label><strong>Vehicle: </strong>{{ ride.licencePlate }}</label>
     <div class="stars">
     <span 
       class="star" 
@@ -25,7 +25,10 @@
 
   <div class="comment-section">
     <label>Comment:</label>
-    <textarea placeholder="Leave comment here..."></textarea>
+    <textarea 
+      placeholder="Leave comment here..."
+      [(ngModel)]="comment">
+    </textarea>
   </div>
 
   <div class="dialog-actions">
