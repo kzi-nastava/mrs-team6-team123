@@ -126,9 +126,7 @@ public class EmailService {
                     rateLink);
             message.setText(emailBody);
             mailSender.send(message);
-            System.out.println("email sent successfully to: " + to);
         } catch (Exception e) {
-            System.err.println("Failed to send ride finished email: " + e.getMessage());
             e.printStackTrace();
         }
     }

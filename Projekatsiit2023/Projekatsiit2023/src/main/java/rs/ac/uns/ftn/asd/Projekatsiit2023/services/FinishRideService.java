@@ -70,7 +70,7 @@ public class FinishRideService {
                 "\nTime: " + ride.getStartedAt() + " - " + ride.getEndedAt() +
                 "\nDriver: " + ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName() +
                 "\nTotal Price: $" + ride.getPrice();
-        String rateLink = "http://localhost:8080/rate-ride";
+        String rateLink = "http://localhost:4200/rate-ride?rideId=" + ride.getId();
         emailService.sendRideFinishedEmail(to, rideDetails, rateLink);
     }
 }
