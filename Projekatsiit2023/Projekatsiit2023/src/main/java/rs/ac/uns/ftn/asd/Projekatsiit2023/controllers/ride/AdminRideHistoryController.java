@@ -1,54 +1,77 @@
+// AdminRideHistoryController.java
+
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers.ride;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.AdminRideHistoryDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.AdminRideHistoryService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/ride-history")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AdminRideHistoryController {
 
-    @GetMapping("/driver/{driverId}")
-    public ResponseEntity<List<AdminRideHistoryDTO>> getDriverRideHistory(
-            @PathVariable Long driverId,
-            @RequestParam(required = false) LocalDateTime from,
-            @RequestParam(required = false) LocalDateTime to,
-            @RequestParam(required = false) String sortBy) {
-        List<AdminRideHistoryDTO> response = new ArrayList<>();
-        AdminRideHistoryDTO dummyRide = new AdminRideHistoryDTO();
-        dummyRide.setRideId(1L);
-        dummyRide.setDriverId(driverId);
-        response.add(dummyRide);
-        return ResponseEntity.ok(response);
+    private final AdminRideHistoryService service;
+
+    public AdminRideHistoryController(AdminRideHistoryService service) {
+        this.service = service;
     }
 
-    @GetMapping("/passenger/{passengerId}")
-    public ResponseEntity<List<AdminRideHistoryDTO>> getPassengerRideHistory(
-            @PathVariable Long passengerId,
-            @RequestParam(required = false) LocalDateTime from,
-            @RequestParam(required = false) LocalDateTime to,
-            @RequestParam(required = false) String sortBy) {
-        List<AdminRideHistoryDTO> response = new ArrayList<>();
-        AdminRideHistoryDTO dummyRide = new AdminRideHistoryDTO();
-        dummyRide.setRideId(1L);
-        dummyRide.setCreatorId(passengerId);
-        response.add(dummyRide);
-        return ResponseEntity.ok(response);
+    /**
+     * GET /api/admin/ride-history
+     * Vraća SVE vožnje u sistemu (za admina)
+     */
+    @GetMapping
+    public ResponseEntity<?> getAllRideHistory(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
+        try {
+            List<AdminRideHistoryDTO> history = service.getAllRideHistory(from, to, sortBy, sortOrder);
+            return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/{rideId}/details")
-    public ResponseEntity<AdminRideHistoryDTO> getRideDetails(@PathVariable Long rideId) {
-        AdminRideHistoryDTO response = new AdminRideHistoryDTO();
-        response.setRideId(rideId);
-        response.setStartLocation("45.2671 N, 19.8335 E");
-        response.setEndLocation("45.2550 N, 19.8450 E");
-        response.setPrice(1500.0);
-        response.setPanicTriggered(false);
-        return ResponseEntity.ok(response);
+    /**
+     * GET /api/admin/ride-history/user/{userId}
+     * Vraća istoriju vožnji za bilo kog korisnika (vozača ili putnika)
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getUserRideHistory(
+            @PathVariable Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
+        try {
+            List<AdminRideHistoryDTO> history = service.getUserRideHistory(
+                    userId, from, to, sortBy, sortOrder);
+            return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * GET /api/admin/ride-history/{rideId}
+     * Vraća detalje jedne vožnje
+     */
+    @GetMapping("/{rideId}")
+    public ResponseEntity<?> getRideDetails(@PathVariable Long rideId) {
+        try {
+            AdminRideHistoryDTO ride = service.getRideDetails(rideId);
+            return ResponseEntity.ok(ride);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

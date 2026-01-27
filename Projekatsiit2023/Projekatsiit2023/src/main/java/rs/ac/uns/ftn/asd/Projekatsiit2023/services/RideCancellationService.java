@@ -80,55 +80,64 @@ public class RideCancellationService {
         return response;
     }
 
-    private void validateCancellation(Ride ride, User cancellingUser) {
-        UserRole role = cancellingUser.getUserRole();
+private void validateCancellation(Ride ride, User cancellingUser) {
+    UserRole role = cancellingUser.getUserRole();
 
-        // Vozač može otkazati bilo kada (pre početka)
-        if (role == UserRole.DRIVER) {
-            if (!ride.getDriver().getId().equals(cancellingUser.getId())) {
-                throw new RuntimeException("Only assigned driver can cancel this ride");
-            }
-            return; // Vozač može otkazati uvek
+    // Vozač može otkazati bilo kada pre početka vožnje (pre nego što putnici uđu)
+    if (role == UserRole.DRIVER) {
+        if (!ride.getDriver().getId().equals(cancellingUser.getId())) {
+            throw new RuntimeException("Only assigned driver can cancel this ride");
         }
-
-        // Putnik može otkazati samo 10+ minuta pre početka
-        if (role == UserRole.PASSENGER) {
-            // Proveri da li je korisnik učesnik vožnje
-            boolean isParticipant = ride.getCreator().getId().equals(cancellingUser.getId()) ||
-                    ride.getPassengers().stream()
-                            .anyMatch(p -> p.getId().equals(cancellingUser.getId()));
-
-            if (!isParticipant) {
-                throw new RuntimeException("User is not part of this ride");
-            }
-
-            // Proveri vreme do početka vožnje
-            // Pretpostavljamo da je scheduledAt LocalDateTime
-            // Ako nemaš scheduledAt, možeš koristiti createdAt ili neki drugi timestamp
-            LocalDateTime now = LocalDateTime.now();
-            
-            // TODO: Dodaj scheduledAt u Ride model ako ga nemaš
-            // Za sada koristimo startedAt (ili dodaj scheduledAt u modelu)
-            // LocalDateTime scheduledTime = ride.getScheduledAt();
-            
-            // PRIVREMENO: pretpostavljamo da je vožnja zakazana za sada + 5 min
-            // U pravoj implementaciji treba scheduledAt polje
-            LocalDateTime scheduledTime = now.plusMinutes(5); // OVDE PROMENI SA PRAVIM POLJEM!
-
-            long minutesUntilRide = ChronoUnit.MINUTES.between(now, scheduledTime);
-
-            if (minutesUntilRide < 10) {
-                throw new RuntimeException(
-                    "Passengers can only cancel rides 10 or more minutes before scheduled start. " +
-                    "Time remaining: " + minutesUntilRide + " minutes"
-                );
-            }
-            return;
+        
+        // Vozač može otkazati samo dok vožnja nije započeta (CREATED ili ACCEPTED)
+        if (ride.getStatus() == RideStatus.STARTED) {
+            throw new RuntimeException("Cannot cancel ride after passengers have entered the vehicle");
         }
-
-        throw new RuntimeException("Invalid user role for cancellation");
+        
+        return; // Vozač može otkazati
     }
 
+    // Putnik može otkazati samo 10+ minuta pre početka
+    if (role == UserRole.PASSENGER) {
+        // Proveri da li je korisnik učesnik vožnje
+        boolean isParticipant = ride.getCreator().getId().equals(cancellingUser.getId()) ||
+                ride.getPassengers().stream()
+                        .anyMatch(p -> p.getId().equals(cancellingUser.getId()));
+
+        if (!isParticipant) {
+            throw new RuntimeException("User is not part of this ride");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime scheduledTime = ride.getScheduledAt();
+
+        // Ako je scheduledAt null, to znači da je vožnja "odmah" (ASAP)
+        // U tom slučaju, putnik ne može otkazati jer nema 10 minuta unapred
+        if (scheduledTime == null) {
+            throw new RuntimeException(
+                "Cannot cancel immediate rides. Only scheduled rides can be cancelled by passengers 10+ minutes before start."
+            );
+        }
+
+        long minutesUntilRide = java.time.temporal.ChronoUnit.MINUTES.between(now, scheduledTime);
+
+        if (minutesUntilRide < 10) {
+            throw new RuntimeException(
+                "Passengers can only cancel rides 10 or more minutes before scheduled start. " +
+                "Time remaining: " + minutesUntilRide + " minutes."
+            );
+        }
+        
+        return; // Putnik može otkazati
+    }
+
+    // Admin može otkazati bilo koju vožnju (opciono - ako želiš da dozvoliš)
+    if (role == UserRole.ADMIN) {
+        return; // Admin može otkazati
+    }
+
+    throw new RuntimeException("Invalid user role for cancellation");
+}
     private void sendCancellationNotifications(Ride ride, User cancellingUser, String reason) {
         String cancellerName = cancellingUser.getFirstName() + " " + cancellingUser.getLastName();
         String message = "Ride cancelled by " + cancellerName + ". Reason: " + reason;
