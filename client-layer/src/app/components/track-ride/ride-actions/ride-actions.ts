@@ -76,6 +76,12 @@ export class RideActionsComponent {
       },
       error: (err) => {
         console.error("Error finishing ride: ", err);
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Something went wrong';
+
+        window.alert(message);
       }
     });
   }

@@ -43,6 +43,12 @@ export class ReportDriverComponent {
       },
       error: (err) => {
         console.error('Error sending report:', err);
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Something went wrong';
+
+        window.alert(message);
       }
     });
   }
