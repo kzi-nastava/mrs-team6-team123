@@ -25,7 +25,7 @@ import { RideService } from '../../services/ride.service';
 })
 export class TrackRidePageComponent implements OnInit{
   ride!: TrackRideResponse;
-  rideId: number = 2;
+  rideId: number = 4;
 
   constructor(
     private dialog: MatDialog,
