@@ -42,13 +42,13 @@ public class Ride {
     @Column(nullable = false)
     private String startLocation;
 
-    @Column(nullable = false)
+    @Column
     private String endLocation;
 
-    @Column(nullable = false)
+    @Column
     private double endLatitude;
 
-    @Column(nullable = false)
+    @Column
     private double endLongitude;
     
     @Column
@@ -57,7 +57,7 @@ public class Ride {
     @Column(nullable = false)
     private LocalTime startedAt;
 
-    @Column(nullable = false)
+    @Column
     private LocalTime endedAt;
 
     @Column(nullable = false)
@@ -65,6 +65,9 @@ public class Ride {
 
     @Column(nullable = false)
     private double price;
+
+    @Column(nullable = false)
+    private boolean isPaid = false;
 
     @Column(nullable = false)
     private double totalDistance;
@@ -93,8 +96,10 @@ public class Ride {
     @Column(nullable = false)
     private boolean rideStopped;
 
+    @Column
     private double driverRating;
 
+    @Column
     private double vehicleRating;
 
     @OneToMany(
