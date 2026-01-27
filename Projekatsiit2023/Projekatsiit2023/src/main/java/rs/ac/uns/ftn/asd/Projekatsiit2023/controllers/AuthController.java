@@ -38,6 +38,16 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/logout")
+public ResponseEntity<LogoutResponseDTO> logout(@RequestBody LogoutRequestDTO request) {
+    LogoutResponseDTO response = authService.logout(request);
+    if (response.isSuccess()) {
+        return ResponseEntity.ok(response);
+    } else {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+}
+
     @GetMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam String token) {
         try {

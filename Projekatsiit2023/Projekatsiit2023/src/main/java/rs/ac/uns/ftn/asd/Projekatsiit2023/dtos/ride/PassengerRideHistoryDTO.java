@@ -1,4 +1,4 @@
-// AdminRideHistoryDTO.java - već postoji, ali treba proširiti
+// PassengerRideHistoryDTO.java
 
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AdminRideHistoryDTO {
+public class PassengerRideHistoryDTO {
     private Long rideId;
     private String startLocation;
     private String endLocation;
@@ -22,7 +22,6 @@ public class AdminRideHistoryDTO {
     private LocalTime endedAt;
     private LocalDate date;
     private double price;
-    private double totalDistance;
     
     // Za mapu
     private double startLat;
@@ -30,30 +29,15 @@ public class AdminRideHistoryDTO {
     private double endLat;
     private double endLng;
     
-    // Vozač
+    // Podaci o vozaču
     private Long driverId;
     private String driverName;
     private String driverPhoto;
-    
-    // Kreator vožnje
-    private Long creatorId;
-    private String creatorName;
-    
-    // Svi putnici
-    private List<PassengerInfoDTO> passengers = new ArrayList<>();
-    
-    // Otkazivanje
-    private boolean cancelled;
-    private Long cancelledByUserId;
-    private String cancelledByName;
-    private String cancelledByRole;
-    
-    // PANIC
-    private boolean panicTriggered;
+    private double driverRating;
     
     // Ocene
-    private double driverRating;
-    private double vehicleRating;
+    private double rideDriverRating;
+    private double rideVehicleRating;
     private boolean rated;
     
     // Prijave nekonzistentnosti
