@@ -251,6 +251,7 @@ public LogoutResponseDTO logout(LogoutRequestDTO request) {
         // Resetuj lozinku
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setAccountActivated(true);
         userRepository.save(user);
 
         // Označi token kao iskorišćen
