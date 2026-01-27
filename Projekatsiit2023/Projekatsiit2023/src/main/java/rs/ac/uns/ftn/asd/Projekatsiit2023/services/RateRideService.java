@@ -9,6 +9,8 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRatingRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
+import java.util.List;
+
 @Service
 public class RateRideService {
     private final RideRepository rideRepository;
@@ -35,6 +37,8 @@ public class RateRideService {
         var ride = rideRepository.findById(dto.getRideId())
                 .orElseThrow(() -> new IllegalArgumentException("Ride not found with id: " + dto.getRideId()));
         rideRating.setRide(ride);
+        if (alreadyRated(dto.getAuthorId(), dto.getRideId()))
+            throw new IllegalStateException("Passenger has already rated this ride.");
         var author = passengerRepository.findById(dto.getAuthorId())
                 .orElseThrow(() -> new IllegalArgumentException("Passenger not found with id: " + dto.getAuthorId()));
         rideRating.setAuthor(author);
@@ -42,6 +46,11 @@ public class RateRideService {
         rideRating.setVehicleRating(dto.getVehicleRating());
         rideRating.setComment(dto.getComment());
         rideRatingRepository.save(rideRating);
+        ride.setRideRated(true);
+        List<RideRating> ratings = rideRatingRepository.findByRideId(ride.getId());
+        ride.setDriverRating((ride.getDriverRating() + dto.getDriverRating())/ratings.size());
+        ride.setVehicleRating((ride.getVehicleRating() + dto.getVehicleRating())/ratings.size());
+        rideRepository.save(ride);
     }
 
     private RideRatingRequestDTO mapRideToRideRatingRequestDTO(Ride ride) {
@@ -52,5 +61,16 @@ public class RateRideService {
         dto.setDriver(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
         dto.setLicencePlate(ride.getDriver().getVehicle().getLicensePlate());
         return dto;
+    }
+
+    private boolean alreadyRated(Long passengerId, Long rideId) {
+        List<RideRating> existingRatings = rideRatingRepository.findByAuthorId(passengerId);
+        List<RideRating> rideRatings = rideRatingRepository.findByRideId(rideId);
+        for (RideRating rating : existingRatings) {
+            if (rideRatings.contains(rating)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
