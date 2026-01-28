@@ -1,3 +1,5 @@
+// ride-actions.ts
+
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, Input, Output } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
@@ -5,7 +7,9 @@ import { ReportDriverComponent } from '../../report-driver/report-driver';
 import { MatDialog } from '@angular/material/dialog';
 import { TrackRideResponse } from '../../../models/track-ride.model';
 import { StopRideDialogComponent } from '../../stop-ride/stop-ride';
+import { PanicDialogComponent } from '../../panic-button/panic-dialog/panic-dialog';
 import { RideService } from '../../../services/ride.service';
+import { CancelRideDialogComponent } from '../../cancel-ride/cancel-ride';
 
 @Component({
   selector: 'app-ride-actions',
@@ -43,79 +47,144 @@ export class RideActionsComponent {
   @Output() goInactiveClicked = new EventEmitter<void>();
   @Output() finishClicked = new EventEmitter<void>();
 
-  onPanic() {
-    this.panicClicked.emit();
+  private getCurrentUserId(): number {
+    return this.auth.getCurrentUserId() || 0;
   }
 
-  // Helper metode - dodaj ih ako ih nemaš
-private calculateDistanceTraveled(): number {
-  // U produkciji bi računao na osnovu GPS tracking-a
-  // Za sada vraćamo mock vrednost
-  return 5.5; // km
-}
+  private calculateDistanceTraveled(): number {
 
-private getCurrentCoordinates(): string {
-  // U produkciji bi koristio GPS
-  // Za sada vraćamo mock koordinate (Novi Sad centar)
-  return '45.2550, 19.8450';
+    return 5.5;
+  }
+
+  private getCurrentCoordinates(): string {
+    return '45.2550, 19.8450'; 
+  }
+
+  onPanic() {
+  let userId: number;
+  
+  if (this.isDriver) {
+    userId = this.ride?.driverId || 0;
+  } else {
+    userId = this.auth.getCurrentUserId() || 0;
+  }
+
+  console.log('🚨 PANIC - Using userId:', userId, 'for rideId:', this.ride?.rideId);
+
+  const dialogRef = this.dialog.open(PanicDialogComponent, {
+    width: '600px',
+    maxWidth: '95vw',
+    disableClose: true,
+    data: {
+      rideInfo: {
+        rideId: this.ride?.rideId || 0,
+        userId: userId,
+        driverName: this.ride?.info?.driver || 'Unknown Driver',
+        vehicleInfo: 'Vehicle',
+        currentLocation: this.getCurrentCoordinates(),
+        timeElapsed: this.ride?.info?.duration || 0
+      }
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result?.activated) {
+      console.log('🚨 PANIC was activated');
+      this.panicClicked.emit();
+    }
+  });
 }
 
   onStopRide() {
     const dialogRef = this.dialog.open(StopRideDialogComponent, {
-        width: '700px',
-        maxWidth: '90vw',
-        data: {
-          currentRide: {
-            id: this.ride?.rideId,
-            passengerName: this.ride?.info.passengers[0] || 'Passenger',
-            originalDestination: this.ride?.info.to,
-            timeElapsed: this.ride?.info.duration || 0,
-            distanceTraveled: this.calculateDistanceTraveled(), // implementiraj ili koristi mock
-            originalPrice: this.ride?.info.price || 0,
-            currentLocation: this.getCurrentCoordinates() // implementiraj ili koristi mock
-          }
+      width: '700px',
+      maxWidth: '90vw',
+      data: {
+        currentRide: {
+          id: this.ride?.rideId,
+          passengerName: this.ride?.info?.passengers?.[0] || 'Passenger',
+          originalDestination: this.ride?.info?.to,
+          timeElapsed: this.ride?.info?.duration || 0,
+          distanceTraveled: this.calculateDistanceTraveled(),
+          originalPrice: this.ride?.info?.price || 0,
+          currentLocation: this.getCurrentCoordinates()
         }
-      });
-    
-      dialogRef.afterClosed().subscribe(result => {
-        if (result?.stopped) {
-          console.log('Ride stopped at:', result.newDestination);
-          console.log('New price:', result.newPrice);
-        }
-      });
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.stopped) {
+        console.log('✅ Ride stopped at:', result.newDestination);
+        console.log('💰 New price:', result.newPrice);
+        this.stopRideClicked.emit();
+      }
+    });
   }
 
   onReport() {
     const dialogRef = this.dialog.open(ReportDriverComponent, {
-      width: '350px',
-      height: '350px',
-      data: this.ride 
+      width: '400px',
+      maxWidth: '95vw',
+      data: this.ride
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Report submitted:', result);
+        console.log('📝 Report submitted:', result);
+        this.reportClicked.emit();
+      }
+    });
+  }
+
+  onCancel() {
+    const dialogRef = this.dialog.open(CancelRideDialogComponent, {
+      width: '650px',
+      maxWidth: '90vw',
+      data: {
+        rideDetails: {
+          id: this.ride?.rideId,
+          startLocation: this.ride?.info.from,
+          destination: this.ride?.info.to,
+          scheduledTime: new Date().toISOString(),
+          driverName: this.ride?.info.driver,
+          userId: this.getCurrentUserId()
+        }
+      }
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.cancelled) {
+        console.log('Ride cancelled with reason:', result.reason);
       }
     });
   }
 
   onGoInactive() {
-    this.goInactiveClicked.emit();
+    const confirmed = confirm('Are you sure you want to go inactive? You will not receive new ride requests.');
+    
+    if (confirmed) {
+      console.log('🔴 Driver going inactive');
+      this.goInactiveClicked.emit();
+    }
   }
 
+
   onFinish() {
+    const confirmed = confirm('Are you sure you want to finish this ride?');
+    
+    if (!confirmed) {
+      return;
+    }
+
     this.rideService.finishRide(this.ride.rideId).subscribe({
       next: () => {
-        console.log("Drive ended successfully");
-        window.alert('Drive is finished!');
+        console.log('✅ Ride finished successfully');
+        window.alert('Ride finished successfully!');
+        this.finishClicked.emit();
       },
       error: (err) => {
-        console.error("Error finishing ride: ", err);
-        const message =
-          typeof err.error === 'string'
-            ? err.error
-            : 'Something went wrong';
-
+        console.error('❌ Error finishing ride:', err);
+        const message = typeof err.error === 'string' ? err.error : 'Failed to finish ride';
         window.alert(message);
       }
     });

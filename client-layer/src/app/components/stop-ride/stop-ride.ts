@@ -1,4 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+// stop-ride.ts
+
+import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -51,16 +53,15 @@ export class StopRideDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<StopRideDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { currentRide: CurrentRide },
-    private rideStopService: RideStopService
+    private rideStopService: RideStopService,
+    private cdr: ChangeDetectorRef
   ) {
     this.currentRide = data.currentRide;
   }
 
   ngOnInit() {
     console.log('Stop ride dialog opened for ride:', this.currentRide);
-    
     this.currentLocation = this.currentRide.currentLocation || this.getCurrentLocation();
-    
     this.calculatePriceBreakdown();
   }
 
@@ -77,7 +78,6 @@ export class StopRideDialogComponent implements OnInit {
     }
     
     this.distanceFare = Math.round(this.currentRide.distanceTraveled * this.PRICE_PER_KM);
-    
     this.newTotalPrice = this.baseFare + this.distanceFare;
   }
 
@@ -88,16 +88,20 @@ export class StopRideDialogComponent implements OnInit {
   stopRide() {
     if (!this.currentLocation) {
       this.errorMessage = 'Cannot determine current location. Please try again.';
+      this.cdr.detectChanges();
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     const request: StopRideRequest = {
       currentLocation: this.currentLocation,
       stoppedAt: new Date().toISOString()
     };
+
+    console.log('🚀 Sending stop ride request:', request);
 
     this.rideStopService.stopRide(this.currentRide.id, request).subscribe({
       next: (response) => {
@@ -109,6 +113,7 @@ export class StopRideDialogComponent implements OnInit {
         this.newTotalPrice = response.recalculatedPrice;
         
         this.showConfirmation = true;
+        this.cdr.detectChanges();
 
         setTimeout(() => {
           this.dialogRef.close({ 
@@ -122,7 +127,16 @@ export class StopRideDialogComponent implements OnInit {
       error: (error) => {
         console.error('❌ Failed to stop ride:', error);
         this.isLoading = false;
-        this.errorMessage = error.error || 'Failed to stop ride. Please try again.';
+        
+        if (typeof error.error === 'string') {
+          this.errorMessage = error.error;
+        } else if (error.error?.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'Failed to stop ride. Please try again.';
+        }
+        
+        this.cdr.detectChanges();
       }
     });
   }
@@ -133,10 +147,12 @@ export class StopRideDialogComponent implements OnInit {
         (position) => {
           this.currentLocation = `${position.coords.latitude}, ${position.coords.longitude}`;
           console.log('📍 Location updated:', this.currentLocation);
+          this.cdr.detectChanges();
         },
         (error) => {
           console.error('❌ Geolocation error:', error);
           this.errorMessage = 'Could not get your location. Using last known position.';
+          this.cdr.detectChanges();
         }
       );
     }
