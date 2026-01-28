@@ -9,6 +9,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRatingRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -36,6 +37,8 @@ public class RateRideService {
         RideRating rideRating = new RideRating();
         var ride = rideRepository.findById(dto.getRideId())
                 .orElseThrow(() -> new IllegalArgumentException("Ride not found with id: " + dto.getRideId()));
+        if (!canBeRated(ride.getDate()))
+            throw new IllegalStateException("Ride can no longer be rated.");
         rideRating.setRide(ride);
         if (alreadyRated(dto.getAuthorId(), dto.getRideId()))
             throw new IllegalStateException("Passenger has already rated this ride.");
@@ -72,5 +75,10 @@ public class RateRideService {
             }
         }
         return false;
+    }
+
+    private boolean canBeRated(LocalDate date) {
+        LocalDate today = LocalDate.now();
+        return !date.isBefore(today.minusDays(3));
     }
 }
