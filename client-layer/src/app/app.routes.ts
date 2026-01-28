@@ -21,31 +21,32 @@ import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admi
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
 
 export const routes: Routes = [
-  // Javne rute 
+  // Public routes
   { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
   
-  // Samo za goste
+  // Guest only
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'activate', component: ActivateAccountComponent },
   
-  // Zaštićene rute
+  // Protected routes
   { path: 'registered-home', component: RegisteredHome, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'favorites', component: UserFavoritesComponent, canActivate: [authGuard] },
   { path: 'track-ride-page', component: TrackRidePageComponent, canActivate: [authGuard] },
   { path: 'history', component: PassengerRideHistoryComponent, canActivate: [authGuard] },
-  
-  // Samo za vozače
+  { path: 'rate-ride', component: RateRidePageComponent, canActivate: [authGuard] },
+
+  // Driver only
   { path: 'driver/driver-ride-history', component: DriverRideHistoryComponent, canActivate: [driverGuard] },
   
-  // Samo za admine
-  { path: 'admin-home', component: AdminHomeComponent, canActivate: [adminGuard] },
+  // Admin only
+  { path: 'admin/home', component: AdminHomeComponent, canActivate: [adminGuard] },
   { path: 'admin/drivers', component: DriverRegistration, canActivate: [adminGuard] },
-  { path: 'admin-pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
+  { path: 'admin/pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
   { path: 'admin/ride-history', component: AdminRideHistoryComponent, canActivate: [adminGuard] },
   
   // Fallback

@@ -61,7 +61,7 @@ export class ResetPasswordComponent implements OnInit {
       confirmPassword: this.confirmPassword
     };
 
-    this.http.post(`${environment.apiUrl}/api/auth/reset-password`, 
+    this.http.post(`${environment.apiUrl}/auth/reset-password`, 
       payload,
       { responseType: 'text' }
     ).subscribe({
