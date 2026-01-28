@@ -19,16 +19,19 @@ public class RideController {
     private final RideCancellationService cancellationService;
     private final FinishRideService finishRideService;
     private final RateRideService rateRideService;
+    private final RideStopService rideStopService;
 
     public RideController(
              RideCancellationService cancellationService,
              TrackRideService trackRideService,
              FinishRideService finishRideService,
-             RateRideService rateRideService) {
+             RateRideService rateRideService,
+             RideStopService rideStopService) {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.finishRideService = finishRideService;
         this.rateRideService = rateRideService;
+        this.rideStopService = rideStopService;
     }
 
 
