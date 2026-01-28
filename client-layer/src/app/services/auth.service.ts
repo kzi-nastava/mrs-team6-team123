@@ -27,7 +27,7 @@ export interface CurrentUser {
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
-  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(null);
+  private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   private _isLoggedIn = signal<boolean>(false);

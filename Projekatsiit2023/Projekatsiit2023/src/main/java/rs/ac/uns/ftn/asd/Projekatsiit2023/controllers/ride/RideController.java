@@ -50,8 +50,7 @@ public class RideController {
             RouteRepository routeRepository,
             RideRepository rideRepository,
             FinishRideService finishRideService,
-             RateRideService rateRideService,
-             RideStopService rideStopService) {
+            RateRideService rateRideService) {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.rideStopService = rideStopService;
@@ -62,12 +61,7 @@ public class RideController {
         this.rideRepository = rideRepository;
         this.finishRideService = finishRideService;
         this.rateRideService = rateRideService;
-        this.rideStopService = rideStopService;
     }
-             
-       
-    
-
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
