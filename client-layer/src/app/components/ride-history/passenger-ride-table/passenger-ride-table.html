@@ -26,9 +26,19 @@
       <td>{{ ride.price }} RSD</td>
       <td>{{ ride.driverName }}</td>
       <td>
-        <span [class.not-rated]="!ride.rideDriverRating">
-          {{ formatRating(ride.rideDriverRating) }}
-        </span>
+        <ng-container *ngIf="!canRateRide(ride); else rateRideBtn">
+          <span [class.not-rated]="!ride.rideDriverRating">
+            {{ formatRating(ride.rideDriverRating) }}
+          </span>
+        </ng-container>
+
+        <ng-template #rateRideBtn>
+          <button 
+            class="rate-btn"
+            (click)="openRateRideDialog(ride)">
+            Rate
+          </button>
+        </ng-template>
       </td>
       <td>
         <button class="btn-view" (click)="showRoute(ride)">View</button>

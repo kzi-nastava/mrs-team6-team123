@@ -39,7 +39,7 @@
   font-style: italic;
 }
 
-.btn-view {
+.btn-view, .rate-btn {
   padding: 6px 14px;
   background: #5d7c5b;
   color: white;
@@ -50,6 +50,6 @@
   transition: background 0.2s;
 }
 
-.btn-view:hover {
+.btn-view:hover, .rate-btn:hover {
   background: #4a6249;
 }
