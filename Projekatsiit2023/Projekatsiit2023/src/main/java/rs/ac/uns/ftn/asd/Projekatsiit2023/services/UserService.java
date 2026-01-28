@@ -144,6 +144,7 @@ public class UserService {
 
         try {
             if (!file.isEmpty()) {
+
                 // Delete old image
                 if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
                     String oldFileName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);

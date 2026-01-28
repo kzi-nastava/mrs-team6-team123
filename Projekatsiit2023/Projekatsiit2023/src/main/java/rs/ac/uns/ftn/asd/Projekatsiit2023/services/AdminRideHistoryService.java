@@ -37,9 +37,6 @@ public class AdminRideHistoryService {
         this.passengerRepository = passengerRepository;
     }
 
-    /**
-     * Admin dobija istoriju vožnji za bilo kog korisnika (vozača ili putnika)
-     */
     public List<AdminRideHistoryDTO> getUserRideHistory(
             Long userId,
             LocalDate fromDate,
@@ -52,12 +49,9 @@ public class AdminRideHistoryService {
 
         List<Ride> userRides;
 
-        // Proveri da li je vozač ili putnik
         if (driverRepository.existsById(userId)) {
-            // Vozač - dobavi vožnje gde je on vozač
             userRides = rideRepository.findByDriverId(userId);
         } else if (passengerRepository.existsById(userId)) {
-            // Putnik - dobavi vožnje gde je on kreator ili putnik
             List<Ride> allRides = rideRepository.findAll();
             userRides = allRides.stream()
                     .filter(ride ->
@@ -69,12 +63,10 @@ public class AdminRideHistoryService {
             throw new RuntimeException("User is neither a driver nor a passenger");
         }
 
-        // Filtriraj samo završene vožnje
         userRides = userRides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.FINISHED)
                 .collect(Collectors.toList());
 
-        // Filtriraj po datumu
         if (fromDate != null) {
             userRides = userRides.stream()
                     .filter(ride -> !ride.getDate().isBefore(fromDate))
@@ -86,20 +78,15 @@ public class AdminRideHistoryService {
                     .collect(Collectors.toList());
         }
 
-        // Mapiraj u DTO
         List<AdminRideHistoryDTO> dtos = userRides.stream()
                 .map(this::mapToAdminDTO)
                 .collect(Collectors.toList());
 
-        // Sortiraj
         dtos = sortRides(dtos, sortBy, sortOrder);
 
         return dtos;
     }
 
-    /**
-     * Admin dobija SVE vožnje u sistemu
-     */
     public List<AdminRideHistoryDTO> getAllRideHistory(
             LocalDate fromDate,
             LocalDate toDate,
@@ -108,12 +95,10 @@ public class AdminRideHistoryService {
 
         List<Ride> allRides = rideRepository.findAll();
 
-        // Filtriraj samo završene
         allRides = allRides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.FINISHED)
                 .collect(Collectors.toList());
 
-        // Filtriraj po datumu
         if (fromDate != null) {
             allRides = allRides.stream()
                     .filter(ride -> !ride.getDate().isBefore(fromDate))
@@ -125,20 +110,15 @@ public class AdminRideHistoryService {
                     .collect(Collectors.toList());
         }
 
-        // Mapiraj u DTO
         List<AdminRideHistoryDTO> dtos = allRides.stream()
                 .map(this::mapToAdminDTO)
                 .collect(Collectors.toList());
 
-        // Sortiraj
         dtos = sortRides(dtos, sortBy, sortOrder);
 
         return dtos;
     }
 
-    /**
-     * Admin dobija detalje jedne vožnje
-     */
     public AdminRideHistoryDTO getRideDetails(Long rideId) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
@@ -158,28 +138,23 @@ public class AdminRideHistoryService {
         dto.setPrice(ride.getPrice());
         dto.setTotalDistance(ride.getTotalDistance());
 
-        // Koordinate za mapu
         dto.setStartLat(ride.getRoute().getStartLatitude());
         dto.setStartLng(ride.getRoute().getStartLongitude());
         dto.setEndLat(ride.getEndLatitude());
         dto.setEndLng(ride.getEndLongitude());
 
-        // Vozač
         dto.setDriverId(ride.getDriver().getId());
         dto.setDriverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
         dto.setDriverPhoto(ride.getDriver().getProfileImage());
 
-        // Kreator
         dto.setCreatorId(ride.getCreator().getId());
         dto.setCreatorName(ride.getCreator().getFirstName() + " " + ride.getCreator().getLastName());
 
-        // Svi putnici
         List<PassengerInfoDTO> passengers = ride.getPassengers().stream()
                 .map(this::mapPassengerToInfo)
                 .collect(Collectors.toList());
         dto.setPassengers(passengers);
 
-        // Otkazivanje
         if (ride.getCanceledBy() != null) {
             dto.setCancelled(true);
             dto.setCancelledByUserId(ride.getCanceledBy().getId());
@@ -189,21 +164,17 @@ public class AdminRideHistoryService {
             dto.setCancelled(false);
         }
 
-        // PANIC
         dto.setPanicTriggered(ride.isPanicTriggered());
 
-        // Ocene
         dto.setDriverRating(ride.getDriverRating());
         dto.setVehicleRating(ride.getVehicleRating());
         dto.setRated(ride.isRideRated());
 
-        // Prijave nekonzistentnosti
         List<String> reports = ride.getIrregularityReports().stream()
                 .map(report -> report.getDescription())
                 .collect(Collectors.toList());
         dto.setInconsistencyReports(reports);
-
-        // Ruta za ponovo poručivanje
+        
         dto.setRouteId(ride.getRoute().getId());
 
         return dto;

@@ -1,3 +1,5 @@
+<!-- ride-estimate.html -->
+
 <div class="estimate-modal">
   <div class="modal-header">
     <h2 mat-dialog-title>Estimate Ride</h2>
@@ -5,37 +7,148 @@
   </div>
 
   <div mat-dialog-content class="modal-content">
-    
-    <!-- DEBUG INFO -->
-    <div style="background: #f0f0f0; padding: 8px; margin-bottom: 16px; font-size: 12px;">
-      <strong>Debug:</strong> 
-      loading={{ loading }}, 
-      showResult={{ showResult }}, 
-      error={{ !!errorMessage }}
-    </div>
 
     <!-- FORMA ZA UNOS -->
     <div class="estimate-form" *ngIf="!showResult && !loading">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Starting location</mat-label>
-        <input 
-          matInput 
-          placeholder="e.g., 45.2671, 19.8335"
-          [(ngModel)]="startLocation"
-        />
-        <mat-hint>Enter coordinates (latitude, longitude)</mat-hint>
-      </mat-form-field>
+      
+      <!-- Starting Location -->
+      <div class="address-field">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Starting location</mat-label>
+          <input 
+            matInput 
+            placeholder="e.g., Bulevar Oslobođenja 50, Novi Sad"
+            [value]="startAddress"
+            (input)="onStartAddressInput($any($event.target).value)"
+          />
+          <mat-hint>Start typing an address...</mat-hint>
+        </mat-form-field>
+        
+        <!-- Autocomplete dropdown -->
+        <div class="suggestions-dropdown" *ngIf="startSuggestions.length > 0">
+          <div 
+            class="suggestion-item" 
+            *ngFor="let suggestion of startSuggestions"
+            (click)="selectStartAddress(suggestion)">
+            <span class="suggestion-icon">📍</span>
+            <span class="suggestion-text">{{ shortenAddress(suggestion.displayName, 60) }}</span>
+          </div>
+        </div>
+        
+        <div class="address-resolved" *ngIf="startCoordinates">
+          ✓ Location found
+        </div>
+      </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Destination</mat-label>
-        <input 
-          matInput 
-          placeholder="e.g., 45.2550, 19.8450"
-          [(ngModel)]="destination"
-        />
-        <mat-hint>Enter coordinates (latitude, longitude)</mat-hint>
-      </mat-form-field>
+      <!-- Intermediate Stops Section -->
+      <div class="intermediate-stops-section">
+        <div class="stops-header">
+          <span class="stops-label">Intermediate stops (optional)</span>
+          <button 
+            mat-stroked-button 
+            class="add-stop-btn"
+            (click)="addStop()"
+            type="button">
+            + Add Stop
+          </button>
+        </div>
 
+        <div class="stops-list" *ngIf="intermediateStops.length > 0">
+          <div 
+            class="stop-item" 
+            *ngFor="let stop of intermediateStops; let i = index">
+            
+            <div class="stop-order">
+              <span class="stop-number">{{ i + 1 }}</span>
+              <div class="order-buttons">
+                <button 
+                  class="order-btn"
+                  (click)="moveStopUp(i)"
+                  [disabled]="i === 0"
+                  title="Move up">
+                  ▲
+                </button>
+                <button 
+                  class="order-btn"
+                  (click)="moveStopDown(i)"
+                  [disabled]="i === intermediateStops.length - 1"
+                  title="Move down">
+                  ▼
+                </button>
+              </div>
+            </div>
+
+            <div class="stop-input-wrapper">
+              <mat-form-field appearance="outline" class="stop-input">
+                <mat-label>Stop {{ i + 1 }}</mat-label>
+                <input 
+                  matInput 
+                  placeholder="e.g., Trg Slobode, Novi Sad"
+                  [value]="stop.address"
+                  (input)="onStopAddressInput(stop, $any($event.target).value)"
+                />
+              </mat-form-field>
+              
+              <!-- Stop suggestions dropdown -->
+              <div class="suggestions-dropdown" *ngIf="stop.suggestions.length > 0">
+                <div 
+                  class="suggestion-item" 
+                  *ngFor="let suggestion of stop.suggestions"
+                  (click)="selectStopAddress(stop, suggestion)">
+                  <span class="suggestion-icon">📍</span>
+                  <span class="suggestion-text">{{ shortenAddress(suggestion.displayName, 50) }}</span>
+                </div>
+              </div>
+              
+              <div class="address-resolved" *ngIf="stop.coordinates">
+                ✓ Found
+              </div>
+            </div>
+
+            <button 
+              class="remove-stop-btn"
+              (click)="removeStop(stop.id)"
+              title="Remove stop">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <p class="stops-hint" *ngIf="intermediateStops.length === 0">
+          Add stops if you need to visit multiple locations along the way
+        </p>
+      </div>
+
+      <!-- Destination -->
+      <div class="address-field">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Destination</mat-label>
+          <input 
+            matInput 
+            placeholder="e.g., Futoška 1, Novi Sad"
+            [value]="destinationAddress"
+            (input)="onDestinationAddressInput($any($event.target).value)"
+          />
+          <mat-hint>Start typing an address...</mat-hint>
+        </mat-form-field>
+        
+        <!-- Autocomplete dropdown -->
+        <div class="suggestions-dropdown" *ngIf="destinationSuggestions.length > 0">
+          <div 
+            class="suggestion-item" 
+            *ngFor="let suggestion of destinationSuggestions"
+            (click)="selectDestinationAddress(suggestion)">
+            <span class="suggestion-icon">📍</span>
+            <span class="suggestion-text">{{ shortenAddress(suggestion.displayName, 60) }}</span>
+          </div>
+        </div>
+        
+        <div class="address-resolved" *ngIf="destinationCoordinates">
+          ✓ Location found
+        </div>
+      </div>
+
+      <!-- Vehicle Type -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Vehicle Type</mat-label>
         <mat-select [(ngModel)]="vehicleType">
@@ -47,7 +160,7 @@
 
       <!-- ERROR MESSAGE -->
       <div class="error-message" *ngIf="errorMessage">
-        <p>{{ errorMessage }}</p>
+        <p>❌ {{ errorMessage }}</p>
       </div>
 
       <!-- CALCULATE BUTTON -->
@@ -57,15 +170,15 @@
         class="estimate-btn"
         (click)="calculateEstimate()"
         [disabled]="loading">
-        <span *ngIf="!loading">Calculate Estimate</span>
-        <span *ngIf="loading">Calculating...</span>
+        Calculate Estimate
       </button>
     </div>
 
     <!-- LOADING SPINNER -->
     <div class="loading-container" *ngIf="loading">
       <mat-spinner diameter="50"></mat-spinner>
-      <p>Calculating your ride estimate...</p>
+      <p *ngIf="geocodingLoading">Finding addresses...</p>
+      <p *ngIf="!geocodingLoading">Calculating route...</p>
     </div>
 
     <!-- REZULTAT -->
@@ -76,35 +189,59 @@
       
       <div class="result-card">
         <div class="result-item">
+          <span class="label">From:</span>
+          <span class="value">{{ shortenAddress(resolvedStartAddress || startAddress, 45) }}</span>
+        </div>
+
+        <div class="result-item stops" *ngIf="intermediateStops.length > 0">
+          <span class="label">Via:</span>
+          <div class="stops-value">
+            <span *ngFor="let stop of intermediateStops; let last = last" class="stop-chip">
+              {{ shortenAddress(stop.address, 30) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="result-item">
+          <span class="label">To:</span>
+          <span class="value">{{ shortenAddress(resolvedDestinationAddress || destinationAddress, 45) }}</span>
+        </div>
+
+        <div class="result-divider"></div>
+
+        <div class="result-item">
           <span class="label">Vehicle Type:</span>
           <span class="value">{{ vehicleType }}</span>
         </div>
 
         <div class="result-item">
-          <span class="label">Distance:</span>
+          <span class="label">Total Distance:</span>
           <span class="value">{{ estimatedDistance }} km</span>
         </div>
         
         <div class="result-item">
-          <span class="label">Estimated time:</span>
+          <span class="label">Estimated Time:</span>
           <span class="value">{{ estimatedTime }} minutes</span>
         </div>
         
-        <div class="result-item">
-          <span class="label">Estimated price:</span>
+        <div class="result-item highlight">
+          <span class="label">Estimated Price:</span>
           <span class="value price">{{ estimatedPrice }} RSD</span>
         </div>
       </div>
 
-      <div class="map-preview">
-        <p class="map-placeholder">🗺️ Route calculated via OpenStreetMap</p>
+      <div class="route-info">
+        <p>🗺️ Route calculated via OpenStreetMap</p>
+        <p class="route-note" *ngIf="intermediateStops.length > 0">
+          Route includes {{ intermediateStops.length }} intermediate stop(s)
+        </p>
       </div>
 
       <div class="action-buttons">
         <button 
           mat-raised-button 
           class="secondary-btn"
-          (click)="showResult = false; errorMessage = ''">
+          (click)="resetForm()">
           Change Route
         </button>
         <button 

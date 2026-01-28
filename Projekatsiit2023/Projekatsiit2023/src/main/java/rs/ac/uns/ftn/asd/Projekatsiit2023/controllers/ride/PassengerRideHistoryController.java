@@ -23,10 +23,6 @@ public class PassengerRideHistoryController {
         this.service = service;
     }
 
-    /**
-     * GET /api/passenger/{passengerId}/rides
-     * Vraća istoriju vožnji za putnika
-     */
     @GetMapping("/{passengerId}/rides")
     public ResponseEntity<?> getPassengerRideHistory(
             @PathVariable Long passengerId,
@@ -43,10 +39,6 @@ public class PassengerRideHistoryController {
         }
     }
 
-    /**
-     * GET /api/passenger/{passengerId}/rides/{rideId}
-     * Vraća detalje jedne vožnje
-     */
     @GetMapping("/{passengerId}/rides/{rideId}")
     public ResponseEntity<?> getRideDetails(
             @PathVariable Long passengerId,

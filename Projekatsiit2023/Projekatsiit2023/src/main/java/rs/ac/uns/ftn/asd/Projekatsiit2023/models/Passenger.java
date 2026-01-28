@@ -16,7 +16,4 @@ import lombok.Setter;
 public class Passenger extends User {
     @Column(nullable = false)
     private boolean startedRide;
-
-    // ManyToMany relationship with Route entity
-    // private List<Long> favoriteRoutes;
 }

@@ -1,3 +1,5 @@
+<!-- navbar.html -->
+
 <mat-toolbar color="primary" class="navbar">
   <div class="nav-left">
     <img src="logo.png" alt="Logo" class="logo-img" />
@@ -10,6 +12,11 @@
     <a *ngFor="let link of links" [routerLink]="link.route" routerLinkActive="active">
       <img [src]="link.icon" alt="icon" class="link-icon" />
     </a>
+    
+    <!-- Logout dugme - samo ako je ulogovan -->
+    <button *ngIf="isLoggedIn()" class="logout-btn" (click)="logout()" title="Logout">
+      <img src="logout.png" alt="Logout" class="link-icon" />
+    </button>
   </div>
 
   <button *ngIf="showHamburger" class="hamburger" (click)="toggleMenu()">&#9776;</button>

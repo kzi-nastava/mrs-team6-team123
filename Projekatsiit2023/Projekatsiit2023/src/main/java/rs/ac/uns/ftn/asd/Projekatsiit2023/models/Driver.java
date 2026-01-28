@@ -18,16 +18,16 @@ public class Driver extends User {
     private DriverStatus status;
 
     @Column(nullable = false)
-    private boolean active; // current availability
+    private boolean active; 
 
     @Column(nullable = false)
-    private int activeMinutesLast24h; // working time
+    private int activeMinutesLast24h;
 
     @Column(nullable = false)
-    private int totalRides = 0; // total number of completed rides
+    private int totalRides = 0;
 
     @Column(nullable = false)
-    private double rating = 0.0; // average driver rating
+    private double rating = 0.0;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id", unique = true)
