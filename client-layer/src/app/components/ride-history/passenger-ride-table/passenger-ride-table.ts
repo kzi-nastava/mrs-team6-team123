@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { PassengerRideHistoryDTO } from '../../../services/passenger-ride-history.service';
 import { ViewRouteComponent } from '../view-route/view-route';
+import { RateRideComponent } from '../../rate-ride/rate-ride';
 
 @Component({
   selector: 'app-passenger-ride-table',
@@ -44,5 +45,29 @@ export class PassengerRideTableComponent {
   formatRating(rating: number): string {
     if (!rating || rating === 0) return 'Not rated';
     return `${rating} ⭐`;
+  }
+
+  canRateRide(ride: PassengerRideHistoryDTO): boolean {
+    if (ride.rideDriverRating && ride.rideDriverRating > 0) {
+      return false;
+    }
+
+    const endDate = new Date(ride.date);
+    const now = new Date();
+
+    const diffMs = now.getTime() - endDate.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    return diffDays <= 3;
+  }
+
+  openRateRideDialog(ride: PassengerRideHistoryDTO) {
+    this.dialog.open(RateRideComponent, {
+      width: '400px',
+      disableClose: true,
+      data: {
+        rideId: ride.rideId
+      }
+    });
   }
 }
