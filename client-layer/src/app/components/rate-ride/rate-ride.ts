@@ -66,9 +66,9 @@ export class RateRideComponent {
   }
 
   rateRide() {
-    //var authorId = this.auth.getCurrentUserId();
+    var authorId = this.auth.getCurrentUserId();
 
-    var authorId = 10;
+    //var authorId = 10;
 
     if (!authorId) {
       console.error('User not logged in');

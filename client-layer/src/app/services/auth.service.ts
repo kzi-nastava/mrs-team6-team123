@@ -13,6 +13,7 @@ import {
 } from '../models/auth.model';
 import { UserRole } from '../models/enums';
 import { UserService } from './user.service';
+import { U } from '@angular/cdk/keycodes';
 
 export interface CurrentUser {
   userId: number;
@@ -146,6 +147,19 @@ export class AuthService {
     return this._currentUser()?.userId || null;
   }
 
+  getCurrentUserId(): number | null {
+    const stored = localStorage.getItem('current_user');
+    console.log(stored);
+    if (!stored) return null;
+
+    const user = JSON.parse(stored);
+    console.log(user);
+    return user.userId ?? null;
+  }
+ 
+  getUserType() {
+    return this.currentUser()?.role;
+    //return 'DRIVER';
   getCurrentUserEmail(): string | null {
     return this._currentUser()?.email || null;
   }
