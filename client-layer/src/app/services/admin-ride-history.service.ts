@@ -2,56 +2,89 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../enviroment';
-import { AdminRideHistory } from '../models/admin-ride-history.model';
+
+export interface PassengerInfoDTO {
+  id: number;
+  name: string;
+  email: string;
+  profileImage: string;
+}
+
+export interface AdminRideHistoryDTO {
+  rideId: number;
+  startLocation: string;
+  endLocation: string;
+  startedAt: string;
+  endedAt: string;
+  date: string;
+  price: number;
+  totalDistance: number;
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
+  driverId: number;
+  driverName: string;
+  driverPhoto: string;
+  creatorId: number;
+  creatorName: string;
+  passengers: PassengerInfoDTO[];
+  cancelled: boolean;
+  cancelledByUserId: number;
+  cancelledByName: string;
+  cancelledByRole: string;
+  panicTriggered: boolean;
+  driverRating: number;
+  vehicleRating: number;
+  rated: boolean;
+  inconsistencyReports: string[];
+  routeId: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class RideService {
-  private apiUrl = `${environment.apiUrl}`;
+export class AdminRideHistoryService {
+  private apiUrl = `${environment.apiUrl}/api/admin/ride-history`;
 
   constructor(private http: HttpClient) {}
 
-  // 2.9.3 Admin - Driver Ride History
-  getAdminDriverHistory(
-    driverId: number,
+  getAllRideHistory(
     from?: string,
     to?: string,
-    sortBy?: string
-  ): Observable<AdminRideHistory[]> {
-    let params = new HttpParams();
+    sortBy: string = 'date',
+    sortOrder: string = 'desc'
+  ): Observable<AdminRideHistoryDTO[]> {
+    let params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
+
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
-    if (sortBy) params = params.set('sortBy', sortBy);
 
-    return this.http.get<AdminRideHistory[]>(
-      `${this.apiUrl}/admin/ride-history/driver/${driverId}`,
+    return this.http.get<AdminRideHistoryDTO[]>(this.apiUrl, { params });
+  }
+
+  getUserRideHistory(
+    userId: number,
+    from?: string,
+    to?: string,
+    sortBy: string = 'date',
+    sortOrder: string = 'desc'
+  ): Observable<AdminRideHistoryDTO[]> {
+    let params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
+
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+
+    return this.http.get<AdminRideHistoryDTO[]>(
+      `${this.apiUrl}/user/${userId}`,
       { params }
     );
   }
-
-  // 2.9.3 Admin - Passenger Ride History
-  getAdminPassengerHistory(
-    passengerId: number,
-    from?: string,
-    to?: string,
-    sortBy?: string
-  ): Observable<AdminRideHistory[]> {
-    let params = new HttpParams();
-    if (from) params = params.set('from', from);
-    if (to) params = params.set('to', to);
-    if (sortBy) params = params.set('sortBy', sortBy);
-
-    return this.http.get<AdminRideHistory[]>(
-      `${this.apiUrl}/admin/ride-history/passenger/${passengerId}`,
-      { params }
-    );
-  }
-
-  // Admin - Get Ride Details
-  getRideDetails(rideId: number): Observable<AdminRideHistory> {
-    return this.http.get<AdminRideHistory>(
-      `${this.apiUrl}/admin/ride-history/${rideId}/details`
-    );
+  getRideDetails(rideId: number): Observable<AdminRideHistoryDTO> {
+    return this.http.get<AdminRideHistoryDTO>(`${this.apiUrl}/${rideId}`);
   }
 }

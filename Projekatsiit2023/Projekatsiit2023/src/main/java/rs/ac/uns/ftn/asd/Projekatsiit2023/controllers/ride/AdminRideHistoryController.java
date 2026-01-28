@@ -1,5 +1,3 @@
-// AdminRideHistoryController.java
-
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers.ride;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,11 +20,6 @@ public class AdminRideHistoryController {
     public AdminRideHistoryController(AdminRideHistoryService service) {
         this.service = service;
     }
-
-    /**
-     * GET /api/admin/ride-history
-     * Vraća SVE vožnje u sistemu (za admina)
-     */
     @GetMapping
     public ResponseEntity<?> getAllRideHistory(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -41,10 +34,6 @@ public class AdminRideHistoryController {
         }
     }
 
-    /**
-     * GET /api/admin/ride-history/user/{userId}
-     * Vraća istoriju vožnji za bilo kog korisnika (vozača ili putnika)
-     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserRideHistory(
             @PathVariable Long userId,
@@ -61,10 +50,6 @@ public class AdminRideHistoryController {
         }
     }
 
-    /**
-     * GET /api/admin/ride-history/{rideId}
-     * Vraća detalje jedne vožnje
-     */
     @GetMapping("/{rideId}")
     public ResponseEntity<?> getRideDetails(@PathVariable Long rideId) {
         try {

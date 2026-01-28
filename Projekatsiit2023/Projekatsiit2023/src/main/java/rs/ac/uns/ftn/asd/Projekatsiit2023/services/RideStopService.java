@@ -27,51 +27,38 @@ public class RideStopService {
         this.routeRepository = routeRepository;
     }
 
-    /**
-     * Zaustavlja vožnju u toku.
-     * Menja odredište na trenutnu lokaciju, preračunava cenu, završava vožnju.
-     */
     @Transactional
     public StopRideResponseDTO stopRide(Long rideId, StopRideRequestDTO request) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
-        // Provera da li je vožnja u toku
         if (ride.getStatus() != RideStatus.STARTED) {
             throw new RuntimeException("Can only stop a ride that is in progress (STARTED status)");
         }
 
-        // Provera da li je vožnja već zaustavljena
         if (ride.isRideStopped()) {
             throw new RuntimeException("Ride has already been stopped");
         }
 
-        // Parsiraj trenutnu lokaciju
         double[] coords = parseLocation(request.getCurrentLocation());
         double currentLat = coords[0];
         double currentLng = coords[1];
 
-        // Izračunaj pređenu distancu (od starta do trenutne lokacije)
         Route route = ride.getRoute();
         double startLat = route.getStartLatitude();
         double startLng = route.getStartLongitude();
         
         double distanceTravelled = calculateHaversineDistance(startLat, startLng, currentLat, currentLng);
 
-        // Preračunaj cenu na osnovu pređene distance
-        // Uzimamo base price iz originalne cene i dodajemo novu distancu
         double originalTotalDistance = ride.getTotalDistance();
         double originalPrice = ride.getPrice();
         
-        // Izračunaj base price (cena bez distance)
         double basePrice = originalPrice - (originalTotalDistance * PRICE_PER_KM);
         if (basePrice < 0) basePrice = 0;
         
-        // Nova cena = base + pređena distanca
         double newPrice = basePrice + (distanceTravelled * PRICE_PER_KM);
-        newPrice = Math.round(newPrice * 100.0) / 100.0; // zaokruži na 2 decimale
+        newPrice = Math.round(newPrice * 100.0) / 100.0; 
 
-        // Ažuriraj vožnju
         ride.setEndLocation(request.getCurrentLocation());
         ride.setEndLatitude(currentLat);
         ride.setEndLongitude(currentLng);
@@ -81,7 +68,6 @@ public class RideStopService {
         ride.setRideStopped(true);
         ride.setStatus(RideStatus.FINISHED);
 
-        // Ažuriraj i rutu sa novim odredištem
         route.setEndLocation(request.getCurrentLocation());
         route.setEndLatitude(currentLat);
         route.setEndLongitude(currentLng);
@@ -89,7 +75,6 @@ public class RideStopService {
 
         rideRepository.save(ride);
 
-        // Kreiraj response
         StopRideResponseDTO response = new StopRideResponseDTO();
         response.setRideId(rideId);
         response.setStoppedLocation(request.getCurrentLocation());
@@ -123,7 +108,7 @@ public class RideStopService {
     }
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
-        final double R = 6371; // Earth radius in km
+        final double R = 6371;
 
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

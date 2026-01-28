@@ -1,5 +1,3 @@
-// DriverStatusController.java
-
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers;
 
 import org.springframework.http.ResponseEntity;
@@ -19,10 +17,6 @@ public class DriverStatusController {
         this.driverStatusService = driverStatusService;
     }
 
-    /**
-     * GET /api/drivers/{driverId}/status
-     * Vraća trenutni status vozača
-     */
     @GetMapping("/{driverId}/status")
     public ResponseEntity<DriverStatusResponseDTO> getDriverStatus(@PathVariable Long driverId) {
         try {
@@ -33,10 +27,6 @@ public class DriverStatusController {
         }
     }
 
-    /**
-     * PUT /api/drivers/{driverId}/status
-     * Menja status vozača (aktivan/neaktivan)
-     */
     @PutMapping("/{driverId}/status")
     public ResponseEntity<DriverStatusResponseDTO> changeDriverStatus(
             @PathVariable Long driverId,
@@ -49,10 +39,6 @@ public class DriverStatusController {
         }
     }
 
-    /**
-     * GET /api/drivers/{driverId}/can-logout
-     * Proverava da li vozač može da se odjavi
-     */
     @GetMapping("/{driverId}/can-logout")
     public ResponseEntity<Boolean> canLogout(@PathVariable Long driverId) {
         try {

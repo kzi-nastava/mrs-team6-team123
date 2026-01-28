@@ -37,15 +37,13 @@ public class PanicAlertService {
 
     @Transactional
     public PanicAlert triggerPanic(Long rideId, Long userId, String currentLocation) {
-        // Pronađi vožnju
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
-        // Pronađi korisnika
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Proveri da li je korisnik učesnik vožnje
         boolean isParticipant = ride.getDriver().getId().equals(userId) ||
                                 ride.getCreator().getId().equals(userId) ||
                                 ride.getPassengers().stream()
@@ -54,12 +52,9 @@ public class PanicAlertService {
         if (!isParticipant) {
             throw new RuntimeException("User is not part of this ride");
         }
-
-        // Kreiraj panic alert
         PanicAlert panicAlert = new PanicAlert(ride, user, currentLocation);
         panicAlertRepository.save(panicAlert);
 
-        // Označi vožnju kao panic triggered
         ride.setPanicTriggered(true);
         rideRepository.save(ride);
 

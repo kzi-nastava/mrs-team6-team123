@@ -9,7 +9,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Serve files from uploads folder
         String uploadPath = new java.io.File("uploads").getAbsolutePath();
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath + "/");
