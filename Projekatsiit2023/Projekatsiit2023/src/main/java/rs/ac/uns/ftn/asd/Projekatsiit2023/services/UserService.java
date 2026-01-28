@@ -54,6 +54,12 @@ public class UserService {
         return mapUserToUserResponseDTO(user);
     }
 
+    public UserProfileResponseDTO getUserProfileByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return mapUserToUserResponseDTO(user);
+    }
+
     public UserProfileResponseDTO updateProfile(Long userId, UserProfileRequestDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

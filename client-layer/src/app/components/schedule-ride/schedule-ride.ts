@@ -230,8 +230,12 @@ export class ScheduleRideComponent {
     const request: RideOrderRequest = {
       creatorId,
       passengerIds,
-      startLocation: `${this.startLat},${this.startLng}`,
-      endLocation: `${this.endLat},${this.endLng}`,
+      startLocation: this.startAddress,
+      endLocation: this.endAddress,
+      startLatitude: this.startLat!,
+      startLongitude: this.startLng!,
+      endLatitude: this.endLat!,
+      endLongitude: this.endLng!,
       waypoints: this.stopManagement.getValidStops()
         .map(s => `${s.lat},${s.lng}`),
       scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
