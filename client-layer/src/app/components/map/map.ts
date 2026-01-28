@@ -82,11 +82,19 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
+      changes['ride'] &&
+      this.ride &&
+      this.mode === 'STATIC_ROUTE'
+    ) {
+      this.mapService.clearRoute();
+      this.loadRoute();
+    }
+    if (
       changes['track'] &&
       this.track &&
       this.mode === 'TRACK'
-      ) {
-        this.mapService.trackRide(this.track, this.cdr);
+    ) {
+      this.mapService.trackRide(this.track, this.cdr);
     }
     this.cdr.detectChanges();
   }

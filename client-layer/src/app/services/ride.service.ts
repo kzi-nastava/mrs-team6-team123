@@ -13,8 +13,8 @@ import { TrackRideResponse } from '../models/track-ride.model';
   providedIn: 'root'
 })
 export class RideService {
-  private apiUrl = `${environment.apiUrl}/api/rides`;
-  private estimationUrl = `${environment.apiUrl}/api/ride-estimation`;
+  private apiUrl = `${environment.apiUrl}/rides`;
+  private estimationUrl = `${environment.apiUrl}/ride-estimation`;
 
   constructor(private http: HttpClient) {}
 

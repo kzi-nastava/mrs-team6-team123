@@ -18,6 +18,7 @@ export class MapService {
   private routeLine?: L.Polyline;
   private simulationInterval?: any;
   private currentRouteIndex = 0;
+  private routingControl?: any;
 
   private vehicleMarkers = new Map<number, L.Marker>();
 
@@ -71,7 +72,7 @@ export class MapService {
     const start = L.latLng(startLat, startLng);
     const end = L.latLng(endLat, endLng);
 
-    const routingControl = L.Routing.control({
+    this.routingControl = L.Routing.control({
       waypoints: [start, end],
       addWaypoints: false,
       draggableWaypoints: false,
@@ -101,7 +102,14 @@ export class MapService {
       }
     }).addTo(this.map);
 
-    return routingControl;
+    return this.routingControl;
+  }
+
+  clearRoute() {
+    if (this.routingControl) {
+      this.map.removeControl(this.routingControl);
+      this.routingControl = undefined;
+    }
   }
 
   trackRide(ride: TrackRideResponse, cdr: ChangeDetectorRef) {

@@ -19,6 +19,7 @@ public class RideOrderRequestDTO {
     private boolean petFriendly;
     private VehicleType vehicleType; // STANDARD | LUX | VAN
     private List<String> waypoints; // ordered intermediate stops
+    private Double estimatedPrice; // price calculated on frontend
 
     public RideOrderRequestDTO() {
     }

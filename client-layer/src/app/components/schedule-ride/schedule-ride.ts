@@ -196,7 +196,7 @@ export class ScheduleRideComponent {
       return;
     }
 
-    if (!this.startLat || !this.endLat) {
+    if (!this.startLat || !this.startLng || !this.endLat || !this.endLng) {
       alert('Please select valid locations from the suggestions');
       return;
     }
@@ -210,16 +210,20 @@ export class ScheduleRideComponent {
       return;
     }
 
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('current_user');
     if (!userStr) {
       alert('Please log in to book a ride');
       return;
     }
     const user = JSON.parse(userStr);
 
-    this.passengerManagement.resolvePassengerIds(user.id)
-      .then(passengerIds => this.submitRideOrder(user.id, passengerIds))
-      .catch(err => alert('One or more passenger emails not found. Please check and try again.'));
+    this.passengerManagement.resolvePassengerIds(user.userId)
+      .then(passengerIds => {
+        this.submitRideOrder(user.userId, passengerIds);
+      })
+      .catch(err => {
+        alert('One or more passenger emails not found. Please check and try again.');
+      });
   }
 
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
@@ -233,7 +237,8 @@ export class ScheduleRideComponent {
       scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
       babySeat: this.hasBaby,
       petFriendly: this.hasPet,
-      vehicleType: this.vehicleType as VehicleType
+      vehicleType: this.vehicleType as VehicleType,
+      estimatedPrice: this.estimatedPrice ? parseFloat(this.estimatedPrice.split(' ')[0]) : 0
     };
 
     this.orderRideService.orderRide(request).subscribe({
@@ -242,7 +247,6 @@ export class ScheduleRideComponent {
         // TODO: Navigate to tracking page or show ride details
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Failed to book ride', err);
         alert('Failed to book ride. Please try again.');
       }
     });

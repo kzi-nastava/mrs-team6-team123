@@ -30,7 +30,7 @@ export interface GeocodeResponse {
 })
 export class GraphhopperService {
 
-  private baseUrl = `${environment.apiUrl}/api/route`;
+  private baseUrl = `${environment.apiUrl}/route`;
   private geocodeUrl = 'https://graphhopper.com/api/1/geocode';
 
   constructor(private http: HttpClient) { }

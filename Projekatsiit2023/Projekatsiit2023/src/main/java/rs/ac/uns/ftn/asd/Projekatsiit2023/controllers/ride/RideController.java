@@ -6,9 +6,20 @@ import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideStopService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RouteRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -16,27 +27,115 @@ public class RideController {
     private final TrackRideService trackRideService;
     private final RideCancellationService cancellationService;
     private final RideStopService rideStopService;
+    private final DriverMatchingService driverMatchingService;
+    private final RideService rideService;
+    private final PassengerRepository passengerRepository;
+    private final RouteRepository routeRepository;
+    private final RideRepository rideRepository;
 
     public RideController(
-         RideCancellationService cancellationService,
-         TrackRideService trackRideService,
-         RideStopService rideStopService) {
-    this.cancellationService = cancellationService;
-    this.trackRideService = trackRideService;
-    this.rideStopService = rideStopService;
-}
+            RideCancellationService cancellationService,
+            TrackRideService trackRideService,
+            RideStopService rideStopService,
+            DriverMatchingService driverMatchingService,
+            RideService rideService,
+            PassengerRepository passengerRepository,
+            RouteRepository routeRepository,
+            RideRepository rideRepository) {
+        this.cancellationService = cancellationService;
+        this.trackRideService = trackRideService;
+        this.rideStopService = rideStopService;
+        this.driverMatchingService = driverMatchingService;
+        this.rideService = rideService;
+        this.passengerRepository = passengerRepository;
+        this.routeRepository = routeRepository;
+        this.rideRepository = rideRepository;
+    }
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
-    public ResponseEntity<RideResponseDTO> orderRide(@RequestBody RideOrderRequestDTO request,
-            @RequestParam(required = false) Boolean immediate) {
-        RideResponseDTO response = new RideResponseDTO();
-        response.setRideId(500L);
-        response.setDriverId(42L);
-        response.setStatus(RideStatus.CREATED);
-        response.setEstimatedTimeMinutes(8);
-        response.setEstimatedPrice(450.0);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> orderRide(@RequestBody RideOrderRequestDTO request) {
+        try {
+            // Parse start and end locations (format: "lat,lng")
+            String[] startCoords = request.getStartLocation().split(",");
+            String[] endCoords = request.getEndLocation().split(",");
+            double startLat = Double.parseDouble(startCoords[0]);
+            double startLng = Double.parseDouble(startCoords[1]);
+            double endLat = Double.parseDouble(endCoords[0]);
+            double endLng = Double.parseDouble(endCoords[1]);
+
+            // Create and save Route with coordinates
+            Route route = new Route();
+            route.setStartLocation(request.getStartLocation());
+            route.setEndLocation(request.getEndLocation());
+            route.setStartLatitude(startLat);
+            route.setStartLongitude(startLng);
+            route.setEndLatitude(endLat);
+            route.setEndLongitude(endLng);
+            Route savedRoute = routeRepository.save(route);
+
+            // Find best available driver
+            Optional<Driver> driverOptional = driverMatchingService.findBestDriver(
+                    request.getVehicleType(),
+                    request.isBabySeat(),
+                    request.isPetFriendly(),
+                    startLat,
+                    startLng);
+
+            if (driverOptional.isEmpty()) {
+                // No driver available
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body("No drivers currently available. Please try again later.");
+            }
+
+            // Create ride with assigned driver
+            Driver driver = driverOptional.get();
+            Ride ride = new Ride();
+
+            // ID will be auto-generated by database (GenerationType.IDENTITY)
+            ride.setDriver(driver);
+            ride.setRoute(savedRoute);
+
+            // Set creator (using first passenger ID which should be the creator)
+            Passenger creator = passengerRepository.findById(request.getCreatorId())
+                    .orElseThrow(() -> new RuntimeException("Creator not found"));
+            ride.setCreator(creator);
+
+            // Add all passengers
+            ride.setPassengers(passengerRepository.findAllById(request.getPassengerIds()));
+
+            // Set location and time info
+            ride.setStartLocation(request.getStartLocation());
+            ride.setEndLocation(request.getEndLocation());
+            ride.setEndLatitude(endLat);
+            ride.setEndLongitude(endLng);
+            ride.setScheduledAt(request.getScheduledAt());
+            ride.setStartedAt(LocalTime.now());
+            ride.setEndedAt(LocalTime.now());
+            ride.setDate(LocalDate.now());
+            ride.setStatus(RideStatus.CREATED);
+            ride.setPrice(request.getEstimatedPrice() != null ? request.getEstimatedPrice() : 0.0);
+            ride.setTotalDistance(0.0); // Will be calculated from route
+            ride.setPanicTriggered(false);
+            ride.setRideRated(false);
+            ride.setDriverReported(false);
+            ride.setRideStopped(false);
+
+            // Save ride to database
+            Ride savedRide = rideService.create(ride);
+
+            // Build response
+            RideResponseDTO response = new RideResponseDTO();
+            response.setRideId(savedRide.getId());
+            response.setDriverId(driver.getId());
+            response.setStatus(RideStatus.CREATED);
+            response.setEstimatedTimeMinutes(8); // TODO: calculate from route
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to order ride: " + e.getMessage());
+        }
     }
 
     // 2.4.3 Poručivanje vožnje iz omiljenih ruta
@@ -94,27 +193,27 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/stop")
-        public ResponseEntity<?> stopRide(
-                @PathVariable Long rideId,
-                @RequestBody StopRideRequestDTO stopRequest) {
-            try {
-                StopRideResponseDTO response = rideStopService.stopRide(rideId, stopRequest);
-                return ResponseEntity.ok(response);
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-            }
-        }
-
-    @PostMapping("/{rideId}/cancel")
-        public ResponseEntity<?> cancelRide(
-                @PathVariable Long rideId,
-                @RequestBody CancelRideRequestDTO cancelRequest) {
-            try {
-                CancelRideResponseDTO response = cancellationService.cancelRide(rideId, cancelRequest);
-                return ResponseEntity.ok(response);
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(e.getMessage());
-            }
+    public ResponseEntity<?> stopRide(
+            @PathVariable Long rideId,
+            @RequestBody StopRideRequestDTO stopRequest) {
+        try {
+            StopRideResponseDTO response = rideStopService.stopRide(rideId, stopRequest);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/{rideId}/cancel")
+    public ResponseEntity<?> cancelRide(
+            @PathVariable Long rideId,
+            @RequestBody CancelRideRequestDTO cancelRequest) {
+        try {
+            CancelRideResponseDTO response = cancellationService.cancelRide(rideId, cancelRequest);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+}
