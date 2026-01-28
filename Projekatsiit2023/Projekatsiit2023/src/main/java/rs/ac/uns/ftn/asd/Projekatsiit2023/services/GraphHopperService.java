@@ -4,7 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,5 +30,30 @@ public class GraphHopperService {
         }
 
         return restTemplate.getForEntity(url.toString(), String.class);
+    }
+
+    public List<GeoPointDTO> getRoutePoints(List<GeoPointDTO> points) {
+        ResponseEntity<String> response = getRoute(points);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode coordinates = root.at("/paths/0/points/coordinates");
+
+            List<GeoPointDTO> routePoints = new ArrayList<>();
+            for (JsonNode coord : coordinates) {
+                double lon = coord.get(0).asDouble();
+                double lat = coord.get(1).asDouble();
+                GeoPointDTO point = new GeoPointDTO();
+                point.setLatitude(lat);
+                point.setLongitude(lon);
+                point.setLocation("");
+                routePoints.add(point);
+            }
+            return routePoints;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse GraphHopper response", e);
+        }
     }
 }

@@ -1,36 +1,112 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ActiveVehicleDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.ActiveVehicle;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.ActiveVehicleRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class PublicMapService {
-    private final Map<Long, ActiveVehicleDTO> vehicles = new HashMap<>();
+    private final ActiveVehicleRepository repository;
 
-    public PublicMapService() {
-        vehicles.put(1L, new ActiveVehicleDTO(1L, 45.2671, 19.8335, true));
-        vehicles.put(2L, new ActiveVehicleDTO(2L, 45.2450, 19.8300, false));
-        vehicles.put(3L, new ActiveVehicleDTO(3L, 45.2500, 19.8250, true));
-        vehicles.put(4L, new ActiveVehicleDTO(4L, 45.2553, 19.8480, false));
-        vehicles.put(5L, new ActiveVehicleDTO(5L, 45.2472, 19.8489, false));
-        vehicles.put(6L, new ActiveVehicleDTO(6L, 45.2405, 19.8219, true));
-        vehicles.put(7L, new ActiveVehicleDTO(7L, 45.2455, 19.8406, false));
-        vehicles.put(8L, new ActiveVehicleDTO(8L, 45.2431, 19.8475, true));
-        vehicles.put(9L, new ActiveVehicleDTO(9L, 45.2302, 19.8089, true));
-        vehicles.put(10L, new ActiveVehicleDTO(10L, 45.2476, 19.7994, false));
-        vehicles.put(11L, new ActiveVehicleDTO(11L, 45.2528, 19.8030, false));
+    @Autowired
+    private RouteService routeService;
+
+    private static final double ARRIVAL_THRESHOLD = 0.00005;
+
+    public PublicMapService(
+            ActiveVehicleRepository repository) {
+        this.repository = repository;
     }
 
     public List<ActiveVehicleDTO> getVehicles() {
-        vehicles.values().forEach(v -> {
-            v.setLatitude(v.getLatitude() + (Math.random() - 0.5) * 0.0005);
-            v.setLongitude(v.getLongitude() + (Math.random() - 0.5) * 0.0005);
-        });
-        return new ArrayList<>(vehicles.values());
+        List<ActiveVehicle> vehicles = repository.findAll();
+        for (ActiveVehicle vehicle : vehicles) {
+            if (hasNoTargetCoordinates(vehicle)) {
+                assignNewRandomTarget(vehicle);
+                routeService.calculateAndSaveRoute(vehicle);
+            }
+
+            moveAlongRoute(vehicle);
+
+            if (hasArrived(vehicle)) {
+                assignNewRandomTarget(vehicle);
+                routeService.calculateAndSaveRoute(vehicle);
+            }
+        }
+        repository.saveAll(vehicles);
+
+        List<ActiveVehicleDTO> result = new ArrayList<>();
+        for (ActiveVehicle v : vehicles) {
+            result.add(mapActiveVehicleToDTO(v));
+        }
+        return result;
     }
+
+    private ActiveVehicleDTO mapActiveVehicleToDTO(ActiveVehicle v) {
+        return new ActiveVehicleDTO(
+                v.getId(),
+                v.getCurrentLatitude(),
+                v.getCurrentLongitude(),
+                v.isAvailable()
+        );
+    }
+
+    private void moveAlongRoute(ActiveVehicle v) {
+        if (v.getRouteCoordinates() == null || v.getRouteCoordinates().isEmpty()) return;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<GeoPointDTO> route = mapper.readValue(
+                    v.getRouteCoordinates(),
+                    new TypeReference<>() {}
+            );
+
+            int index = v.getRouteIndex();
+            if (index >= route.size()) {
+                assignNewRandomTarget(v);
+                routeService.calculateAndSaveRoute(v);
+                v.setRouteIndex(0);
+                return;
+            }
+
+            GeoPointDTO next = route.get(index);
+            v.setCurrentLatitude(next.getLatitude());
+            v.setCurrentLongitude(next.getLongitude());
+            v.setRouteIndex(index + 1);
+
+            repository.save(v);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deserialize route", e);
+        }
+    }
+
+    private boolean hasArrived(ActiveVehicle v) {
+        return Math.abs(v.getCurrentLatitude() - v.getTargetLatitude()) < ARRIVAL_THRESHOLD &&
+                Math.abs(v.getCurrentLongitude() - v.getTargetLongitude()) < ARRIVAL_THRESHOLD;
+    }
+
+    private void assignNewRandomTarget(ActiveVehicle v) {
+        double baseLat = 45.25;
+        double baseLon = 19.83;
+
+        double randomLat = baseLat + (Math.random() - 0.5) * 0.04;
+        double randomLon = baseLon + (Math.random() - 0.5) * 0.04;
+
+        v.setTargetLatitude(randomLat);
+        v.setTargetLongitude(randomLon);
+    }
+
+    private boolean hasNoTargetCoordinates(ActiveVehicle vehicle) {
+        return vehicle.getTargetLatitude() == 0 || vehicle.getTargetLongitude() == 0;
+    }
+
 }
