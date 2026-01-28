@@ -71,7 +71,7 @@ export class ForgotPasswordComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    this.http.post(`${environment.apiUrl}/api/auth/forgot-password`, 
+    this.http.post(`${environment.apiUrl}/auth/forgot-password`, 
       { email: this.email },
       { responseType: 'text' }
     ).subscribe({
