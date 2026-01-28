@@ -19,7 +19,7 @@ export interface CancelRideResponse {
   providedIn: 'root'
 })
 export class RideCancelService {
-  private apiUrl = `${environment.apiUrl}/api/rides`;
+  private apiUrl = `${environment.apiUrl}/rides`;
 
   constructor(private http: HttpClient) {}
 

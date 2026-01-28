@@ -20,7 +20,7 @@ export interface StopRideResponse {
   providedIn: 'root'
 })
 export class RideStopService {
-  private apiUrl = `${environment.apiUrl}/api/rides`;
+  private apiUrl = `${environment.apiUrl}/rides`;
 
   constructor(private http: HttpClient) {}
   stopRide(rideId: number, request: StopRideRequest): Observable<StopRideResponse> {

@@ -35,7 +35,7 @@ export interface ResolvePanicRequest {
   providedIn: 'root'
 })
 export class PanicService {
-  private apiUrl = `${environment.apiUrl}/api/panic`;
+  private apiUrl = `${environment.apiUrl}/panic`;
 
   constructor(private http: HttpClient) {}
 
