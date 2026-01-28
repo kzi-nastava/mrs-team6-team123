@@ -29,7 +29,7 @@ export class DriverRegistration {
 
   vehicleTypes = [
     { value: 'STANDARD', label: 'Standard' },
-    { value: 'LUX', label: 'Luxury' },
+    { value: 'LUXURY', label: 'Luxury' },
     { value: 'VAN', label: 'Van' },
   ];
 
