@@ -30,7 +30,7 @@ export interface PassengerRideHistoryDTO {
   providedIn: 'root'
 })
 export class PassengerRideHistoryService {
-  private apiUrl = `${environment.apiUrl}/api/passenger`;
+  private apiUrl = `${environment.apiUrl}/passenger`;
 
   constructor(private http: HttpClient) {}
 

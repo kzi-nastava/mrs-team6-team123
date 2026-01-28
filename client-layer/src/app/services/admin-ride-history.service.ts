@@ -45,7 +45,7 @@ export interface AdminRideHistoryDTO {
   providedIn: 'root'
 })
 export class AdminRideHistoryService {
-  private apiUrl = `${environment.apiUrl}/api/admin/ride-history`;
+  private apiUrl = `${environment.apiUrl}/admin/ride-history`;
 
   constructor(private http: HttpClient) {}
 
