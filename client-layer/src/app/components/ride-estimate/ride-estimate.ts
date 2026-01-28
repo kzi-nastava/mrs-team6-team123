@@ -64,20 +64,16 @@ interface RideEstimationResponse {
   styleUrls: ['./ride-estimate.css'],
 })
 export class RideEstimateModalComponent {
-  // Adrese (za prikaz korisniku)
   startAddress = '';
   destinationAddress = '';
   
-  // Koordinate (za slanje na backend)
   startCoordinates = '';
   destinationCoordinates = '';
   
   vehicleType: VehicleType = VehicleType.STANDARD;
-  
-  // Međustanice
+
   intermediateStops: IntermediateStop[] = [];
-  
-  // Autocomplete suggestions
+ 
   startSuggestions: GeocodingResult[] = [];
   destinationSuggestions: GeocodingResult[] = [];
   
@@ -90,7 +86,6 @@ export class RideEstimateModalComponent {
   estimatedTime = 0;
   estimatedPrice = 0;
 
-  // Za prikaz u rezultatu
   resolvedStartAddress = '';
   resolvedDestinationAddress = '';
 
@@ -100,7 +95,6 @@ export class RideEstimateModalComponent {
     { value: VehicleType.VAN, label: 'Van', basePrice: 400 }
   ];
 
-  // Debounce za autocomplete
   private startSearch$ = new Subject<string>();
   private destinationSearch$ = new Subject<string>();
 
@@ -114,9 +108,6 @@ export class RideEstimateModalComponent {
     this.setupAutocomplete();
   }
 
-  /**
-   * Postavlja autocomplete sa debounce
-   */
   private setupAutocomplete() {
     this.startSearch$.pipe(
       debounceTime(300),
@@ -137,12 +128,9 @@ export class RideEstimateModalComponent {
     });
   }
 
-  /**
-   * Poziva se kad korisnik kuca u start polje
-   */
   onStartAddressInput(value: string) {
     this.startAddress = value;
-    this.startCoordinates = ''; // Reset koordinate dok ne izabere
+    this.startCoordinates = '';
     if (value.length >= 3) {
       this.startSearch$.next(value);
     } else {
@@ -150,9 +138,6 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Poziva se kad korisnik izabere start adresu iz liste
-   */
   selectStartAddress(result: GeocodingResult) {
     this.startAddress = result.displayName;
     this.startCoordinates = `${result.latitude}, ${result.longitude}`;
@@ -160,12 +145,10 @@ export class RideEstimateModalComponent {
     this.startSuggestions = [];
   }
 
-  /**
-   * Poziva se kad korisnik kuca u destination polje
-   */
+
   onDestinationAddressInput(value: string) {
     this.destinationAddress = value;
-    this.destinationCoordinates = ''; // Reset koordinate dok ne izabere
+    this.destinationCoordinates = ''; 
     if (value.length >= 3) {
       this.destinationSearch$.next(value);
     } else {
@@ -173,9 +156,6 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Poziva se kad korisnik izabere destination adresu iz liste
-   */
   selectDestinationAddress(result: GeocodingResult) {
     this.destinationAddress = result.displayName;
     this.destinationCoordinates = `${result.latitude}, ${result.longitude}`;
@@ -183,9 +163,6 @@ export class RideEstimateModalComponent {
     this.destinationSuggestions = [];
   }
 
-  /**
-   * Dodaje novu međustanicu
-   */
   addStop() {
     const newStop: IntermediateStop = {
       id: Date.now().toString(),
@@ -196,16 +173,10 @@ export class RideEstimateModalComponent {
     this.intermediateStops.push(newStop);
   }
 
-  /**
-   * Uklanja međustanicu po ID-u
-   */
   removeStop(stopId: string) {
     this.intermediateStops = this.intermediateStops.filter(stop => stop.id !== stopId);
   }
 
-  /**
-   * Poziva se kad korisnik kuca u stop polje
-   */
   onStopAddressInput(stop: IntermediateStop, value: string) {
     stop.address = value;
     stop.coordinates = ''; // Reset dok ne izabere
@@ -220,18 +191,12 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Poziva se kad korisnik izabere stop adresu iz liste
-   */
   selectStopAddress(stop: IntermediateStop, result: GeocodingResult) {
     stop.address = result.displayName;
     stop.coordinates = `${result.latitude}, ${result.longitude}`;
     stop.suggestions = [];
   }
 
-  /**
-   * Pomera međustanicu gore
-   */
   moveStopUp(index: number) {
     if (index > 0) {
       const temp = this.intermediateStops[index];
@@ -240,9 +205,6 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Pomera međustanicu dole
-   */
   moveStopDown(index: number) {
     if (index < this.intermediateStops.length - 1) {
       const temp = this.intermediateStops[index];
@@ -251,21 +213,14 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Skraćuje dugačke adrese za prikaz
-   */
   shortenAddress(address: string, maxLength: number = 50): string {
     if (address.length <= maxLength) return address;
     return address.substring(0, maxLength) + '...';
   }
 
-  /**
-   * Računa procenu vožnje
-   */
   async calculateEstimate() {
     this.errorMessage = '';
 
-    // Validacija
     if (!this.startAddress.trim()) {
       this.errorMessage = 'Please enter starting location';
       return;
@@ -280,7 +235,6 @@ export class RideEstimateModalComponent {
     this.geocodingLoading = true;
 
     try {
-      // Geocoduj start ako nema koordinate
       if (!this.startCoordinates) {
         const startResult = await this.geocodingService.geocodeAddress(this.startAddress).toPromise();
         if (startResult) {
@@ -294,7 +248,6 @@ export class RideEstimateModalComponent {
         }
       }
 
-      // Geocoduj destination ako nema koordinate
       if (!this.destinationCoordinates) {
         const destResult = await this.geocodingService.geocodeAddress(this.destinationAddress).toPromise();
         if (destResult) {
@@ -308,7 +261,6 @@ export class RideEstimateModalComponent {
         }
       }
 
-      // Geocoduj međustanice
       const validStops: string[] = [];
       for (const stop of this.intermediateStops) {
         if (stop.address.trim()) {
@@ -318,7 +270,6 @@ export class RideEstimateModalComponent {
               stop.coordinates = `${stopResult.latitude}, ${stopResult.longitude}`;
               validStops.push(stop.coordinates);
             }
-            // Ako ne nađe, preskačemo tu stanicu
           } else {
             validStops.push(stop.coordinates);
           }
@@ -327,7 +278,6 @@ export class RideEstimateModalComponent {
 
       this.geocodingLoading = false;
 
-      // Sada šaljemo request sa koordinatama
       const request: RideEstimationRequest = {
         startLocation: this.startCoordinates,
         endLocation: this.destinationCoordinates,
@@ -338,7 +288,7 @@ export class RideEstimateModalComponent {
       console.log('🚀 Sending estimation request:', request);
 
       this.http.post<RideEstimationResponse>(
-        `${environment.apiUrl}/api/ride-estimation`,
+        `${environment.apiUrl}/ride-estimation`,
         request
       ).subscribe({
         next: (response) => {
@@ -366,17 +316,30 @@ export class RideEstimateModalComponent {
     }
   }
 
-  /**
-   * Resetuje formu za novu procenu
-   */
+
   resetForm() {
     this.showResult = false;
     this.errorMessage = '';
   }
 
   onClose(): void {
+  if (this.showResult && this.startCoordinates && this.destinationCoordinates) {
+    this.dialogRef.close({
+      action: 'close',
+      startAddress: this.resolvedStartAddress || this.startAddress,
+      startCoordinates: this.startCoordinates,
+      destinationAddress: this.resolvedDestinationAddress || this.destinationAddress,
+      destinationCoordinates: this.destinationCoordinates,
+      intermediateStops: this.intermediateStops.filter(s => s.coordinates),
+      vehicleType: this.vehicleType,
+      estimatedDistance: this.estimatedDistance,
+      estimatedTime: this.estimatedTime,
+      estimatedPrice: this.estimatedPrice
+    });
+  } else {
     this.dialogRef.close();
   }
+}
 
   onBookRide(): void {
     const validStops = this.intermediateStops
