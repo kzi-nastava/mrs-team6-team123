@@ -15,7 +15,7 @@ import { TrackRideResponse } from '../../models/track-ride.model';
 })
 export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() mode: MapMode = 'VEHICLES';
-  @Input() ride?: DriverRideHistory;
+  @Input() ride?: DriverRideHistory | { startLat?: number; startLng?: number; endLat?: number; endLng?: number };
   @Input() track?: TrackRideResponse;
 
   private availableIcon = L.icon({
@@ -55,7 +55,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private loadRoute(): void {
-    if (this.ride) {
+    if (this.ride && this.ride.startLat !== undefined && this.ride.startLng !== undefined && this.ride.endLat !== undefined && this.ride.endLng !== undefined) {
       console.log(this.ride);
       this.mapService.addRoute(this.ride.startLat, this.ride.startLng, this.ride.endLat, this.ride.endLng);
       this.mapService.fitBoundsOnMarkers();
@@ -82,11 +82,19 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
+      changes['ride'] &&
+      this.ride &&
+      this.mode === 'STATIC_ROUTE'
+    ) {
+      this.mapService.clearRoute();
+      this.loadRoute();
+    }
+    if (
       changes['track'] &&
       this.track &&
       this.mode === 'TRACK'
-      ) {
-        this.mapService.trackRide(this.track, this.cdr);
+    ) {
+      this.mapService.trackRide(this.track, this.cdr);
     }
     this.cdr.detectChanges();
   }

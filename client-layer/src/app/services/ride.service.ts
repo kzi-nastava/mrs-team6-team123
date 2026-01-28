@@ -6,7 +6,7 @@ import {
   RideEstimationRequest, 
   RideEstimationResponse 
 } from '../models/ride-estimation.model';
-import { CancelRideRequest, CancelRideResponse, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
+import { CancelRideRequest, CancelRideResponse, RideOrderRequest, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
 import { TrackRideResponse } from '../models/track-ride.model';
 import { RateRideRequest, RateRideResponse } from '../models/rate-ride.model';
 
@@ -14,13 +14,14 @@ import { RateRideRequest, RateRideResponse } from '../models/rate-ride.model';
   providedIn: 'root'
 })
 export class RideService {
-  private apiUrl = `${environment.apiUrl}/api/rides`;
+  private apiUrl = `${environment.apiUrl}/rides`;
+  private estimationUrl = `${environment.apiUrl}/ride-estimation`;
 
   constructor(private http: HttpClient) {}
 
   // 2.1.2 Ride Estimation
   estimateRide(request: RideEstimationRequest): Observable<RideEstimationResponse> {
-    return this.http.post<RideEstimationResponse>(this.apiUrl, request);
+    return this.http.post<RideEstimationResponse>(this.estimationUrl, request);
   }
 
   trackRide(rideId: number): Observable<TrackRideResponse> {

@@ -8,7 +8,7 @@ import { UserProfile, UpdateUserProfileRequest } from '../models/user';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/api/users`;
+  private apiUrl = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 
@@ -42,5 +42,10 @@ export class UserService {
       params = params.set('name', nameFilter);
     }
     return this.http.get<UserProfile[]>(this.apiUrl, { params });
+  }
+
+  // Get User by Email
+  getUserByEmail(email: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/email/${email}`);
   }
 }

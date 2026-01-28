@@ -7,8 +7,8 @@ import { RideOrderRequest, RideResponse } from '../models/ride.model';
 @Injectable({
   providedIn: 'root'
 })
-export class RideService {
-  private apiUrl = `${environment.apiUrl}`;
+export class OrderRideService {
+  private apiUrl = `${environment.apiUrl}/rides`;
 
   constructor(private http: HttpClient) {}
 
@@ -16,7 +16,7 @@ export class RideService {
   orderRide(request: RideOrderRequest, immediate: boolean = true): Observable<RideResponse> {
     const params = new HttpParams().set('immediate', immediate.toString());
     return this.http.post<RideResponse>(
-      `${this.apiUrl}/rides`,
+      this.apiUrl,
       request,
       { params }
     );
@@ -26,7 +26,7 @@ export class RideService {
   orderRideFromFavorite(favoriteRouteId: number, immediate: boolean = true): Observable<RideResponse> {
     const params = new HttpParams().set('immediate', immediate.toString());
     return this.http.post<RideResponse>(
-      `${this.apiUrl}/rides/favorites/${favoriteRouteId}`,
+      `${this.apiUrl}/favorites/${favoriteRouteId}`,
       {},
       { params }
     );

@@ -18,6 +18,7 @@ export interface RideOrderRequest {
   petFriendly: boolean;
   vehicleType: VehicleType;
   waypoints?: string[];
+  estimatedPrice?: number;
 }
 
 export interface CancelRideRequest {

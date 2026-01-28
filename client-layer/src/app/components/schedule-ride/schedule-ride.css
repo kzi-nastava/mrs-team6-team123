@@ -43,7 +43,41 @@
 
 .form-group {
   display: flex;
+  flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.suggestion:hover {
+  background: #f5f5f5;
+  border-color: #325639;
+}
+
+.suggestion .icon {
+  font-size: 12px;
 }
 
 .input-with-icon {
