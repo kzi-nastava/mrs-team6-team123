@@ -1,0 +1,108 @@
+<div class="page">
+  <h1>Ride History Management</h1>
+
+  <div class="search-section">
+    <div class="search-box">
+      <label>Search by User ID:</label>
+      <div class="search-input-group">
+        <input 
+          type="number" 
+          [(ngModel)]="userIdFilter" 
+          placeholder="Enter user ID"
+          (keydown.enter)="loadUserRides(userIdFilter!)"
+        />
+        <button class="btn-search" (click)="loadUserRides(userIdFilter!)">
+          Search
+        </button>
+        <button class="btn-clear" (click)="loadAllRides()">
+          Show All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-ride-history-filter
+    (filterApplied)="onFilterApplied($event)"
+    (filterCleared)="onFilterCleared()">
+  </app-ride-history-filter>
+
+  <div class="view-indicator">
+    <span *ngIf="showAllRides">Showing all rides</span>
+    <span *ngIf="!showAllRides && userIdFilter">Showing rides for User #{{ userIdFilter }}</span>
+    <span class="ride-count">({{ rides.length }} rides)</span>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading ride history...</p>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !errorMessage && rides.length === 0">
+    <p>🚗 No rides found</p>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && rides.length > 0">
+    <table class="ride-table">
+      <thead>
+        <tr>
+          <th (click)="onSort('Date')" class="sortable">
+            Date {{ getSortIcon('Date') }}
+          </th>
+          <th (click)="onSort('From')" class="sortable">
+            From {{ getSortIcon('From') }}
+          </th>
+          <th (click)="onSort('To')" class="sortable">
+            To {{ getSortIcon('To') }}
+          </th>
+          <th>Started</th>
+          <th>Ended</th>
+          <th (click)="onSort('Price')" class="sortable">
+            Price {{ getSortIcon('Price') }}
+          </th>
+          <th (click)="onSort('Distance')" class="sortable">
+            Distance {{ getSortIcon('Distance') }}
+          </th>
+          <th (click)="onSort('Driver')" class="sortable">
+            Driver {{ getSortIcon('Driver') }}
+          </th>
+          <th>Cancelled</th>
+          <th>PANIC</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ride of rides" [class.panic-row]="ride.panicTriggered" [class.cancelled-row]="ride.cancelled">
+          <td>{{ ride.date }}</td>
+          <td class="location-cell" [title]="ride.startLocation">
+            {{ ride.startLocation | slice:0:25 }}{{ ride.startLocation.length > 25 ? '...' : '' }}
+          </td>
+          <td class="location-cell" [title]="ride.endLocation">
+            {{ ride.endLocation | slice:0:25 }}{{ ride.endLocation.length > 25 ? '...' : '' }}
+          </td>
+          <td>{{ ride.startedAt }}</td>
+          <td>{{ ride.endedAt }}</td>
+          <td>{{ ride.price }} RSD</td>
+          <td>{{ ride.totalDistance }} km</td>
+          <td>{{ ride.driverName }}</td>
+          <td>
+            <span *ngIf="ride.cancelled" class="badge badge-cancelled" [title]="'By: ' + ride.cancelledByName">
+              Yes
+            </span>
+            <span *ngIf="!ride.cancelled" class="badge badge-ok">No</span>
+          </td>
+          <td>
+            <span *ngIf="ride.panicTriggered" class="badge badge-panic">🚨 Yes</span>
+            <span *ngIf="!ride.panicTriggered" class="badge badge-ok">No</span>
+          </td>
+          <td>
+            <button class="btn-view" (click)="showRideDetails(ride)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

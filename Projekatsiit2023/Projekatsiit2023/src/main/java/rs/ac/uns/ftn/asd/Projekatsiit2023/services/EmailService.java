@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
+import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class EmailService {
             System.out.println("   Link: " + activationLink);
 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("taxiappftn@gmail.com"); // DODAJ OVO!
+            message.setFrom("taxiappftn@gmail.com"); 
             message.setTo(to);
             message.setSubject("Activate Your Account");
             message.setText("Click the link to activate your account:\n\n" + activationLink +
@@ -30,7 +31,7 @@ public class EmailService {
             System.out.println("✅ Activation email sent successfully to: " + to);
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
-            e.printStackTrace(); // DODAJ OVO za detalje
+            e.printStackTrace(); 
         }
     }
 
@@ -104,6 +105,28 @@ public class EmailService {
             System.out.println("Driver welcome email sent successfully to: " + to);
         } catch (Exception e) {
             System.err.println("Failed to send driver welcome email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRideFinishedEmail(String to, String rideDetails, String rateLink) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("taxiappftn@gmail.com");
+            message.setTo(to);
+            message.setSubject("Your Ride is Complete!");
+            String emailBody = String.format(
+                    "Hello,\n\n" +
+                            "Your ride has been completed. Here are the details of your ride:\n\n" +
+                            "%s\n\n" +
+                            "You can now rate the driver and vehicle, and provide feedback on you experience\n\n" +
+                            "%s\n\n" +
+                            "Thank you for choosing our taxi service!\n\n",
+                    rideDetails,
+                    rateLink);
+            message.setText(emailBody);
+            mailSender.send(message);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

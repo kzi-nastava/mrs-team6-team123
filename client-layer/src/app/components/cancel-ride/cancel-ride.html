@@ -1,7 +1,7 @@
 <div class="cancel-dialog" *ngIf="!showSuccess">
   <div class="dialog-header">
     <h2 mat-dialog-title>Cancel Ride</h2>
-    <button class="close-btn" (click)="onClose()">×</button>
+    <button class="close-btn" (click)="onClose()" [disabled]="isLoading">×</button>
   </div>
 
   <div mat-dialog-content class="dialog-content">
@@ -38,11 +38,16 @@
         placeholder="Please provide a reason for canceling this ride"
         [(ngModel)]="cancellationReason"
         rows="4"
+        [disabled]="isLoading"
       ></textarea>
     </mat-form-field>
 
+    <div class="error-box" *ngIf="errorMessage">
+      <p>❌ {{ errorMessage }}</p>
+    </div>
+
     <div class="warning-box">
-      <p>⚠️ Note: You can only cancel a ride 10 minutes before its scheduled start time.</p>
+      <p>⚠️ Note: Passengers can only cancel a ride 10 minutes before its scheduled start time. Drivers can cancel anytime before the ride starts.</p>
     </div>
   </div>
 
@@ -50,14 +55,16 @@
     <button 
       mat-raised-button 
       class="secondary-btn"
-      (click)="onClose()">
+      (click)="onClose()"
+      [disabled]="isLoading">
       Go Back
     </button>
     <button 
       mat-raised-button 
       color="warn"
-      (click)="cancelRide()">
-      Cancel Ride
+      (click)="cancelRide()"
+      [disabled]="isLoading || !cancellationReason.trim()">
+      {{ isLoading ? 'Cancelling...' : 'Cancel Ride' }}
     </button>
   </div>
 </div>
@@ -66,6 +73,6 @@
   <div class="success-card">
     <span class="success-icon">✓</span>
     <h3>Ride Canceled Successfully</h3>
-    <p>Your ride has been canceled. You will receive a confirmation email shortly.</p>
+    <p>Your ride has been canceled. All participants have been notified.</p>
   </div>
 </div>

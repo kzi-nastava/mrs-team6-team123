@@ -31,46 +31,37 @@ public class RideCancellationService {
 
     @Transactional
     public CancelRideResponseDTO cancelRide(Long rideId, CancelRideRequestDTO request) {
-        // Pronađi vožnju
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
-        // Pronađi korisnika koji otkazuje
         User cancellingUser = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Validacija razloga
         if (request.getReason() == null || request.getReason().trim().isEmpty()) {
             throw new RuntimeException("Cancellation reason is required");
         }
 
-        // Proveri da li je vožnja već otkazana
         if (ride.getCanceledBy() != null) {
             throw new RuntimeException("Ride already cancelled");
         }
 
-        // Proveri da li je vožnja već počela
         if (ride.getStatus() == RideStatus.STARTED) {
             throw new RuntimeException("Cannot cancel ride that has already started");
         }
 
-        // Proveri da li je vožnja već završena
         if (ride.getStatus() == RideStatus.FINISHED) {
             throw new RuntimeException("Cannot cancel finished ride");
         }
 
-        // Validacija prema tipu korisnika
         validateCancellation(ride, cancellingUser);
 
-        // Otkaži vožnju
+
         ride.setCanceledBy(cancellingUser);
-        ride.setStatus(RideStatus.FINISHED); // Možeš dodati CANCELLED status ako želiš
+        ride.setStatus(RideStatus.FINISHED);
         rideRepository.save(ride);
 
-        // Pošalji notifikacije svim učesnicima
         sendCancellationNotifications(ride, cancellingUser, request.getReason());
 
-        // Kreiraj response
         CancelRideResponseDTO response = new CancelRideResponseDTO();
         response.setRideId(rideId);
         response.setCancelledBy(cancellingUser.getId());
@@ -83,23 +74,19 @@ public class RideCancellationService {
 private void validateCancellation(Ride ride, User cancellingUser) {
     UserRole role = cancellingUser.getUserRole();
 
-    // Vozač može otkazati bilo kada pre početka vožnje (pre nego što putnici uđu)
     if (role == UserRole.DRIVER) {
         if (!ride.getDriver().getId().equals(cancellingUser.getId())) {
             throw new RuntimeException("Only assigned driver can cancel this ride");
         }
         
-        // Vozač može otkazati samo dok vožnja nije započeta (CREATED ili ACCEPTED)
         if (ride.getStatus() == RideStatus.STARTED) {
             throw new RuntimeException("Cannot cancel ride after passengers have entered the vehicle");
         }
         
-        return; // Vozač može otkazati
+        return;
     }
 
-    // Putnik može otkazati samo 10+ minuta pre početka
     if (role == UserRole.PASSENGER) {
-        // Proveri da li je korisnik učesnik vožnje
         boolean isParticipant = ride.getCreator().getId().equals(cancellingUser.getId()) ||
                 ride.getPassengers().stream()
                         .anyMatch(p -> p.getId().equals(cancellingUser.getId()));
@@ -111,8 +98,6 @@ private void validateCancellation(Ride ride, User cancellingUser) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime scheduledTime = ride.getScheduledAt();
 
-        // Ako je scheduledAt null, to znači da je vožnja "odmah" (ASAP)
-        // U tom slučaju, putnik ne može otkazati jer nema 10 minuta unapred
         if (scheduledTime == null) {
             throw new RuntimeException(
                 "Cannot cancel immediate rides. Only scheduled rides can be cancelled by passengers 10+ minutes before start."
@@ -128,12 +113,11 @@ private void validateCancellation(Ride ride, User cancellingUser) {
             );
         }
         
-        return; // Putnik može otkazati
+        return; 
     }
 
-    // Admin može otkazati bilo koju vožnju (opciono - ako želiš da dozvoliš)
     if (role == UserRole.ADMIN) {
-        return; // Admin može otkazati
+        return;
     }
 
     throw new RuntimeException("Invalid user role for cancellation");
@@ -142,7 +126,6 @@ private void validateCancellation(Ride ride, User cancellingUser) {
         String cancellerName = cancellingUser.getFirstName() + " " + cancellingUser.getLastName();
         String message = "Ride cancelled by " + cancellerName + ". Reason: " + reason;
 
-        // Notifikuj vozača (ako nije on otkazao)
         if (!ride.getDriver().getId().equals(cancellingUser.getId())) {
             notificationService.sendNotification(
                 ride.getDriver().getId(),
@@ -151,7 +134,6 @@ private void validateCancellation(Ride ride, User cancellingUser) {
             );
         }
 
-        // Notifikuj kreatora (ako nije on otkazao)
         if (!ride.getCreator().getId().equals(cancellingUser.getId())) {
             notificationService.sendNotification(
                 ride.getCreator().getId(),
@@ -160,7 +142,6 @@ private void validateCancellation(Ride ride, User cancellingUser) {
             );
         }
 
-        // Notifikuj sve putnike (osim onoga ko je otkazao)
         ride.getPassengers().stream()
             .filter(p -> !p.getId().equals(cancellingUser.getId()))
             .forEach(passenger -> {

@@ -4,6 +4,8 @@ import { AuthService } from '../../../services/auth.service';
 import { ReportDriverComponent } from '../../report-driver/report-driver';
 import { MatDialog } from '@angular/material/dialog';
 import { TrackRideResponse } from '../../../models/track-ride.model';
+import { StopRideDialogComponent } from '../../stop-ride/stop-ride';
+import { RideService } from '../../../services/ride.service';
 
 @Component({
   selector: 'app-ride-actions',
@@ -17,7 +19,8 @@ export class RideActionsComponent {
 
   constructor(
     public auth: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public rideService: RideService
   ) {}
 
   userType = computed(() => this.auth.getUserType());
@@ -44,8 +47,42 @@ export class RideActionsComponent {
     this.panicClicked.emit();
   }
 
+  // Helper metode - dodaj ih ako ih nemaš
+private calculateDistanceTraveled(): number {
+  // U produkciji bi računao na osnovu GPS tracking-a
+  // Za sada vraćamo mock vrednost
+  return 5.5; // km
+}
+
+private getCurrentCoordinates(): string {
+  // U produkciji bi koristio GPS
+  // Za sada vraćamo mock koordinate (Novi Sad centar)
+  return '45.2550, 19.8450';
+}
+
   onStopRide() {
-    this.stopRideClicked.emit();
+    const dialogRef = this.dialog.open(StopRideDialogComponent, {
+        width: '700px',
+        maxWidth: '90vw',
+        data: {
+          currentRide: {
+            id: this.ride?.rideId,
+            passengerName: this.ride?.info.passengers[0] || 'Passenger',
+            originalDestination: this.ride?.info.to,
+            timeElapsed: this.ride?.info.duration || 0,
+            distanceTraveled: this.calculateDistanceTraveled(), // implementiraj ili koristi mock
+            originalPrice: this.ride?.info.price || 0,
+            currentLocation: this.getCurrentCoordinates() // implementiraj ili koristi mock
+          }
+        }
+      });
+    
+      dialogRef.afterClosed().subscribe(result => {
+        if (result?.stopped) {
+          console.log('Ride stopped at:', result.newDestination);
+          console.log('New price:', result.newPrice);
+        }
+      });
   }
 
   onReport() {
@@ -67,6 +104,20 @@ export class RideActionsComponent {
   }
 
   onFinish() {
-    this.finishClicked.emit();
+    this.rideService.finishRide(this.ride.rideId).subscribe({
+      next: () => {
+        console.log("Drive ended successfully");
+        window.alert('Drive is finished!');
+      },
+      error: (err) => {
+        console.error("Error finishing ride: ", err);
+        const message =
+          typeof err.error === 'string'
+            ? err.error
+            : 'Something went wrong';
+
+        window.alert(message);
+      }
+    });
   }
 }
