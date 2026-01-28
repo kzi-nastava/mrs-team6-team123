@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { UserProfile } from '../models/user.model';
 import { UserRole } from '../models/enums';
 import { UserService } from './user.service';
+import { U } from '@angular/cdk/keycodes';
 
 @Injectable({
   providedIn: 'root'
@@ -78,12 +79,17 @@ export class AuthService {
   }
 
   getCurrentUserId(): number | null {
-    const user = this.currentUser();
-    return user ? user.id : null;
+    const stored = localStorage.getItem('current_user');
+    console.log(stored);
+    if (!stored) return null;
+
+    const user = JSON.parse(stored);
+    console.log(user);
+    return user.userId ?? null;
   }
  
   getUserType() {
-    //return this.userRole();
-    return 'DRIVER';
+    return this.currentUser()?.role;
+    //return 'DRIVER';
   }
 }

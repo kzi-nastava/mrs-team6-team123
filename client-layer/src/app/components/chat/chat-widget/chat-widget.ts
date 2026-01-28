@@ -34,10 +34,10 @@ export class ChatWidgetComponent {
   }
 
   get showChatList() {
-    return this.userType() === 'admin' && !this.selectedChatId;
+    return this.userType() === 'ADMIN' && !this.selectedChatId;
   }
 
   get showChatWindow() {
-    return this.userType() !== 'admin' || this.selectedChatId;
+    return this.userType() !== 'ADMIN' || this.selectedChatId;
   }
 }
