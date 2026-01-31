@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, Input } from '@angular/core';
+import { Component, computed, Input } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { RideInfo } from '../../../models/track-ride.model';
 

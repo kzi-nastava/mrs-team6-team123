@@ -123,7 +123,7 @@ export class MapService {
 
         this.drawRoute();
         this.drawStops(ride.stops);
-        this.startSimulation(ride, cdr);
+        this.startRideCountdown(ride, cdr);
       },
       error: (err) => {
         console.error('GraphHopper error: ', err);
@@ -152,43 +152,20 @@ export class MapService {
     });
   }
 
-  startSimulation(ride: TrackRideResponse, cdr: ChangeDetectorRef) {
-    if (!this.routePoints.length) return;
+  startRideCountdown(ride: TrackRideResponse, cdr: ChangeDetectorRef) {
+    let minutesLeft = ride.info.duration;
 
-    this.currentRouteIndex = 0;
+    const countdownInterval = setInterval(() => {
+      if (minutesLeft > 0) {
+        minutesLeft--;
 
-    this.addMarker(
-      ride.rideId,
-      this.routePoints[0].lat,
-      this.routePoints[0].lng,
-      this.defaultTaxiIcon
-    );
-
-    const totalMinutes = ride.info.duration;
-    const totalSteps = this.routePoints.length;
-    const stepPerSecond = Math.ceil(totalSteps / totalMinutes);
-
-    let minutesLeft = totalMinutes;
-
-    this.simulationInterval = setInterval(() => {
-      minutesLeft--;
-
-      for (let i = 0; i < stepPerSecond; i++) {
-        if (this.currentRouteIndex < totalSteps) {
-          const p = this.routePoints[this.currentRouteIndex++];
-          this.addMarker(ride.rideId, p.lat, p.lng, this.defaultTaxiIcon);
-        }
+        this.ngZone.run(() => {
+          ride.info = { ...ride.info, duration: minutesLeft };
+          cdr.markForCheck();
+        });
+      } else {
+        clearInterval(countdownInterval);
       }
-
-      this.ngZone.run(() => {
-        ride.info = { ...ride.info, duration: minutesLeft };
-        cdr.markForCheck();
-      });
-
-      if (minutesLeft <= 0) {
-        clearInterval(this.simulationInterval);
-      }
-
     }, 1000);
   }
 
