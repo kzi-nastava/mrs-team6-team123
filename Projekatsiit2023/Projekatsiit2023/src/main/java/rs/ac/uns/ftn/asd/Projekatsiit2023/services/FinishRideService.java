@@ -1,9 +1,12 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.ActiveVehicle;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.ActiveVehicleRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
@@ -16,19 +19,23 @@ public class FinishRideService {
     private final RideRepository rideRepository;
     private final PassengerRepository passengerRepository;
     private final DriverRepository driverRepository;
+    private final ActiveVehicleRepository activeVehicleRepository;
     private final EmailService emailService;
 
     public FinishRideService(
             RideRepository rideRepository,
             PassengerRepository passengerRepository,
             DriverRepository driverRepository,
+            ActiveVehicleRepository activeVehicleRepository,
             EmailService emailService) {
         this.rideRepository = rideRepository;
         this.passengerRepository = passengerRepository;
         this.driverRepository = driverRepository;
+        this.activeVehicleRepository = activeVehicleRepository;
         this.emailService = emailService;
     }
 
+    @Transactional
     public void finishRide(Long rideId) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new IllegalArgumentException("Ride not found with id: " + rideId));
@@ -39,6 +46,13 @@ public class FinishRideService {
             ride.setEndLatitude(ride.getRoute().getEndLatitude());
             ride.setEndLongitude(ride.getRoute().getEndLongitude());
             ride.setEndedAt(LocalTime.now());
+            ActiveVehicle vehicle =
+                    activeVehicleRepository.findByCurrentRideId(rideId).orElse(null);
+            if (vehicle != null) {
+                vehicle.setCurrentRide(null);
+                vehicle.setAvailable(true);
+                activeVehicleRepository.save(vehicle);
+            }
             if (isDriverAvailable(ride.getDriver().getId()))
                 ride.getDriver().setActive(true);
             driverRepository.save(ride.getDriver());

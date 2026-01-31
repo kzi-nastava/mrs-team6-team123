@@ -4,10 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ActiveVehicleDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.ActiveVehicle;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.ActiveVehicleRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.List;
 @Service
 public class PublicMapService {
     private final ActiveVehicleRepository repository;
+    private final DriverRepository driverRepository;
 
     @Autowired
     private RouteService routeService;
@@ -22,24 +27,16 @@ public class PublicMapService {
     private static final double ARRIVAL_THRESHOLD = 0.00005;
 
     public PublicMapService(
-            ActiveVehicleRepository repository) {
+            ActiveVehicleRepository repository,
+            DriverRepository driverRepository) {
         this.repository = repository;
+        this.driverRepository = driverRepository;
     }
 
     public List<ActiveVehicleDTO> getVehicles() {
         List<ActiveVehicle> vehicles = repository.findAll();
         for (ActiveVehicle vehicle : vehicles) {
-            if (hasNoTargetCoordinates(vehicle)) {
-                assignNewRandomTarget(vehicle);
-                routeService.calculateAndSaveRoute(vehicle);
-            }
-
-            moveAlongRoute(vehicle);
-
-            if (hasArrived(vehicle)) {
-                assignNewRandomTarget(vehicle);
-                routeService.calculateAndSaveRoute(vehicle);
-            }
+            tickVehicle(vehicle);
         }
         repository.saveAll(vehicles);
 
@@ -50,6 +47,17 @@ public class PublicMapService {
         return result;
     }
 
+    public ActiveVehicleDTO getDriversVehicle(Long driverId) {
+        System.out.println("get drivers active vehicle");
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new IllegalArgumentException("Driver not found"));
+        ActiveVehicle activeVehicle = repository.findByVehicleId(driver.getVehicle().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Active vehicle not found"));
+        tickVehicle(activeVehicle);
+        repository.save(activeVehicle);
+        return mapActiveVehicleToDTO(activeVehicle);
+    }
+
     private ActiveVehicleDTO mapActiveVehicleToDTO(ActiveVehicle v) {
         return new ActiveVehicleDTO(
                 v.getId(),
@@ -58,6 +66,32 @@ public class PublicMapService {
                 v.isAvailable()
         );
     }
+
+    private void tickVehicle(ActiveVehicle vehicle) {
+        if (vehicle.isAvailable() && vehicle.getCurrentRide() == null) {
+            ensureRandomMovement(vehicle);
+            moveAlongRoute(vehicle);
+            return;
+        }
+
+        if (!vehicle.isAvailable() && vehicle.getCurrentRide() != null) {
+            Ride ride = vehicle.getCurrentRide();
+
+            if (ride.getStatus() == RideStatus.STARTED) {
+                moveAlongRoute(vehicle);
+
+                if (hasArrived(vehicle)) {
+                    ride.setStatus(RideStatus.ARRIVED);
+                    freezeAtCurrentLocation(vehicle);
+                }
+            }
+
+            if (ride.getStatus() == RideStatus.ARRIVED) {
+                freezeAtCurrentLocation(vehicle);
+            }
+        }
+    }
+
 
     private void moveAlongRoute(ActiveVehicle v) {
         if (v.getRouteCoordinates() == null || v.getRouteCoordinates().isEmpty()) return;
@@ -70,7 +104,7 @@ public class PublicMapService {
             );
 
             int index = v.getRouteIndex();
-            if (index >= route.size()) {
+            if (index >= route.size() && v.getCurrentRide() == null) {
                 assignNewRandomTarget(v);
                 routeService.calculateAndSaveRoute(v);
                 v.setRouteIndex(0);
@@ -108,5 +142,22 @@ public class PublicMapService {
     private boolean hasNoTargetCoordinates(ActiveVehicle vehicle) {
         return vehicle.getTargetLatitude() == 0 || vehicle.getTargetLongitude() == 0;
     }
+
+    private void ensureRandomMovement(ActiveVehicle v) {
+        if (hasNoTargetCoordinates(v) || hasArrived(v)) {
+            assignNewRandomTarget(v);
+            routeService.calculateAndSaveRoute(v);
+        }
+    }
+
+    private void freezeAtCurrentLocation(ActiveVehicle vehicle) {
+        vehicle.setTargetLatitude(vehicle.getCurrentLatitude());
+        vehicle.setTargetLongitude(vehicle.getCurrentLongitude());
+
+        vehicle.setRouteCoordinates(null);
+
+        vehicle.setRouteIndex(0);
+    }
+
 
 }
