@@ -130,4 +130,26 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void sendLinkedPassengersEmail(String to, String rideDetails, String trackRideLink) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("taxiappftn@gmail.com");
+            message.setTo(to);
+            message.setSubject("Ride Started - Track Your Ride!");
+            String emailBody = String.format(
+                    "Hello,\n\n" +
+                            "Your ride has started. Here are the details of your ride:\n\n" +
+                            "%s\n\n" +
+                            "You can track your ride in real-time using the link below:\n\n" +
+                            "%s\n\n" +
+                            "Thank you for choosing our taxi service!\n\n",
+                    rideDetails,
+                    trackRideLink);
+            message.setText(emailBody);
+            mailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
