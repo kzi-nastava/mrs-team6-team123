@@ -40,4 +40,8 @@ public class ActiveVehicle {
 
     @Column(nullable = false)
     private int routeIndex = 0;
+
+    @OneToOne
+    @JoinColumn(name = "current_ride_id", nullable = true)
+    private Ride currentRide;
 }

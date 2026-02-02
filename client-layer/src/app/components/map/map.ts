@@ -30,6 +30,12 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     iconAnchor: [16, 32]
   });
 
+  private defaultTaxiIcon = L.icon({
+    iconUrl: 'taxi.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+
   private refreshIntervalId: any;
 
   constructor(
@@ -54,6 +60,24 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
   }
 
+  private loadDriversVehicle(driverId: number): void {
+    console.log('Loading driver vehicle for ride tracking...');
+    this.http.get<ActiveVehicle>(`http://localhost:8080/api/public-map/active/${driverId}`)
+    .subscribe(vehicle => {
+      console.log(vehicle);
+      const icon = this.defaultTaxiIcon;
+      const poputText = 'Active Vehicle'
+      this.mapService.addMarker(
+        vehicle.vehicleId,
+        vehicle.latitude,
+        vehicle.longitude,
+        icon,
+        poputText
+      );
+      this.mapService.fitBoundsOnMarkers();
+    });
+  }
+
   private loadRoute(): void {
     if (this.ride && this.ride.startLat !== undefined && this.ride.startLng !== undefined && this.ride.endLat !== undefined && this.ride.endLng !== undefined) {
       console.log(this.ride);
@@ -76,6 +100,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.loadRoute();
     } else if (this.mode === 'TRACK' && this.track) {
       console.log(this.track);
+      this.loadDriversVehicle(this.track.driverId);
+      this.refreshIntervalId = setInterval(() => this.loadDriversVehicle(this.track!.driverId), 1000);
       this.trackRide(this.track);
     }
   }
@@ -94,6 +120,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.track &&
       this.mode === 'TRACK'
     ) {
+      this.loadDriversVehicle(this.track.driverId);
+      this.refreshIntervalId = setInterval(() => this.loadDriversVehicle(this.track!.driverId), 1000);
       this.mapService.trackRide(this.track, this.cdr);
     }
     this.cdr.detectChanges();
