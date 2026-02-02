@@ -42,7 +42,7 @@ public class FinishRideService {
     public void finishRide(Long rideId) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new IllegalArgumentException("Ride not found with id: " + rideId));
-        if (ride.getStatus() == RideStatus.STARTED) {
+        if (ride.getStatus() == RideStatus.STARTED || ride.getStatus() == RideStatus.ARRIVED) {
             ride.setStatus(RideStatus.FINISHED);
             ride.setPaid(true);
             ride.setEndLocation(ride.getRoute().getEndLocation());
