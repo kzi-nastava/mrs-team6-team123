@@ -5,4 +5,5 @@ export interface NotificationResponse {
     message: string;
     isRead: boolean;
     timestamp: string;
+    link?: string;
 }

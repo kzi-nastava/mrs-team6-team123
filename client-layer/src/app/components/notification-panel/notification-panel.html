@@ -25,7 +25,7 @@
       <div
         *ngFor="let n of unreadNotifications"
         class="notification unread"
-        (click)="markAsRead(n)">
+        (click)="onNotificationClick(n)">
         <div class="title">{{ n.title }}</div>
         <div class="message">{{ n.message }}</div>
         <div class="time">{{ n.timestamp | date:'short' }}</div>

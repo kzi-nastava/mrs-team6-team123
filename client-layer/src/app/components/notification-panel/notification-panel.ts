@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notification-panel',
@@ -26,7 +27,8 @@ export class NotificationPanelComponent {
 
   constructor(
     private notificationService: NotificationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -79,5 +81,12 @@ export class NotificationPanelComponent {
 
       this.readNotifications.unshift(notification);
     });
+  }
+
+  onNotificationClick(notification: NotificationResponse) {
+    this.markAsRead(notification);
+    if (notification.link) {
+      this.router.navigateByUrl(notification.link);
+    }
   }
 }
