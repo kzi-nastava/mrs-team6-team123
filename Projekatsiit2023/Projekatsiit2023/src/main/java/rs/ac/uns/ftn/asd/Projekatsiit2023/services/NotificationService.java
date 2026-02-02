@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.notification.GetNotificationResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Notification;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.NotificationRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
@@ -24,7 +25,7 @@ public class NotificationService {
         this.userRepository = userRepository;
     }
 
-    public void sendNotification(Long userId, String title, String message) {
+    public void sendNotification(Long userId, String title, String message, String link) {
         Notification notification = new Notification();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -33,6 +34,7 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setRead(false);
         notification.setTimestamp(LocalDateTime.now());
+        notification.setLink(link);
         notificationRepository.save(notification);
     }
 
@@ -71,6 +73,7 @@ public class NotificationService {
         dto.setMessage(notification.getMessage());
         dto.setRead(notification.isRead());
         dto.setTimestamp(notification.getTimestamp().toString());
+        dto.setLink(notification.getLink());
         return dto;
     }
 }

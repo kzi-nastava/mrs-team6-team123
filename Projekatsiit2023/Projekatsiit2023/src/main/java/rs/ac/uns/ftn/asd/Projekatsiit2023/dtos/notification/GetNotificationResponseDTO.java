@@ -14,4 +14,5 @@ public class GetNotificationResponseDTO {
     private String message;
     private boolean isRead;
     private String timestamp;
+    private String link;
 }

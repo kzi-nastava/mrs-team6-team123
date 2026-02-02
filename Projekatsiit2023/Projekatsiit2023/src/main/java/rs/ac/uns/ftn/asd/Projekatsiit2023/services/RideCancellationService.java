@@ -130,7 +130,8 @@ private void validateCancellation(Ride ride, User cancellingUser) {
             notificationService.sendNotification(
                 ride.getDriver().getId(),
                 "Ride Cancelled",
-                message
+                message,
+            null
             );
         }
 
@@ -138,7 +139,8 @@ private void validateCancellation(Ride ride, User cancellingUser) {
             notificationService.sendNotification(
                 ride.getCreator().getId(),
                 "Ride Cancelled",
-                message
+                message,
+                    null
             );
         }
 
@@ -148,7 +150,8 @@ private void validateCancellation(Ride ride, User cancellingUser) {
                 notificationService.sendNotification(
                     passenger.getId(),
                     "Ride Cancelled",
-                    message
+                    message,
+                        null
                 );
             });
     }

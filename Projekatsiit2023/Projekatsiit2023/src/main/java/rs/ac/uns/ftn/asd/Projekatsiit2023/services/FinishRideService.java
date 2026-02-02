@@ -84,24 +84,22 @@ public class FinishRideService {
     private void sendEmail(Passenger passenger, Ride ride) {
         String to = passenger.getEmail();
         String rideDetails = getRideDetails(ride);
-        String rateLink = getRateRideLink(ride);
+        String rateLink = "http://localhost:4200/rate-ride?rideId=" + ride.getId();
         emailService.sendRideFinishedEmail(to, rideDetails, rateLink);
     }
 
     private void sendNotification(Passenger passenger, Ride ride) {
         String title = "Your Ride is Complete!";
         String rideDetails = getRideDetails(ride);
-        String rateLink = getRateRideLink(ride);
+        String rateLink = "/rate-ride?rideId=" + ride.getId();
         String message = String.format(
                 "Hello,\n\n" +
                         "Your ride has been completed. Here are the details of your ride:\n\n" +
                         "%s\n\n" +
                         "You can now rate the driver and vehicle, and provide feedback on you experience\n\n" +
-                        "%s\n\n" +
                         "Thank you for choosing our taxi service!\n\n",
-                rideDetails,
-                rateLink);
-        notificationService.sendNotification(passenger.getId(), title, message);
+                rideDetails);
+        notificationService.sendNotification(passenger.getId(), title, message, rateLink);
     }
 
     private String getRideDetails(Ride ride) {
@@ -110,9 +108,5 @@ public class FinishRideService {
                 "\nTime: " + ride.getStartedAt() + " - " + ride.getEndedAt() +
                 "\nDriver: " + ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName() +
                 "\nTotal Price: $" + ride.getPrice();
-    }
-
-    private String getRateRideLink(Ride ride) {
-        return "http://localhost:4200/rate-ride?rideId=" + ride.getId();
     }
 }
