@@ -1,3 +1,5 @@
+import { RideStatus } from "./enums";
+
 export interface RideStop {
     latitude: number;
     longitude: number;
@@ -13,6 +15,7 @@ export interface RideInfo {
     duration: number;
     passengers: string[];
     reports: string[];
+    status: RideStatus;
 }
 
 export interface TrackRideResponse {

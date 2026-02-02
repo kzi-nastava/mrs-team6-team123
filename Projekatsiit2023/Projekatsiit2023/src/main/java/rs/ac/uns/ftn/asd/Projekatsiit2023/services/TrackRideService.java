@@ -76,5 +76,6 @@ public class TrackRideService {
         for (var report : ride.getIrregularityReports()) {
             dto.getInfo().getReports().add(report.getDescription());
         }
+        dto.getInfo().setStatus(ride.getStatus());
     }
 }

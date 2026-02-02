@@ -189,4 +189,9 @@ export class RideActionsComponent {
       }
     });
   }
+
+  get canFinishRide(): boolean {
+    console.log(this.ride.info.status);
+    return this.ride?.info?.status === 'ARRIVED';
+  }
 }
