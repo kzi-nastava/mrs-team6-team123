@@ -38,7 +38,10 @@
         No read notifications
       </div>
 
-      <div *ngFor="let n of readNotifications" class="notification">
+      <div 
+        *ngFor="let n of readNotifications" 
+        class="notification"
+        (click)="onNotificationClick(n)">
         <div class="title">{{ n.title }}</div>
         <div class="message">{{ n.message }}</div>
         <div class="time">{{ n.timestamp | date:'short' }}</div>

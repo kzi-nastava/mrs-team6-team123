@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { not } from 'rxjs/internal/util/not';
 
 @Component({
   selector: 'app-notification-panel',
@@ -84,8 +85,11 @@ export class NotificationPanelComponent {
   }
 
   onNotificationClick(notification: NotificationResponse) {
-    this.markAsRead(notification);
+    if (notification.isRead == false) {
+      this.markAsRead(notification);
+    }
     if (notification.link) {
+      console.log(notification.link);
       this.router.navigateByUrl(notification.link);
     }
   }
