@@ -67,31 +67,23 @@ public class RideController {
     @PostMapping
     public ResponseEntity<?> orderRide(@RequestBody RideOrderRequestDTO request) {
         try {
-            // Parse start and end locations (format: "lat,lng")
-            String[] startCoords = request.getStartLocation().split(",");
-            String[] endCoords = request.getEndLocation().split(",");
-            double startLat = Double.parseDouble(startCoords[0]);
-            double startLng = Double.parseDouble(startCoords[1]);
-            double endLat = Double.parseDouble(endCoords[0]);
-            double endLng = Double.parseDouble(endCoords[1]);
-
-            // Create and save Route with coordinates
+            // Create and save Route with address strings and coordinates
             Route route = new Route();
             route.setStartLocation(request.getStartLocation());
             route.setEndLocation(request.getEndLocation());
-            route.setStartLatitude(startLat);
-            route.setStartLongitude(startLng);
-            route.setEndLatitude(endLat);
-            route.setEndLongitude(endLng);
+            route.setStartLatitude(request.getStartLatitude());
+            route.setStartLongitude(request.getStartLongitude());
+            route.setEndLatitude(request.getEndLatitude());
+            route.setEndLongitude(request.getEndLongitude());
             Route savedRoute = routeRepository.save(route);
 
-            // Find best available driver
+            // Find best available driver using coordinates
             Optional<Driver> driverOptional = driverMatchingService.findBestDriver(
                     request.getVehicleType(),
                     request.isBabySeat(),
                     request.isPetFriendly(),
-                    startLat,
-                    startLng);
+                    request.getStartLatitude(),
+                    request.getStartLongitude());
 
             if (driverOptional.isEmpty()) {
                 // No driver available
@@ -118,8 +110,6 @@ public class RideController {
             // Set location and time info
             ride.setStartLocation(request.getStartLocation());
             ride.setEndLocation(request.getEndLocation());
-            ride.setEndLatitude(endLat);
-            ride.setEndLongitude(endLng);
             ride.setScheduledAt(request.getScheduledAt());
             ride.setStartedAt(LocalTime.now());
             ride.setEndedAt(LocalTime.now());
