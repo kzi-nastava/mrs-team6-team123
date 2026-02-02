@@ -1,0 +1,49 @@
+<div class="notification-panel">
+
+  <div class="tabs">
+    <button
+      [class.active]="activeTab === 'UNREAD'"
+      (click)="switchTab('UNREAD')">
+      Unread ({{ unreadNotifications.length }})
+    </button>
+
+    <button
+      [class.active]="activeTab === 'READ'"
+      (click)="switchTab('READ')">
+      Read
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- UNREAD -->
+    <ng-container *ngIf="activeTab === 'UNREAD'">
+      <div *ngIf="unreadNotifications.length === 0" class="empty">
+        No unread notifications
+      </div>
+
+      <div
+        *ngFor="let n of unreadNotifications"
+        class="notification unread"
+        (click)="markAsRead(n)">
+        <div class="title">{{ n.title }}</div>
+        <div class="message">{{ n.message }}</div>
+        <div class="time">{{ n.timestamp | date:'short' }}</div>
+      </div>
+    </ng-container>
+
+    <!-- READ -->
+    <ng-container *ngIf="activeTab === 'READ'">
+      <div *ngIf="readNotifications.length === 0" class="empty">
+        No read notifications
+      </div>
+
+      <div *ngFor="let n of readNotifications" class="notification">
+        <div class="title">{{ n.title }}</div>
+        <div class="message">{{ n.message }}</div>
+        <div class="time">{{ n.timestamp | date:'short' }}</div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
