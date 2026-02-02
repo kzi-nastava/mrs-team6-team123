@@ -21,18 +21,21 @@ public class FinishRideService {
     private final DriverRepository driverRepository;
     private final ActiveVehicleRepository activeVehicleRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     public FinishRideService(
             RideRepository rideRepository,
             PassengerRepository passengerRepository,
             DriverRepository driverRepository,
             ActiveVehicleRepository activeVehicleRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            NotificationService notificationService) {
         this.rideRepository = rideRepository;
         this.passengerRepository = passengerRepository;
         this.driverRepository = driverRepository;
         this.activeVehicleRepository = activeVehicleRepository;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -60,6 +63,7 @@ public class FinishRideService {
                 passenger.setStartedRide(false);
                 passengerRepository.save(passenger);
                 sendEmail(passenger, ride);
+                sendNotification(passenger, ride);
             }
             rideRepository.save(ride);
         }
@@ -79,12 +83,36 @@ public class FinishRideService {
 
     private void sendEmail(Passenger passenger, Ride ride) {
         String to = passenger.getEmail();
-        String rideDetails = ride.getStartLocation() + " -> " + ride.getEndLocation() +
+        String rideDetails = getRideDetails(ride);
+        String rateLink = getRateRideLink(ride);
+        emailService.sendRideFinishedEmail(to, rideDetails, rateLink);
+    }
+
+    private void sendNotification(Passenger passenger, Ride ride) {
+        String title = "Your Ride is Complete!";
+        String rideDetails = getRideDetails(ride);
+        String rateLink = getRateRideLink(ride);
+        String message = String.format(
+                "Hello,\n\n" +
+                        "Your ride has been completed. Here are the details of your ride:\n\n" +
+                        "%s\n\n" +
+                        "You can now rate the driver and vehicle, and provide feedback on you experience\n\n" +
+                        "%s\n\n" +
+                        "Thank you for choosing our taxi service!\n\n",
+                rideDetails,
+                rateLink);
+        notificationService.sendNotification(passenger.getId(), title, message);
+    }
+
+    private String getRideDetails(Ride ride) {
+        return ride.getStartLocation() + " -> " + ride.getEndLocation() +
                 "\nDate: " + ride.getDate() +
                 "\nTime: " + ride.getStartedAt() + " - " + ride.getEndedAt() +
                 "\nDriver: " + ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName() +
                 "\nTotal Price: $" + ride.getPrice();
-        String rateLink = "http://localhost:4200/rate-ride?rideId=" + ride.getId();
-        emailService.sendRideFinishedEmail(to, rideDetails, rateLink);
+    }
+
+    private String getRateRideLink(Ride ride) {
+        return "http://localhost:4200/rate-ride?rideId=" + ride.getId();
     }
 }
