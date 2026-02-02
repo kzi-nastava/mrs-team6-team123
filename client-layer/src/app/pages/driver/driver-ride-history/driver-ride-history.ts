@@ -3,6 +3,7 @@ import { RideHistoryFilterComponent } from '../../../components/ride-history/rid
 import { RideHistoryTableComponent } from '../../../components/ride-history/ride-history-table/ride-history-table';
 import { DriverRideHistory } from '../../../models/driver-ride-history.model';
 import { RideHistoryService } from '../../../services/ride-history.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-driver-ride-history',
@@ -24,30 +25,34 @@ export class DriverRideHistoryComponent {
     'Price': 'price'
   }
 
-  rides: DriverRideHistory[] = [];
-  driverId = 3;
-
   constructor(
     private rideHistoryService: RideHistoryService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private auth: AuthService
   ) {}
 
+  rides: DriverRideHistory[] = [];
+  driverId!: number | null;
+
   ngOnInit(): void {
+    this.driverId = this.auth.getCurrentUserId();
     this.loadRideHistory();
   }
 
   loadRideHistory(filter?: { fromDate: string, toDate: string }): void {
-    this.rideHistoryService
-    .getDriverRideHistory(this.driverId, filter?.fromDate, filter?.toDate)
-    .subscribe({
-      next: (data) => {
-        console.log('Rides from backend:', data);
-        this.rides = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error loading ride history', err);
-      }
-    })
+    if (this.driverId) {
+      this.rideHistoryService
+        .getDriverRideHistory(this.driverId, filter?.fromDate, filter?.toDate)
+        .subscribe({
+          next: (data) => {
+            console.log('Rides from backend:', data);
+            this.rides = data;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error('Error loading ride history', err);
+          }
+        })
+    }
   }
 }
