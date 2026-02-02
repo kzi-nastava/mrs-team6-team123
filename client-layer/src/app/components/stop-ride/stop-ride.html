@@ -1,0 +1,112 @@
+<div class="stop-ride-dialog" *ngIf="!showConfirmation">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Stop Ride</h2>
+    <button class="close-btn" (click)="continueRide()" [disabled]="isLoading">×</button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <div class="current-ride-info">
+      <h3>Current Ride in Progress</h3>
+      
+      <div class="ride-card">
+        <div class="ride-item">
+          <span class="label">Passenger:</span>
+          <span class="value">{{ currentRide.passengerName }}</span>
+        </div>
+        
+        <div class="ride-item">
+          <span class="label">Original destination:</span>
+          <span class="value">{{ currentRide.originalDestination }}</span>
+        </div>
+        
+        <div class="ride-item">
+          <span class="label">Time elapsed:</span>
+          <span class="value">{{ currentRide.timeElapsed }} minutes</span>
+        </div>
+        
+        <div class="ride-item">
+          <span class="label">Distance traveled:</span>
+          <span class="value">{{ currentRide.distanceTraveled }} km</span>
+        </div>
+        
+        <div class="ride-item">
+          <span class="label">Original price:</span>
+          <span class="value">{{ currentRide.originalPrice }} RSD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="warning-message">
+      <p>⚠️ Passenger has requested to stop the ride early</p>
+    </div>
+
+    <div class="location-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Current location (will be set as new destination)</mat-label>
+        <input
+          matInput
+          [(ngModel)]="currentLocation"
+          placeholder="Coordinates will be auto-filled"
+          [disabled]="isLoading"
+        />
+      </mat-form-field>
+      <button 
+        mat-stroked-button 
+        class="refresh-location-btn"
+        (click)="refreshLocation()"
+        [disabled]="isLoading">
+        📍 Refresh Location
+      </button>
+    </div>
+
+    <div class="error-box" *ngIf="errorMessage">
+      <p>❌ {{ errorMessage }}</p>
+    </div>
+
+    <div class="price-info">
+      <h3>Recalculated Price</h3>
+      <div class="price-breakdown">
+        <div class="price-row">
+          <span>Base fare:</span>
+          <span>{{ baseFare }} RSD</span>
+        </div>
+        <div class="price-row">
+          <span>Distance ({{ currentRide.distanceTraveled }} km × 120):</span>
+          <span>{{ distanceFare }} RSD</span>
+        </div>
+        <div class="price-row total">
+          <span>Estimated New Total:</span>
+          <span class="highlight">{{ newTotalPrice }} RSD</span>
+        </div>
+        <p class="price-note">* Final price will be calculated by the server based on actual distance</p>
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="continueRide()"
+      [disabled]="isLoading">
+      Continue to Destination
+    </button>
+    <button 
+      mat-raised-button 
+      color="warn"
+      (click)="stopRide()"
+      [disabled]="isLoading">
+      {{ isLoading ? 'Stopping...' : 'Stop Ride Here' }}
+    </button>
+  </div>
+</div>
+
+<div class="confirmation-overlay" *ngIf="showConfirmation">
+  <div class="confirmation-card">
+    <span class="check-icon">✓</span>
+    <h3>Ride Stopped Successfully</h3>
+    <p>New destination: {{ finalLocation }}</p>
+    <p class="final-price">Final price: <strong>{{ newTotalPrice }} RSD</strong></p>
+    <p class="info-text">Passenger has been notified</p>
+  </div>
+</div>

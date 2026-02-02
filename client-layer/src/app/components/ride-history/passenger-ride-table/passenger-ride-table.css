@@ -1,0 +1,55 @@
+.ride-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ride-table th {
+  background: #5d7c5b;
+  color: white;
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ride-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.ride-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.location-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.not-rated {
+  color: #999;
+  font-style: italic;
+}
+
+.btn-view, .rate-btn {
+  padding: 6px 14px;
+  background: #5d7c5b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.btn-view:hover, .rate-btn:hover {
+  background: #4a6249;
+}

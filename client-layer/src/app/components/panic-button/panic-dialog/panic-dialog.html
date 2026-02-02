@@ -1,0 +1,122 @@
+<div class="panic-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Emergency Alert</h2>
+    <button class="close-btn" (click)="onClose()" *ngIf="!panicActivated">×</button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <!-- Pre-aktivacije -->
+    <div class="panic-content" *ngIf="!panicActivated">
+      <p class="subtitle">Press the button below if you're in danger or need immediate assistance</p>
+
+      <div class="info-box">
+        <h3>When to use PANIC button:</h3>
+        <ul>
+          <li>You feel unsafe or threatened</li>
+          <li>The driver is behaving inappropriately</li>
+          <li>The route seems suspicious</li>
+          <li>Medical emergency</li>
+          <li>Any other serious safety concern</li>
+        </ul>
+      </div>
+
+      <div class="current-info">
+        <h3>Current Ride Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="icon">👤</span>
+            <div>
+              <p class="label">Driver</p>
+              <p class="value">{{ rideInfo.driverName }}</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <span class="icon">🚗</span>
+            <div>
+              <p class="label">Vehicle</p>
+              <p class="value">{{ rideInfo.vehicleInfo }}</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <span class="icon">📍</span>
+            <div>
+              <p class="label">Current location</p>
+              <p class="value">{{ rideInfo.currentLocation }}</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <span class="icon">🕐</span>
+            <div>
+              <p class="label">Time elapsed</p>
+              <p class="value">{{ rideInfo.timeElapsed }} minutes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <p>⚠️ This will immediately alert all administrators and mark your ride as requiring urgent attention</p>
+      </div>
+    </div>
+
+    <!-- Nakon aktivacije -->
+    <div class="panic-activated" *ngIf="panicActivated">
+      <div class="alert-animation">
+        🚨
+      </div>
+
+      <h2>Emergency Alert Activated</h2>
+      
+      <div class="status-messages">
+        <div class="status-item" [class.completed]="alertSent">
+          <span class="check">{{ alertSent ? '✓' : '○' }}</span>
+          <span>Alert sent to administrators</span>
+        </div>
+        
+        <div class="status-item" [class.completed]="locationShared">
+          <span class="check">{{ locationShared ? '✓' : '○' }}</span>
+          <span>Your location has been shared</span>
+        </div>
+        
+        <div class="status-item" [class.completed]="helpDispatched">
+          <span class="check">{{ helpDispatched ? '✓' : '○' }}</span>
+          <span>Help is being dispatched</span>
+        </div>
+      </div>
+
+      <div class="help-info">
+        <p class="main-message">Stay calm. Help is on the way.</p>
+        <p class="sub-message">Administrators have been notified and are taking action.</p>
+        <p class="contact-info">Emergency contact: <strong>+381 21 123 4567</strong></p>
+      </div>
+    </div>
+  </div>
+
+
+<div mat-dialog-actions class="dialog-actions">
+  <!-- Error message -->
+  <div class="error-message" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
+
+  <button 
+    *ngIf="!panicActivated"
+    mat-raised-button 
+    class="activate-btn"
+    (click)="activatePanic()"
+    [disabled]="isLoading">
+    {{ isLoading ? 'SENDING ALERT...' : 'ACTIVATE PANIC ALERT' }}
+  </button>
+
+  <button 
+    *ngIf="panicActivated"
+    mat-stroked-button 
+    class="cancel-panic-btn"
+    (click)="cancelPanic()">
+    Cancel Alert (False Alarm)
+  </button>
+</div>
+</div>

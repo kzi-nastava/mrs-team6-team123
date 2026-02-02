@@ -1,0 +1,28 @@
+<div class="page">
+  <h1>My Ride History</h1>
+
+  <app-ride-history-filter
+    (filterApplied)="loadRideHistory($event)"
+    (filterCleared)="loadRideHistory()">
+  </app-ride-history-filter>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading ride history...</p>
+  </div>
+
+
+  <div class="error-message" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !errorMessage && rides.length === 0">
+    <p>🚗 No rides found</p>
+    <p class="empty-hint">Your completed rides will appear here</p>
+  </div>
+
+  <app-passenger-ride-table
+    *ngIf="!loading && rides.length > 0"
+    [rides]="rides">
+  </app-passenger-ride-table>
+</div>

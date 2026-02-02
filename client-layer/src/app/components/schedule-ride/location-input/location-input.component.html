@@ -1,0 +1,12 @@
+<div class="location-input-wrapper">
+  <mat-form-field appearance="outline" class="location-field">
+    <mat-label>{{ label }}</mat-label>
+    <input matInput [(ngModel)]="address" (input)="onInput($event)" [placeholder]="placeholder" />
+  </mat-form-field>
+
+  <div class="suggestions" *ngIf="suggestions.length > 0">
+    <div *ngFor="let hit of suggestions" class="suggestion-item" (click)="selectLocation(hit)">
+      {{ hit.name }}
+    </div>
+  </div>
+</div>

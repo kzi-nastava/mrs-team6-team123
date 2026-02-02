@@ -9,14 +9,18 @@
         <button type="button" (click)="onReport()">
             Report
         </button>
-        <button type="button" (click)="onStopRide()" class="warning-btn">
-            Stop
+
+        <button type="button" (click)="onCancel()" class="warning-btn">
+            Cancel
         </button>
     </div>
 
     <div class="driver-btn" *ngIf="isDriver">
-        <button type="button" (click)="onFinish()">
+        <button type="button" (click)="onFinish()" [disabled]="!canFinishRide" class="finish-btn">
             Finish
+        </button>
+        <button type="button" (click)="onStopRide()" class="warning-btn">
+            Stop
         </button>
         <button type="button" (click)="onGoInactive()" class="status-btn">
             Go Inactive

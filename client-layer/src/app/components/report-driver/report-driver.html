@@ -3,20 +3,20 @@
 
   <div class="driver-details">
     <div class="driver">
-      <label><strong>Driver: </strong>{{ data.driver }}</label>
-    </div>
-    <div class="vehicle">
-        <label><strong>Vehicle: </strong>{{ data.vehicle }}</label>
+      <label><strong>Driver: </strong>{{ ride.info.driver }}</label>
     </div>
   </div>
 
   <div class="comment-section">
     <label>Report:</label>
-    <textarea placeholder="Write report here..."></textarea>
+    <textarea 
+      placeholder="Write report here..."
+      [(ngModel)]="comment">
+    </textarea>
   </div>
 
   <div class="dialog-actions">
     <button mat-button class="cancel-btn" (click)="close()">Cancel</button>
-    <button mat-raised-button class="rate-btn" (click)="submit()">Rate</button>
+    <button mat-raised-button class="rate-btn" (click)="submit()">Report</button>
   </div>
 </div>

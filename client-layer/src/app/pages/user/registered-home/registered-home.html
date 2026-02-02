@@ -1,0 +1,9 @@
+<div class="registered-home-container">
+  <div class="content-wrapper">
+    <app-map [mode]="'STATIC_ROUTE'" [ride]="rideForMap"></app-map>
+
+    <div class="right-panel">
+      <app-schedule-ride (locationsChanged)="onLocationsChanged($event)"></app-schedule-ride>
+    </div>
+  </div>
+</div>

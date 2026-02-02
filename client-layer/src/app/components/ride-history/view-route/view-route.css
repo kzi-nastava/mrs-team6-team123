@@ -34,6 +34,35 @@
   height: 100%;
 }
 
+.passengers, .reports {
+  margin-top: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #dcdcdc;
+  border-bottom: 1px solid #dcdcdc;
+}
+
+.passengers h3, .reports h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.passengers ul, .reports ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.passengers li, .reports li {
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.passengers li:first-child {
+  color: #618762;
+  font-weight: bold;
+}
+
 @media (max-width: 767px) {
   .map-wrapper {
     width: 280px;

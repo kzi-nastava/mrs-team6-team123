@@ -1,0 +1,156 @@
+<div class="driver-registration-page">
+  <div class="page-header">
+    <h1>Create driver account</h1>
+    <p>Enter driver and vehicle information below</p>
+  </div>
+
+  <div class="info-banner">
+    <div class="dot"></div>
+    <div class="banner-text">
+      <strong>Activation link</strong>
+      <p>
+        Creating a driver account will send an email with a one-time link to set the password. The
+        link is valid for 24 hours or until the password is set.
+      </p>
+    </div>
+  </div>
+
+  <form class="form-shell" #driverFormRef="ngForm" (ngSubmit)="submit(driverFormRef)" novalidate>
+    <div class="form-grid">
+      <section class="card-block">
+        <h2>Driver information</h2>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">First Name</label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              placeholder="Lana"
+              [(ngModel)]="driverForm.firstName"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="lastName">Last Name</label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Banana"
+              [(ngModel)]="driverForm.lastName"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="driver@email.com"
+            [(ngModel)]="driverForm.email"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="address">Address</label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            placeholder="123 Main St, Anytown"
+            [(ngModel)]="driverForm.address"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="060 123 4567"
+            [(ngModel)]="driverForm.phone"
+            required
+          />
+        </div>
+      </section>
+
+      <section class="card-block">
+        <h2>Vehicle information</h2>
+
+        <div class="field">
+          <label for="vehicleModel">Vehicle Model</label>
+          <input
+            id="vehicleModel"
+            name="vehicleModel"
+            type="text"
+            placeholder="Seat Arona"
+            [(ngModel)]="driverForm.vehicleModel"
+            required
+          />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="vehicleType">Vehicle Type</label>
+            <select id="vehicleType" name="vehicleType" [(ngModel)]="driverForm.vehicleType">
+              <option *ngFor="let type of vehicleTypes" [ngValue]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="seats">Passenger capacity</label>
+            <input
+              id="seats"
+              name="seats"
+              type="number"
+              min="1"
+              max="8"
+              [(ngModel)]="driverForm.seats"
+            />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="licensePlate">License Plate</label>
+            <input
+              id="licensePlate"
+              name="licensePlate"
+              type="text"
+              placeholder="NS-123-AB"
+              [(ngModel)]="driverForm.licensePlate"
+              required
+            />
+          </div>
+          <div class="field toggles">
+            <label>Additional options</label>
+            <div class="toggle-list">
+              <label class="toggle-item">
+                <input type="checkbox" name="babyFriendly" [(ngModel)]="driverForm.babyFriendly" />
+                <span>Baby transport</span>
+              </label>
+              <label class="toggle-item">
+                <input type="checkbox" name="petFriendly" [(ngModel)]="driverForm.petFriendly" />
+                <span>Pet transport</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit">Create account and send link</button>
+    </div>
+  </form>
+</div>

@@ -20,7 +20,12 @@
   gap: 20px;
 }
 
-.left-column,
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .right-column {
   display: flex;
   flex-direction: column;
@@ -38,7 +43,41 @@
 
 .form-group {
   display: flex;
+  flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.suggestion:hover {
+  background: #f5f5f5;
+  border-color: #325639;
+}
+
+.suggestion .icon {
+  font-size: 12px;
 }
 
 .input-with-icon {
@@ -123,6 +162,42 @@
 .btn-remove-stop:hover {
   background-color: #cc0000;
 }
+
+.passenger-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-remove-passenger {
+  padding: 4px 8px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  margin-left: 8px;
+}
+.btn-remove-passenger:hover {
+  background-color: #cc0000;
+}
+.passenger-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #f0f0f0;
+}
+.passenger-input:focus {
+  outline: none;
+  background-color: white;
+  border-color: #325639;
+}
+
 
 .select-vehicle {
   padding: 10px 12px;

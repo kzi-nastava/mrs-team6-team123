@@ -1,16 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-
-interface Stop {
-  id: string;
-  address: string;
-}
+import { RideService } from '../../services/ride.service';
+import { OrderRideService } from '../../services/order-ride.service';
+import { UserService } from '../../services/user.service';
+import { PassengerManagementService } from '../../services/schedule_ride/passenger-management.service';
+import { StopManagementService } from '../../services/schedule_ride/stop-management.service';
+import { RideEstimationRequest, RideEstimationResponse } from '../../models/ride-estimation.model';
+import { RideOrderRequest, RideResponse } from '../../models/ride.model';
+import { VehicleType } from '../../models/enums';
+import { GeocodeHit } from '../../services/graphhopper.service';
+import { LocationInputComponent } from './location-input/location-input.component';
 
 @Component({
   selector: 'app-schedule-ride',
@@ -22,7 +28,8 @@ interface Stop {
     MatInputModule,
     MatFormFieldModule,
     MatSlideToggleModule,
-    MatIconModule
+    MatIconModule,
+    LocationInputComponent
   ],
   templateUrl: './schedule-ride.html',
   styleUrl: './schedule-ride.css'
@@ -30,61 +37,156 @@ interface Stop {
 export class ScheduleRideComponent {
   startAddress = '';
   endAddress = '';
-  stops: Stop[] = [];
   hasPet = false;
   hasBaby = false;
-  passengers = 1;
-  vehicleType = 'economy';
+  vehicleType = 'STANDARD';
   scheduleType = 'now';
-  scheduledTime = this.getCurrentTime();
+  scheduledTime = '';
   additionalInstructions = '';
 
+  @Output() locationsChanged = new EventEmitter<{
+    startLat?: number;
+    startLng?: number;
+    endLat?: number;
+    endLng?: number;
+    stops: Array<{ lat?: number; lng?: number }>;
+  }>();
+
+  get stops() { return this.stopManagement.stops; }
+  get passengers() { return this.passengerManagement.passengers; }
+
   vehicleOptions = [
-    { value: 'standard', label: 'Standard' },
-    { value: 'luxury', label: 'Comfort' },
-    { value: 'van', label: 'Van' }
+    { value: 'STANDARD', label: 'Standard' },
+    { value: 'LUXURY', label: 'Luxury' },
+    { value: 'VAN', label: 'Van' }
   ];
 
-  estimatedPrice = '$12.50 - $18.00';
-  estimatedTime = '15-20 min';
+  estimatedPrice: string | null = null;
+  estimating = false;
 
-  constructor() {
-    // Update scheduled time whenever we change to 'later'
-  }
+  startLat?: number;
+  startLng?: number;
+  endLat?: number;
+  endLng?: number;
 
-  private getCurrentTime(): string {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
+  constructor(
+    private rideService: RideService,
+    private orderRideService: OrderRideService,
+    private userService: UserService,
+    private passengerManagement: PassengerManagementService,
+    private stopManagement: StopManagementService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   addPassenger() {
-    this.passengers++;
+    this.passengerManagement.addPassenger();
   }
 
   removePassenger() {
-    if (this.passengers > 1) {
-      this.passengers--;
-    }
+    this.passengerManagement.removePassenger();
+  }
+
+  updatePassengerInput(index: number, input: string) {
+    this.passengerManagement.updatePassenger(index, input);
   }
 
   addStop() {
-    const newStop: Stop = {
-      id: Date.now().toString(),
-      address: ''
-    };
-    this.stops.push(newStop);
+    this.stopManagement.addStop();
   }
 
   removeStop(id: string) {
-    this.stops = this.stops.filter(stop => stop.id !== id);
+    this.stopManagement.removeStop(id);
+    this.refreshEstimate();
   }
 
-  updateStop(id: string, address: string) {
-    const stop = this.stops.find(s => s.id === id);
-    if (stop) {
-      stop.address = address;
+  onVehicleTypeChange() {
+    this.refreshEstimate();
+  }
+
+  onStartLocationSelected(hit: GeocodeHit) {
+    this.startLat = hit.point.lat;
+    this.startLng = hit.point.lng;
+    this.emitLocationChanges();
+    this.refreshEstimate();
+  }
+
+  onEndLocationSelected(hit: GeocodeHit) {
+    this.endLat = hit.point.lat;
+    this.endLng = hit.point.lng;
+    this.emitLocationChanges();
+    this.refreshEstimate();
+  }
+
+  onStopLocationSelected(stopId: string, hit: GeocodeHit) {
+    this.stopManagement.updateStopLocation(stopId, hit.point.lat, hit.point.lng);
+    this.emitLocationChanges();
+    this.refreshEstimate();
+  }
+
+  private emitLocationChanges() {
+    this.locationsChanged.emit({
+      startLat: this.startLat,
+      startLng: this.startLng,
+      endLat: this.endLat,
+      endLng: this.endLng,
+      stops: this.stopManagement.getValidStops()
+    });
+  }
+
+  onStartInputChanged(query: string) {
+    this.startLat = this.startLng = undefined;
+    this.estimatedPrice = null;
+  }
+
+  onEndInputChanged(query: string) {
+    this.endLat = this.endLng = undefined;
+    this.estimatedPrice = null;
+  }
+
+  onStopInputChanged(stopId: string, query: string) {
+    this.stopManagement.clearStopLocation(stopId);
+    this.estimatedPrice = null;
+  }
+
+  private refreshEstimate() {
+    if (!this.startAddress || !this.endAddress || !this.startLat || !this.endLat) {
+      this.estimatedPrice = null;
+      return;
+    }
+
+    const request: RideEstimationRequest = {
+      startLocation: `${this.startLat},${this.startLng}`,
+      endLocation: `${this.endLat},${this.endLng}`,
+      intermediateStops: this.stopManagement.getValidStops()
+        .map(s => `${s.lat},${s.lng}`),
+      vehicleType: this.vehicleType as VehicleType
+    };
+
+    this.estimating = true;
+    this.rideService.estimateRide(request).subscribe({
+      next: (response: RideEstimationResponse) => {
+        this.estimatedPrice = `${response.estimatedPrice.toFixed(2)} RSD`;
+        this.estimating = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Failed to estimate ride', err);
+        this.estimatedPrice = null;
+        this.estimating = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private getMaxPassengersForVehicle(vehicleType: string): number {
+    switch (vehicleType) {
+      case 'STANDARD':
+      case 'LUXURY':
+        return 4;
+      case 'VAN':
+        return 7;
+      default:
+        return 4;
     }
   }
 
@@ -93,19 +195,64 @@ export class ScheduleRideComponent {
       alert('Please fill in both pickup and destination locations');
       return;
     }
-    console.log('Ride booked:', {
-      from: this.startAddress,
-      to: this.endAddress,
-      stops: this.stops,
-      passengers: this.passengers,
-      vehicleType: this.vehicleType,
-      hasPet: this.hasPet,
-      hasBaby: this.hasBaby,
-      scheduleType: this.scheduleType,
-      scheduledTime: this.scheduleType === 'now' ? 'Now' : this.scheduledTime,
-      additionalInstructions: this.additionalInstructions
+
+    if (!this.startLat || !this.startLng || !this.endLat || !this.endLng) {
+      alert('Please select valid locations from the suggestions');
+      return;
+    }
+
+    // Validate passenger count for vehicle type
+    const maxPassengers = this.getMaxPassengersForVehicle(this.vehicleType);
+    const totalPassengers = 1 + this.passengerManagement.passengers.filter(p => p.input.trim().length > 0).length;
+    
+    if (totalPassengers > maxPassengers) {
+      alert(`${this.vehicleType} can accommodate maximum ${maxPassengers} passengers. You have ${totalPassengers}.`);
+      return;
+    }
+
+    const userStr = localStorage.getItem('current_user');
+    if (!userStr) {
+      alert('Please log in to book a ride');
+      return;
+    }
+    const user = JSON.parse(userStr);
+
+    this.passengerManagement.resolvePassengerIds(user.userId)
+      .then(passengerIds => {
+        this.submitRideOrder(user.userId, passengerIds);
+      })
+      .catch(err => {
+        alert('One or more passenger emails not found. Please check and try again.');
+      });
+  }
+
+  private submitRideOrder(creatorId: number, passengerIds: number[]) {
+    const request: RideOrderRequest = {
+      creatorId,
+      passengerIds,
+      startLocation: this.startAddress,
+      endLocation: this.endAddress,
+      startLatitude: this.startLat!,
+      startLongitude: this.startLng!,
+      endLatitude: this.endLat!,
+      endLongitude: this.endLng!,
+      waypoints: this.stopManagement.getValidStops()
+        .map(s => `${s.lat},${s.lng}`),
+      scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
+      babySeat: this.hasBaby,
+      petFriendly: this.hasPet,
+      vehicleType: this.vehicleType as VehicleType,
+      estimatedPrice: this.estimatedPrice ? parseFloat(this.estimatedPrice.split(' ')[0]) : 0
+    };
+
+    this.orderRideService.orderRide(request).subscribe({
+      next: (response: RideResponse) => {
+        alert(`Ride booked successfully! Ride ID: ${response.rideId}. Estimated time: ${response.estimatedTimeMinutes} minutes.`);
+        // TODO: Navigate to tracking page or show ride details
+      },
+      error: (err: HttpErrorResponse) => {
+        alert('Failed to book ride. Please try again.');
+      }
     });
-    const time = this.scheduleType === 'now' ? 'now' : `at ${this.scheduledTime}`;
-    alert(`Ride requested for ${time}! Looking for drivers...`);
   }
 }

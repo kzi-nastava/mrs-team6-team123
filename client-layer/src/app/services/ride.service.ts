@@ -1,0 +1,66 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../enviroment';
+import { 
+  RideEstimationRequest, 
+  RideEstimationResponse 
+} from '../models/ride-estimation.model';
+import { CancelRideRequest, CancelRideResponse, RideOrderRequest, RideResponse, StopRideRequest, StopRideResponse } from '../models/ride.model';
+import { TrackRideResponse } from '../models/track-ride.model';
+import { RateRideRequest, RateRideResponse } from '../models/rate-ride.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RideService {
+  private apiUrl = `${environment.apiUrl}/rides`;
+  private estimationUrl = `${environment.apiUrl}/ride-estimation`;
+
+  constructor(private http: HttpClient) {}
+
+  // 2.1.2 Ride Estimation
+  estimateRide(request: RideEstimationRequest): Observable<RideEstimationResponse> {
+    return this.http.post<RideEstimationResponse>(this.estimationUrl, request);
+  }
+
+  trackRide(rideId: number): Observable<TrackRideResponse> {
+    return this.http.get<TrackRideResponse>(`${this.apiUrl}/${rideId}/tracking`)
+  }
+
+  finishRide(rideId: number) {
+    return this.http.post<any>(`${this.apiUrl}/${rideId}/finish`, null);
+  }
+
+  getRideForRating(rideId: number) {
+    return this.http.get<RateRideRequest>(`${this.apiUrl}/${rideId}/for-rating`);
+  }
+
+  rateRide(response: RateRideResponse) {
+    return this.http.post<RateRideResponse>(`${this.apiUrl}/${response.rideId}/rate`, response);
+  }
+
+  // 2.6.1 Start Ride
+  startRide(rideId: number): Observable<RideResponse> {
+    return this.http.post<RideResponse>(
+      `${this.apiUrl}/rides/${rideId}/start`,
+      {}
+    );
+  }
+
+  // 2.5 Cancel Ride
+  cancelRide(rideId: number, request: CancelRideRequest): Observable<CancelRideResponse> {
+    return this.http.post<CancelRideResponse>(
+      `${this.apiUrl}/rides/${rideId}/cancel`,
+      request
+    );
+  }
+
+  // 2.6.5 Stop Ride Early
+  stopRide(rideId: number, request: StopRideRequest): Observable<StopRideResponse> {
+    return this.http.post<StopRideResponse>(
+      `${this.apiUrl}/rides/${rideId}/stop`,
+      request
+    );
+  }
+}

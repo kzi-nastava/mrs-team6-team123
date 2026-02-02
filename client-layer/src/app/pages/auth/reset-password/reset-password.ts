@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../enviroment';
 
 @Component({
   selector: 'app-reset-password',
@@ -10,20 +12,78 @@ import { Router } from '@angular/router';
   templateUrl: './reset-password.html',
   styleUrls: ['../auth.css'],
 })
-export class ResetPasswordComponent {
-  email = '';
-  password = '';
+export class ResetPasswordComponent implements OnInit {
+  token = '';
+  newPassword = '';
   confirmPassword = '';
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) {}
+
+  ngOnInit() {
+    // Get token from URL query params
+    this.token = this.route.snapshot.queryParamMap.get('token') || '';
+    
+    if (!this.token) {
+      this.errorMessage = 'Invalid reset link. Please request a new one.';
+    }
+  }
 
   reset() {
-    if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match');
+    // Validation
+    if (!this.newPassword || !this.confirmPassword) {
+      this.errorMessage = 'Please fill in all fields';
       return;
     }
 
-    console.log('RESET PASSWORD FOR', this.email);
+    if (this.newPassword !== this.confirmPassword) {
+      this.errorMessage = 'Passwords do not match';
+      return;
+    }
+
+    if (this.newPassword.length < 6) {
+      this.errorMessage = 'Password must be at least 6 characters';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const payload = {
+      token: this.token,
+      newPassword: this.newPassword,
+      confirmPassword: this.confirmPassword
+    };
+
+    this.http.post(`${environment.apiUrl}/auth/reset-password`, 
+      payload,
+      { responseType: 'text' }
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Password reset successful:', response);
+        this.successMessage = response;
+        this.loading = false;
+
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('❌ Password reset failed:', error);
+        this.errorMessage = error.error || 'Failed to reset password. The link may have expired.';
+        this.loading = false;
+      }
+    });
+  }
+
+  goToLogin() {
     this.router.navigate(['/login']);
   }
 }

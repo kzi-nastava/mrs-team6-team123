@@ -49,7 +49,7 @@ export class App {
       // });
     effect(() => {
       const userType = this.authService.userType();
-      if (userType === 'driver') {
+      if (userType === 'DRIVER') {
         this.navLinks = [...this.driverLinks];
       } else {
         this.navLinks = [...this.registeredUserLinks];

@@ -1,17 +1,69 @@
 <div class="auth-container">
   <h1>Register</h1>
 
-  <input placeholder="Email" [(ngModel)]="form.email" />
-  <input placeholder="Password" type="password" [(ngModel)]="form.password" />
+  <input 
+    placeholder="Email" 
+    type="email"
+    [(ngModel)]="form.email"
+    [disabled]="loading"
+  />
+  
+  <input 
+    placeholder="Password" 
+    type="password" 
+    [(ngModel)]="form.password"
+    [disabled]="loading"
+  />
+  
   <input
     placeholder="Confirm password"
     type="password"
     [(ngModel)]="form.confirmPassword"
+    [disabled]="loading"
   />
-  <input placeholder="First name" [(ngModel)]="form.firstName" />
-  <input placeholder="Last name" [(ngModel)]="form.lastName" />
-  <input placeholder="Address" [(ngModel)]="form.address" />
-  <input placeholder="Phone" [(ngModel)]="form.phone" />
+  
+  <input 
+    placeholder="First name" 
+    [(ngModel)]="form.firstName"
+    [disabled]="loading"
+  />
+  
+  <input 
+    placeholder="Last name" 
+    [(ngModel)]="form.lastName"
+    [disabled]="loading"
+  />
+  
+  <input 
+    placeholder="Address" 
+    [(ngModel)]="form.address"
+    [disabled]="loading"
+  />
+  
+  <input 
+    placeholder="Phone" 
+    type="tel"
+    [(ngModel)]="form.phoneNumber"
+    [disabled]="loading"
+  />
 
-  <button (click)="register()">Register</button>
+  <!-- ERROR MESSAGE -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- SUCCESS MESSAGE -->
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+
+  <button (click)="register()" [disabled]="loading">
+    {{ loading ? 'Registering...' : 'Register' }}
+  </button>
+
+  <div class="auth-links">
+    <button class="link-btn" (click)="goToLogin()" [disabled]="loading">
+      Already have an account? Login
+    </button>
+  </div>
 </div>

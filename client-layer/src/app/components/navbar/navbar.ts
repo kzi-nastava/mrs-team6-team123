@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, effect } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef, effect, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
 
 @Component({
   selector: 'app-navbar',
@@ -23,6 +24,9 @@ export class NavbarComponent {
 
   links: { route: string; icon: string }[] = [];
   menuActive = false;
+  userRole: string = 'GUEST';
+
+  isLoggedIn = computed(() => this.authService.isLoggedIn());
 
   guestLinks = [
     { route: '/unregistered-home', icon: 'home.png' },
@@ -53,46 +57,45 @@ export class NavbarComponent {
   ];
 
   adminLinks = [
-    { route: '/admin-home', icon: 'home.png' },
+    { route: '/admin/home', icon: 'home.png' },
     { route: '/admin/ride-history', icon: 'history.png' },
     { route: '/admin/drivers', icon: 'drivers.png' },
     { route: '/admin/reports', icon: 'report.png' },
-    { route: '/admin-pricing', icon: 'pricing.png' },
+    { route: '/admin/pricing', icon: 'pricing.png' },
     { route: '/admin/notifications', icon: 'notification.png' },
     { route: '/profile', icon: 'user.png' }
   ]
 
-  constructor(private authService: AuthService) {
-      // TEST: Uncomment one to test
-  // this.authService.login({
-  //   id: '1',
-  //   name: 'John Driver',
-  //   email: 'driver@test.com',
-  //   type: 'admin'
-  // });
-
-  this.authService.login({
-    id: '2',
-    name: 'Jane Passenger',
-    email: 'passenger@test.com',
-    type: 'passenger'
-  });
-
-    effect(() => {
-      const userType = this.authService.userType();
-      if (userType === 'driver') {
-        this.links = [...this.driverLinks];
-      } else if (userType === 'passenger') {
-        this.links = [...this.registeredUserLinks];
-      } else if (userType === 'admin') {
-        this.links = [...this.adminLinks];
-      } else {
-        this.links = [...this.guestLinks];
-      }
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {
+    // Subscribe to current user changes
+    this.authService.currentUser$.subscribe(user => {
+      this.userRole = user?.role || 'GUEST';
+      this.updateLinks();
+      this.cdr.markForCheck(); // Notify Angular of changes
     });
+  }
+
+  ngOnInit() {
+    this.updateLinks();
+  }
+
+  private updateLinks() {
+    if (this.userRole === 'DRIVER') {
+      this.links = [...this.driverLinks];
+    } else if (this.userRole === 'PASSENGER') {
+      this.links = [...this.registeredUserLinks];
+    } else if (this.userRole === 'ADMIN') {
+      this.links = [...this.adminLinks];
+    } else {
+      this.links = [...this.guestLinks];
+    }
   }
 
   toggleMenu() {
     this.menuActive = !this.menuActive;
   }
+
+    logout() {
+    this.authService.logout();
+    }
 }

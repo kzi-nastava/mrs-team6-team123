@@ -1,0 +1,48 @@
+<table class="ride-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Started</th>
+      <th>Ended</th>
+      <th>Price</th>
+      <th>Driver</th>
+      <th>Rating</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let ride of rides">
+      <td>{{ ride.date }}</td>
+      <td class="location-cell" [title]="ride.startLocation">
+        {{ ride.startLocation.length > 30 ? (ride.startLocation | slice:0:30) + '...' : ride.startLocation }}
+      </td>
+      <td class="location-cell" [title]="ride.endLocation">
+        {{ ride.endLocation.length > 30 ? (ride.endLocation | slice:0:30) + '...' : ride.endLocation }}
+      </td>
+      <td>{{ ride.startedAt }}</td>
+      <td>{{ ride.endedAt }}</td>
+      <td>{{ ride.price }} RSD</td>
+      <td>{{ ride.driverName }}</td>
+      <td>
+        <ng-container *ngIf="!canRateRide(ride); else rateRideBtn">
+          <span [class.not-rated]="!ride.rideDriverRating">
+            {{ formatRating(ride.rideDriverRating) }}
+          </span>
+        </ng-container>
+
+        <ng-template #rateRideBtn>
+          <button 
+            class="rate-btn"
+            (click)="openRateRideDialog(ride)">
+            Rate
+          </button>
+        </ng-template>
+      </td>
+      <td>
+        <button class="btn-view" (click)="showRoute(ride)">View</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

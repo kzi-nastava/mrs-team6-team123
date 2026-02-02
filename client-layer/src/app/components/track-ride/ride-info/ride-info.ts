@@ -1,17 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Input } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-
-export interface Ride {
-  from: string;
-  to: string;
-  nextStop?: string;
-  timeLeft?: string;
-  driverName?: string;
-  price?: number;
-  passengers?: string[];
-  startedAt?: string;
-}
+import { RideInfo } from '../../../models/track-ride.model';
 
 @Component({
   selector: 'app-ride-info',
@@ -21,21 +11,27 @@ export interface Ride {
   styleUrls: ['./ride-info.css'],
 })
 export class RideInfoComponent {
-  @Input() ride!: Ride;
+  @Input() rideInfo!: RideInfo;
 
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService
+  ) {}
 
   userType = computed(() => this.auth.getUserType());
 
   get isAdmin() {
-    return this.userType() === 'admin';
+    return this.userType() === 'ADMIN';
   }
 
   get isDriver() {
-    return this.userType() === 'driver';
+    return this.userType() === 'DRIVER';
   }
 
   get passengers() {
-    return this.ride?.passengers || [];
+    return this.rideInfo.passengers || [];
+  }
+
+  get reports() {
+    return this.rideInfo.reports || [];
   }
 }

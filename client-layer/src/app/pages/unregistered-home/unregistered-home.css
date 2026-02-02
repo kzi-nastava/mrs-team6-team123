@@ -11,19 +11,85 @@
 
 .right-panel {
   flex: 1;
-  padding: 20px;
+  padding: 32px;
   background-color: #ffffff;
   overflow-y: auto;
+  max-width: 450px;
 }
 
-.right-panel h2 {
-  color: #325639;
-  margin-top: 0;
+.welcome-section {
+  margin-bottom: 28px;
 }
 
-.right-panel p {
+.welcome-section h2 {
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.welcome-section p {
   color: #666;
   line-height: 1.6;
+  margin: 0;
+  font-size: 15px;
+}
+
+
+.btn-icon {
+  font-size: 20px;
+}
+
+.info-section {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 10px;
+}
+
+.info-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+}
+
+.step {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+.step:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #5d7c5b;
+  color: white;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.step-content p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
 }
 
 @media (max-width: 767px) {
@@ -32,7 +98,16 @@
   }
 
   .right-panel {
-    padding: 12px;
+    padding: 20px;
     height: auto;
+    max-width: 100%;
+  }
+
+  .welcome-section h2 {
+    font-size: 22px;
+  }
+
+  .estimate-ride-btn {
+    height: 48px !important;
   }
 }

@@ -8,6 +8,9 @@
       [(ngModel)]="email"
       name="email"
       required
+      [disabled]="loading"
+      [class.input-error]="errorMessage && !email"
+      autocomplete="email"
     />
 
     <input
@@ -16,13 +19,30 @@
       [(ngModel)]="password"
       name="password"
       required
+      [disabled]="loading"
+      [class.input-error]="errorMessage && !password"
+      autocomplete="current-password"
     />
 
-    <button type="submit">Login</button>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <button type="submit" [disabled]="loading" [class.loading]="loading">
+      <span *ngIf="!loading">Login</span>
+      <span *ngIf="loading" class="loading-content">
+        <span class="spinner"></span>
+        Logging in...
+      </span>
+    </button>
   </form>
 
   <div class="auth-links">
-    <button class="link-btn" (click)="goToReset()">Forgot password?</button>
-    <button class="link-btn" (click)="goToRegister()">Create account</button>
+    <button class="link-btn" (click)="goToReset()" [disabled]="loading">
+      Forgot password?
+    </button>
+    <button class="link-btn" (click)="goToRegister()" [disabled]="loading">
+      Create account
+    </button>
   </div>
 </div>
