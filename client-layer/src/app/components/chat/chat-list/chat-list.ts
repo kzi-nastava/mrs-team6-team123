@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ChatWindowComponent, Message } from '../chat-window/chat-window';
+import { ChatWindowComponent } from '../chat-window/chat-window';
+import { MessageResponse } from '../../../models/chat.model';
 
 export interface ChatSummary {
-  chatId: string;
+  chatId: number;
   userName: string;
   lastMessage: string;
 }
@@ -17,14 +18,14 @@ export interface ChatSummary {
   styleUrls: ['./chat-list.css'],
 })
 export class ChatListComponent {
-  @Output() chatSelected = new EventEmitter<string>();
+  @Output() chatSelected = new EventEmitter<number>();
 
-  open(chatId: string) {
+  open(chatId: number) {
     this.chatSelected.emit(chatId);
   }
 
   @Input() chatSummaries: ChatSummary[] = [];
-  @Input() chatMessagesMap: Record<string, Message[]> = {};
+  @Input() chatMessagesMap: Record<string, MessageResponse[]> = {};
 
   /*
   chatSummaries: ChatSummary[] = [
@@ -44,9 +45,9 @@ export class ChatListComponent {
   };
   */
 
-  selectedChatId: string | null = null;
+  selectedChatId: number | null = null;
 
-  openChat(chatId: string) {
+  openChat(chatId: number) {
     this.selectedChatId = chatId;
   }
 
@@ -54,7 +55,7 @@ export class ChatListComponent {
     this.selectedChatId = null;
   }
 
-  get selectedChatMessages(): Message[] {
+  get selectedChatMessages(): MessageResponse[] {
     return this.selectedChatId ? this.chatMessagesMap[this.selectedChatId] || [] : [];
   }
 }

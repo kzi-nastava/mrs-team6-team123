@@ -13,8 +13,6 @@
   <!-- Ako je chat selektovan, prikazi chat window -->
   <app-chat-window
     *ngIf="selectedChatId"
-    [chatId]="selectedChatId"
-    [initialMessages]="selectedChatMessages"
     (close)="closeChat()">
   </app-chat-window>
 </div>
