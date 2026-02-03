@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,19 +19,18 @@ public class Message {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "recipient_id", nullable = false)
-    private User recipient;
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
 
     @Column(nullable = false)
     private String content;
 
     @Column(nullable = false)
-    private String timestamp;
+    private LocalDateTime timestamp;
 
     @Column(nullable = false)
     private boolean read;
+
+    @Column(nullable = false)
+    private boolean sentByUser;
 }
