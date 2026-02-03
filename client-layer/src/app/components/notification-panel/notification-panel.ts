@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { NotificationResponse } from '../../models/notification.model';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
@@ -6,7 +6,6 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { not } from 'rxjs/internal/util/not';
 
 @Component({
   selector: 'app-notification-panel',
@@ -29,7 +28,8 @@ export class NotificationPanelComponent {
   constructor(
     private notificationService: NotificationService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +61,7 @@ export class NotificationPanelComponent {
       .subscribe((list: NotificationResponse[]) => {
         this.unreadNotifications = list;
         this.loading = false;
+        this.cdr.markForCheck();
       });
   }
 
@@ -72,6 +73,7 @@ export class NotificationPanelComponent {
       .subscribe((list: NotificationResponse[]) => {
         this.readNotifications = list;
         this.loading = false;
+        this.cdr.markForCheck();
       });
   }
 
@@ -82,10 +84,11 @@ export class NotificationPanelComponent {
 
       this.readNotifications.unshift(notification);
     });
+    this.cdr.markForCheck();
   }
 
   onNotificationClick(notification: NotificationResponse) {
-    if (notification.isRead == false) {
+    if (!notification.read) {
       this.markAsRead(notification);
     }
     if (notification.link) {

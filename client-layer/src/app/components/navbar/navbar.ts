@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, ChangeDetectorRef, effect, computed } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef, effect, computed, SimpleChanges, OnChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NotificationPanelComponent } from '../notification-panel/notification-panel';
+import { NotificationService } from '../../services/notification.service';
+import { map } from 'rxjs';
 
 
 @Component({
@@ -21,13 +23,14 @@ import { NotificationPanelComponent } from '../notification-panel/notification-p
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   @Input() showHamburger = false;
 
   links: { route: string; icon: string; type: string }[] = [];
   menuActive = false;
   userRole: string = 'GUEST';
   notificationPanelOpen = false;
+  unreadCount = 0;
 
   isLoggedIn = computed(() => this.authService.isLoggedIn());
 
@@ -63,7 +66,10 @@ export class NavbarComponent {
     { route: '/profile', icon: 'user.png', type: 'profile' }
   ]
 
-  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {
+  constructor(
+    private authService: AuthService, 
+    private cdr: ChangeDetectorRef,
+    private notifcationService: NotificationService) {
     // Subscribe to current user changes
     this.authService.currentUser$.subscribe(user => {
       this.userRole = user?.role || 'GUEST';
@@ -73,6 +79,10 @@ export class NavbarComponent {
   }
 
   ngOnInit() {
+    this.notifcationService.getUnread().subscribe(list => {
+      this.unreadCount = list.length;
+      this.cdr.markForCheck();
+    });
     this.updateLinks();
   }
 
