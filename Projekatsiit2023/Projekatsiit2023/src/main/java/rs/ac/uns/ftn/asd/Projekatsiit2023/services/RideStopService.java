@@ -60,8 +60,6 @@ public class RideStopService {
         newPrice = Math.round(newPrice * 100.0) / 100.0; 
 
         ride.setEndLocation(request.getCurrentLocation());
-        ride.setEndLatitude(currentLat);
-        ride.setEndLongitude(currentLng);
         ride.setEndedAt(request.getStoppedAt() != null ? request.getStoppedAt().toLocalTime() : LocalTime.now());
         ride.setPrice(newPrice);
         ride.setTotalDistance(distanceTravelled);

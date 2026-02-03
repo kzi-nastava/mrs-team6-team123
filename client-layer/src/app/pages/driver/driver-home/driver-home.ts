@@ -1,0 +1,139 @@
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MapComponent } from '../../../components/map/map';
+import { DriverRideCardComponent } from '../../../components/driver-ride-card/driver-ride-card';
+import { ActiveRideDisplayComponent } from '../../../components/active-ride-display/active-ride-display';
+import { DriverService, DriverAssignedRide } from '../../../services/driver.service';
+import { AuthService } from '../../../services/auth.service';
+import { RideService } from '../../../services/ride.service';
+import { MapMode } from '../../../models/enums';
+
+@Component({
+  selector: 'app-driver-home',
+  standalone: true,
+  imports: [CommonModule, MapComponent, DriverRideCardComponent, ActiveRideDisplayComponent],
+  templateUrl: './driver-home.html',
+  styleUrls: ['./driver-home.css']
+})
+export class DriverHomeComponent implements OnInit, OnDestroy {
+  rides: DriverAssignedRide[] = [];
+  acceptedRide?: DriverAssignedRide;
+  pendingRides: DriverAssignedRide[] = [];
+  loading = true;
+  driverId: number = 0;
+  
+  mapMode: MapMode = 'STATIC_ROUTE';
+  
+  rideForMap?: {
+    startLat?: number;
+    startLng?: number;
+    endLat?: number;
+    endLng?: number;
+  };
+
+  private refreshInterval: any;
+
+  constructor(
+    private driverService: DriverService,
+    private authService: AuthService,
+    private rideService: RideService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+      if (user?.userId && this.driverId === 0) {
+        this.driverId = user.userId;
+        this.loadRides();
+        this.startRefreshInterval();
+      }
+    });
+  }
+
+  // Start periodic refresh of rides every 10 seconds
+  private startRefreshInterval() {
+    if (!this.refreshInterval) {
+      this.refreshInterval = setInterval(() => this.loadRides(), 10000);
+    }
+  }
+  
+  ngOnDestroy() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
+
+  loadRides() {
+    if (!this.driverId) {
+      this.loading = false;
+      return;
+    }
+
+    this.driverService.getAssignedRides(this.driverId).subscribe({
+      next: (rides) => {
+        this.rides = rides;
+        this.organizeRides();
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error loading rides:', error);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  organizeRides() {
+    const accepted = this.rides.find(r => r.status === 'ACCEPTED' || r.status === 'STARTED');
+    this.acceptedRide = accepted;
+    
+    // If there's an accepted/started ride, show route on map
+    if (this.acceptedRide) {
+      this.mapMode = 'STATIC_ROUTE';
+      this.rideForMap = {
+        startLat: this.acceptedRide.startLatitude,
+        startLng: this.acceptedRide.startLongitude,
+        endLat: this.acceptedRide.endLatitude,
+        endLng: this.acceptedRide.endLongitude
+      };
+    }
+    
+    this.pendingRides = this.rides.filter(r => r.status === 'CREATED');
+  }
+
+  handleAcceptRide(rideId: number) {
+    this.driverService.acceptRide(this.driverId, rideId).subscribe({
+      next: () => {
+        console.log('Ride accepted successfully');
+        this.loadRides(); // Reload to update the view
+      },
+      error: (error) => {
+        console.error('Error accepting ride:', error);
+        alert('Failed to accept ride. Please try again.');
+      }
+    });
+  }
+
+  handleStartRide(rideId: number) {
+    this.driverService.startRide(this.driverId, rideId).subscribe({
+      next: () => {
+        console.log('Ride started successfully');
+        this.loadRides(); // Reload to update the view
+      },
+      error: (error) => {
+        console.error('Error starting ride:', error);
+        alert('Failed to start ride. Please try again.');
+      }
+    });
+  }
+
+  handleSeeRoute(ride: DriverAssignedRide) {
+    this.rideForMap = {
+      startLat: ride.startLatitude,
+      startLng: ride.startLongitude,
+      endLat: ride.endLatitude,
+      endLng: ride.endLongitude
+    };
+  }
+}

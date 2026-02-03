@@ -43,8 +43,6 @@ public class FinishRideService {
             ride.setStatus(RideStatus.FINISHED);
             ride.setPaid(true);
             ride.setEndLocation(ride.getRoute().getEndLocation());
-            ride.setEndLatitude(ride.getRoute().getEndLatitude());
-            ride.setEndLongitude(ride.getRoute().getEndLongitude());
             ride.setEndedAt(LocalTime.now());
             ActiveVehicle vehicle =
                     activeVehicleRepository.findByCurrentRideId(rideId).orElse(null);
