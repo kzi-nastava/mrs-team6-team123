@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NotificationPanelComponent } from '../notification-panel/notification-panel';
 
 
 @Component({
@@ -14,7 +15,8 @@ import { AuthService } from '../../services/auth.service';
     RouterLink,
     RouterLinkActive,
     MatToolbarModule,
-    MatButtonModule
+    MatButtonModule,
+    NotificationPanelComponent
   ],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
@@ -22,48 +24,43 @@ import { AuthService } from '../../services/auth.service';
 export class NavbarComponent {
   @Input() showHamburger = false;
 
-  links: { route: string; icon: string }[] = [];
+  links: { route: string; icon: string; type: string }[] = [];
   menuActive = false;
   userRole: string = 'GUEST';
+  notificationPanelOpen = false;
 
   isLoggedIn = computed(() => this.authService.isLoggedIn());
 
   guestLinks = [
-    { route: '/unregistered-home', icon: 'home.png' },
-    { route: '/login', icon: 'user.png' },
-    //{ route: '/driver/ride-history', icon: 'history.png' },
-    //{ route: '/login', icon: 'login.png' },
-    //{ route: '/register', icon: 'register.png' },
-    //{ route: '/profile', icon: 'user.png' },
-    //{ route: '/driver/profile', icon: 'drivers.png' },
-    //{ route: '/admin/profile', icon: 'admin.png' }
+    { route: '/unregistered-home', icon: 'home.png', type: 'home' },
+    { route: '/login', icon: 'user.png', type: 'login' }
   ];
 
   registeredUserLinks = [
-    { route: '/registered-home', icon: 'home.png' },
-    { route: '/history', icon: 'history.png' },
-    { route: '/favorites', icon: 'favorites.png' },
-    { route: '/notifications', icon: 'notification.png' },
-    { route: '/profile', icon: 'user.png' }
+    { route: '/registered-home', icon: 'home.png', type: 'home' },
+    { route: '/history', icon: 'history.png', type: 'history' },
+    { route: '/favorites', icon: 'favorites.png', type: 'favorites' },
+    { route: '', icon: 'notification.png', type: 'notifications' },
+    { route: '/profile', icon: 'user.png', type: 'profile' }
   ];
 
   driverLinks = [
-    { route: '/driver/home', icon: 'home.png' },
-    { route: '/driver/driver-ride-history', icon: 'history.png' },
-    { route: '/driver/favorites', icon: 'favorites.png' },
-    { route: '/driver/notifications', icon: 'notification.png' },
-    { route: '/driver/reports', icon: 'report.png' },
-    { route: '/profile', icon: 'user.png' }
+    { route: '/driver/home', icon: 'home.png', type: 'home' },
+    { route: '/driver/driver-ride-history', icon: 'history.png', type: 'history' },
+    { route: '/driver/favorites', icon: 'favorites.png', type: 'favorites' },
+    { route: '', icon: 'notification.png', type: 'notifications' },
+    { route: '/driver/reports', icon: 'report.png', type: 'reports' },
+    { route: '/profile', icon: 'user.png', type: 'profile' }
   ];
 
   adminLinks = [
-    { route: '/admin/home', icon: 'home.png' },
-    { route: '/admin/ride-history', icon: 'history.png' },
-    { route: '/admin/drivers', icon: 'drivers.png' },
-    { route: '/admin/reports', icon: 'report.png' },
-    { route: '/admin/pricing', icon: 'pricing.png' },
-    { route: '/admin/notifications', icon: 'notification.png' },
-    { route: '/profile', icon: 'user.png' }
+    { route: '/admin/home', icon: 'home.png', type: 'home' },
+    { route: '/admin/ride-history', icon: 'history.png', type: 'history' },
+    { route: '/admin/drivers', icon: 'drivers.png', type: 'drivers' },
+    { route: '/admin/reports', icon: 'report.png', type: 'reports' },
+    { route: '/admin/pricing', icon: 'pricing.png', type: 'pricing' },
+    { route: '', icon: 'notification.png', type: 'notifications' },
+    { route: '/profile', icon: 'user.png', type: 'profile' }
   ]
 
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {
@@ -89,6 +86,17 @@ export class NavbarComponent {
     } else {
       this.links = [...this.guestLinks];
     }
+  }
+
+  onNavClick(link: { route: string; icon: string; type: string }, event: Event) {
+    if (link.type === 'notifications') {
+      event.preventDefault();
+      this.notificationPanelOpen = !this.notificationPanelOpen;
+      return;
+    }
+
+    this.notificationPanelOpen = false;
+    this.menuActive = false;
   }
 
   toggleMenu() {
