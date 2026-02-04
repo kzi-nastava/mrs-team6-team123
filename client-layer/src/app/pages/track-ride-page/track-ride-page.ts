@@ -8,6 +8,7 @@ import { CancelRideDialogComponent } from '../../components/cancel-ride/cancel-r
 import { StopRideDialogComponent } from '../../components/stop-ride/stop-ride';
 import { TrackRideResponse } from '../../models/track-ride.model';
 import { RideService } from '../../services/ride.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-track-ride-page',
@@ -23,29 +24,38 @@ import { RideService } from '../../services/ride.service';
 })
 export class TrackRidePageComponent implements OnInit{
   ride!: TrackRideResponse;
-  rideId: number = 4;
+  rideId: number | undefined;
 
   constructor(
     private dialog: MatDialog,
     private rideService: RideService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadRide();
+    this.route.queryParams.subscribe(params => {
+      const rideId = params['rideId'];
+      if (rideId) {
+        this.rideId = +rideId;
+        this.loadRide();
+      }
+    });
   }
 
   loadRide(): void {
-    this.rideService.trackRide(this.rideId).subscribe({
-      next: (data) => {
-        this.ride = data;
-        console.log('Ride data:', this.ride);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching ride:', err);
-      }
-    });
+    if (this.rideId) {
+      this.rideService.trackRide(this.rideId).subscribe({
+        next: (data) => {
+          this.ride = data;
+          console.log('Ride data:', this.ride);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching ride:', err);
+        }
+      });
+    }
   }
 
 openCancelDialog() {
