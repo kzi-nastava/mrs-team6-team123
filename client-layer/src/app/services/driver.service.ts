@@ -40,11 +40,11 @@ export class DriverService {
 
   // Accept a ride
   acceptRide(driverId: number, rideId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${driverId}/rides/${rideId}/accept`, {});
+    return this.http.post(`${this.apiUrl}/${driverId}/rides/${rideId}/accept`, {}, { responseType: 'text' });
   }
 
   // Start a ride
   startRide(driverId: number, rideId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${driverId}/rides/${rideId}/start`, {});
+    return this.http.post(`${this.apiUrl}/${driverId}/rides/${rideId}/start`, {}, { responseType: 'text' });
   }
 }

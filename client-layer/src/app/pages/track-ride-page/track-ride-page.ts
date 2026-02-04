@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TrackRideComponent } from '../../components/track-ride/track-ride/track-ride';
 import { MapComponent } from '../../components/map/map';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,16 +24,22 @@ import { RideService } from '../../services/ride.service';
 })
 export class TrackRidePageComponent implements OnInit{
   ride!: TrackRideResponse;
-  rideId: number = 4;
+  rideId: number = 0;
 
   constructor(
     private dialog: MatDialog,
     private rideService: RideService,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadRide();
+    this.route.queryParams.subscribe(params => {
+      this.rideId = +params['rideId'];
+      if (this.rideId) {
+        this.loadRide();
+      }
+    });
   }
 
   loadRide(): void {

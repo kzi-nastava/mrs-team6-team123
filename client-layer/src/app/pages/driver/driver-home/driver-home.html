@@ -7,15 +7,8 @@
 
     <!-- Rides -->
     <div class="rides-panel">
-      <!-- Ride in Progress Display -->
-      <app-active-ride-display
-        *ngIf="!loading && acceptedRide && acceptedRide.status === 'STARTED'"
-        [ride]="acceptedRide"
-      >
-      </app-active-ride-display>
-
       <!-- Normal Rides View -->
-      <div *ngIf="!loading && (!acceptedRide || acceptedRide.status !== 'STARTED')">
+      <div *ngIf="!loading">
         <h2>Your Assigned Rides</h2>
 
         <div *ngIf="rides.length === 0" class="no-rides">

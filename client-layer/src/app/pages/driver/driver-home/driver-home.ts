@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MapComponent } from '../../../components/map/map';
 import { DriverRideCardComponent } from '../../../components/driver-ride-card/driver-ride-card';
-import { ActiveRideDisplayComponent } from '../../../components/active-ride-display/active-ride-display';
 import { DriverService, DriverAssignedRide } from '../../../services/driver.service';
 import { AuthService } from '../../../services/auth.service';
 import { RideService } from '../../../services/ride.service';
@@ -11,7 +11,7 @@ import { MapMode } from '../../../models/enums';
 @Component({
   selector: 'app-driver-home',
   standalone: true,
-  imports: [CommonModule, MapComponent, DriverRideCardComponent, ActiveRideDisplayComponent],
+  imports: [CommonModule, MapComponent, DriverRideCardComponent],
   templateUrl: './driver-home.html',
   styleUrls: ['./driver-home.css']
 })
@@ -37,6 +37,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     private driverService: DriverService,
     private authService: AuthService,
     private rideService: RideService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -118,8 +119,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   handleStartRide(rideId: number) {
     this.driverService.startRide(this.driverId, rideId).subscribe({
       next: () => {
-        console.log('Ride started successfully');
-        this.loadRides(); // Reload to update the view
+        this.router.navigate(['/track-ride-page'], { queryParams: { rideId: rideId } });
       },
       error: (error) => {
         console.error('Error starting ride:', error);
