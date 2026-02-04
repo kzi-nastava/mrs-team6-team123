@@ -1,0 +1,50 @@
+<div class="driver-home-container">
+  <div class="content-wrapper">
+    <!-- Map -->
+    <div class="map-section">
+      <app-map [mode]="mapMode" [ride]="rideForMap"> </app-map>
+    </div>
+
+    <!-- Rides -->
+    <div class="rides-panel">
+      <!-- Normal Rides View -->
+      <div *ngIf="!loading">
+        <h2>Your Assigned Rides</h2>
+
+        <div *ngIf="rides.length === 0" class="no-rides">
+          <p>No rides assigned at the moment.</p>
+        </div>
+
+        <!-- Accepted Ride (shown at top) -->
+        <div *ngIf="acceptedRide" class="accepted-section">
+          <h3>Current Accepted Ride</h3>
+          <app-driver-ride-card
+            [ride]="acceptedRide"
+            [hasAcceptedRide]="true"
+            (start)="handleStartRide($event)"
+            (seeRoute)="handleSeeRoute($event)"
+          >
+          </app-driver-ride-card>
+        </div>
+
+        <!-- Pending Rides -->
+        <div *ngIf="pendingRides.length > 0" class="pending-section">
+          <h3 *ngIf="acceptedRide">Other Assigned Rides</h3>
+          <app-driver-ride-card
+            *ngFor="let ride of pendingRides"
+            [ride]="ride"
+            [hasAcceptedRide]="!!acceptedRide"
+            (accept)="handleAcceptRide($event)"
+            (seeRoute)="handleSeeRoute($event)"
+          >
+          </app-driver-ride-card>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <p>Loading rides...</p>
+      </div>
+    </div>
+  </div>
+</div>
