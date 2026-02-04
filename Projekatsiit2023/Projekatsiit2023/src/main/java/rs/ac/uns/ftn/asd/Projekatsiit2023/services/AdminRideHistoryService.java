@@ -140,8 +140,8 @@ public class AdminRideHistoryService {
 
         dto.setStartLat(ride.getRoute().getStartLatitude());
         dto.setStartLng(ride.getRoute().getStartLongitude());
-        dto.setEndLat(ride.getEndLatitude());
-        dto.setEndLng(ride.getEndLongitude());
+        dto.setEndLat(ride.getRoute().getEndLatitude());
+        dto.setEndLng(ride.getRoute().getEndLongitude());
 
         dto.setDriverId(ride.getDriver().getId());
         dto.setDriverName(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());

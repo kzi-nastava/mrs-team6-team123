@@ -13,6 +13,10 @@ export interface RideOrderRequest {
   passengerIds?: number[];
   startLocation: string;
   endLocation: string;
+  startLatitude: number;
+  startLongitude: number;
+  endLatitude: number;
+  endLongitude: number;
   scheduledAt?: string; // ISO date string, null for immediate
   babySeat: boolean;
   petFriendly: boolean;

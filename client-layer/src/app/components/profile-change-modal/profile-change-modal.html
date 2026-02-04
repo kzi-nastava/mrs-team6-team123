@@ -1,0 +1,51 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>Driver Profile Change Request</h2>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading">Loading...</div>
+
+      <!-- Content -->
+      <div *ngIf="change && !loading">
+        <!-- Driver Info -->
+        <div class="driver-info">
+          <p><strong>Driver:</strong> {{ change.driverName }}</p>
+          <p><strong>Email:</strong> {{ change.driverEmail }}</p>
+        </div>
+
+        <!-- Changes -->
+        <div class="changes">
+          <h3>Requested Changes:</h3>
+          <div *ngFor="let c of getChanges()" class="change-item">
+            <strong>{{ c.key }}:</strong>
+            <span class="old">{{ c.old }}</span> → 
+            <span class="new">{{ c.new }}</span>
+          </div>
+          <p *ngIf="getChanges().length === 0" class="no-changes">No changes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer with Buttons -->
+    <div class="modal-footer" *ngIf="change && !loading && change.status === 'PENDING'">
+      <button 
+        class="btn btn-approve" 
+        (click)="approve()" 
+        [disabled]="approving">
+        {{ approving ? 'Approving...' : 'Approve' }}
+      </button>
+      <button 
+        class="btn btn-decline" 
+        (click)="decline()" 
+        [disabled]="declining">
+        {{ declining ? 'Declining...' : 'Decline' }}
+      </button>
+    </div>
+  </div>
+</div>

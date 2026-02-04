@@ -14,10 +14,14 @@ public class RideOrderRequestDTO {
     private List<Long> passengerIds;
     private String startLocation;
     private String endLocation;
+    private double startLatitude;
+    private double startLongitude;
+    private double endLatitude;
+    private double endLongitude;
     private LocalDateTime scheduledAt; // null for ASAP
     private boolean babySeat;
     private boolean petFriendly;
-    private VehicleType vehicleType; // STANDARD | LUX | VAN
+    private VehicleType vehicleType; // STANDARD | LUXURY | VAN
     private List<String> waypoints; // ordered intermediate stops
     private Double estimatedPrice; // price calculated on frontend
 
