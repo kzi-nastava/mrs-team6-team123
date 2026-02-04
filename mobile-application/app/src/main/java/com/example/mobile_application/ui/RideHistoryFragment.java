@@ -1,4 +1,4 @@
-package com.example.mobile_application;
+package com.example.mobile_application.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.example.mobile_application.R;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 

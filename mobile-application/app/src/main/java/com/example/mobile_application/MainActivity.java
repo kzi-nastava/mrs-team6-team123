@@ -10,7 +10,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.mobile_application.map.MapFragment;
+import com.example.mobile_application.ui.map.MapFragment;
+import com.example.mobile_application.ui.ChatDialogFragment;
+import com.example.mobile_application.ui.ChatListDialogFragment;
+import com.example.mobile_application.ui.DriverRegistrationFragment;
+import com.example.mobile_application.ui.FavoriteRoutesFragment;
+import com.example.mobile_application.ui.LoginFragment;
+import com.example.mobile_application.ui.ProfileFragment;
+import com.example.mobile_application.ui.RideHistoryFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import androidx.fragment.app.FragmentManager;

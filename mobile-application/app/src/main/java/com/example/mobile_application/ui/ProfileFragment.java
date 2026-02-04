@@ -1,6 +1,5 @@
-package com.example.mobile_application;
+package com.example.mobile_application.ui;
 
-import android.net.Uri;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import android.os.Bundle;
@@ -15,6 +14,8 @@ import android.widget.TextView;
 import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
+
+import com.example.mobile_application.R;
 
 /**
  * ProfileFragment manages the user profile display
