@@ -1,9 +1,13 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActiveRidesCardComponent } from '../../../components/active-rides-card/active-rides-card';
 import { CommonModule } from '@angular/common';
 import { RideMonitoringResponse } from '../../../models/ride-monitoring.model';
 import { RideMonitoringService } from '../../../services/ride-monitoring.service';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
+import { SoundService } from '../../../services/sound.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-home',
@@ -12,17 +16,34 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './admin-home.html',
   styleUrls: ['./admin-home.css'],
 })
-export class AdminHomeComponent {
+export class AdminHomeComponent implements OnInit {
   rides: RideMonitoringResponse[] = [];
   filteredRides: RideMonitoringResponse[] = [];
   searchTerm: string = '';
+  playedOnce = false;
+  private notifSub?: Subscription;
 
   constructor(
     private rideMonitoringService: RideMonitoringService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private soundService: SoundService
   ) {}
 
   ngOnInit(): void {
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.notificationService.loadUnread(userId);
+    }
+    this.playedOnce = false;
+    this.notifSub = this.notificationService.getUnread().subscribe(list => {
+      if (list.length > 0 && !this.playedOnce) {
+        this.soundService.play();
+        this.playedOnce = true;
+        console.log('Playing notification sound');
+      }
+    });
     this.loadRides();
   }
 
