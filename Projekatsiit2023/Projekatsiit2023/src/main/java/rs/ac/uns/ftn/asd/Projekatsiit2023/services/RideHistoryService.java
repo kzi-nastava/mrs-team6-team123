@@ -54,8 +54,8 @@ public class RideHistoryService {
         }
         dto.setStartLat(ride.getRoute().getStartLatitude());
         dto.setStartLng(ride.getRoute().getStartLongitude());
-        dto.setEndLat(ride.getEndLatitude());
-        dto.setEndLng(ride.getEndLongitude());
+        dto.setEndLat(ride.getRoute().getEndLatitude());
+        dto.setEndLng(ride.getRoute().getEndLongitude());
         for (var report : ride.getIrregularityReports()) {
             dto.getReports().add(report.getDescription());
         }

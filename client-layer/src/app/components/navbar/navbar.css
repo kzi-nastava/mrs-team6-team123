@@ -70,13 +70,13 @@
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 8px;
-  background-color: #e53935;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background-color: #ff3b30;
   border-radius: 50%;
-  border: 1px solid white;
+  border: 2px solid white;
   box-sizing: border-box;
 }
 

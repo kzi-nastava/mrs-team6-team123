@@ -14,6 +14,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.services.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RouteRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.OrderRideValidation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,6 +40,7 @@ public class RideController {
     private final PassengerRepository passengerRepository;
     private final RouteRepository routeRepository;
     private final RideRepository rideRepository;
+    private final OrderRideValidation orderRideValidation;
 
     public RideController(
             RideCancellationService cancellationService,
@@ -50,7 +52,8 @@ public class RideController {
             RouteRepository routeRepository,
             RideRepository rideRepository,
             FinishRideService finishRideService,
-            RateRideService rateRideService) {
+            RateRideService rateRideService,
+            OrderRideValidation orderRideValidation) {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.rideStopService = rideStopService;
@@ -61,37 +64,32 @@ public class RideController {
         this.rideRepository = rideRepository;
         this.finishRideService = finishRideService;
         this.rateRideService = rateRideService;
+        this.orderRideValidation = orderRideValidation;
     }
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
     public ResponseEntity<?> orderRide(@RequestBody RideOrderRequestDTO request) {
         try {
-            // Parse start and end locations (format: "lat,lng")
-            String[] startCoords = request.getStartLocation().split(",");
-            String[] endCoords = request.getEndLocation().split(",");
-            double startLat = Double.parseDouble(startCoords[0]);
-            double startLng = Double.parseDouble(startCoords[1]);
-            double endLat = Double.parseDouble(endCoords[0]);
-            double endLng = Double.parseDouble(endCoords[1]);
+            orderRideValidation.validateOrderRideRequest(request);
 
-            // Create and save Route with coordinates
+            // Create and save Route with address strings and coordinates
             Route route = new Route();
             route.setStartLocation(request.getStartLocation());
             route.setEndLocation(request.getEndLocation());
-            route.setStartLatitude(startLat);
-            route.setStartLongitude(startLng);
-            route.setEndLatitude(endLat);
-            route.setEndLongitude(endLng);
+            route.setStartLatitude(request.getStartLatitude());
+            route.setStartLongitude(request.getStartLongitude());
+            route.setEndLatitude(request.getEndLatitude());
+            route.setEndLongitude(request.getEndLongitude());
             Route savedRoute = routeRepository.save(route);
 
-            // Find best available driver
+            // Find best available driver using coordinates
             Optional<Driver> driverOptional = driverMatchingService.findBestDriver(
                     request.getVehicleType(),
                     request.isBabySeat(),
                     request.isPetFriendly(),
-                    startLat,
-                    startLng);
+                    request.getStartLatitude(),
+                    request.getStartLongitude());
 
             if (driverOptional.isEmpty()) {
                 // No driver available
@@ -118,8 +116,6 @@ public class RideController {
             // Set location and time info
             ride.setStartLocation(request.getStartLocation());
             ride.setEndLocation(request.getEndLocation());
-            ride.setEndLatitude(endLat);
-            ride.setEndLongitude(endLng);
             ride.setScheduledAt(request.getScheduledAt());
             ride.setStartedAt(LocalTime.now());
             ride.setEndedAt(LocalTime.now());

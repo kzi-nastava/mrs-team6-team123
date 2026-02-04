@@ -1,21 +1,19 @@
 <div class="notification-panel">
-
   <div class="tabs">
-    <button
-      [class.active]="activeTab === 'UNREAD'"
-      (click)="switchTab('UNREAD')">
-      Unread ({{ unreadNotifications.length }})
+    <button 
+    [class.active]="activeTab === 'UNREAD'" 
+    (click)="switchTab('UNREAD')">
+    Unread ({{ unreadNotifications.length }})
     </button>
 
-    <button
-      [class.active]="activeTab === 'READ'"
-      (click)="switchTab('READ')">
-      Read
-    </button>
+    <button 
+    [class.active]="activeTab === 'READ'" 
+    (click)="switchTab('READ')">
+    Read
+  </button>
   </div>
 
   <div class="content">
-
     <!-- UNREAD -->
     <ng-container *ngIf="activeTab === 'UNREAD'">
       <div *ngIf="unreadNotifications.length === 0" class="empty">
@@ -38,8 +36,8 @@
         No read notifications
       </div>
 
-      <div 
-        *ngFor="let n of readNotifications" 
+      <div
+        *ngFor="let n of readNotifications"
         class="notification"
         (click)="onNotificationClick(n)">
         <div class="title">{{ n.title }}</div>
@@ -47,6 +45,12 @@
         <div class="time">{{ n.timestamp | date:'short' }}</div>
       </div>
     </ng-container>
-
   </div>
 </div>
+<!-- Profile Change Modal -->
+<app-profile-change-modal
+  *ngIf="showProfileChangeModal"
+  [changeId]="profileChangeId"
+  (close)="closeProfileChangeModal($event)" e
+>
+</app-profile-change-modal>

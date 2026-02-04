@@ -9,6 +9,7 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
+import { DriverHomeComponent } from './pages/driver/driver-home/driver-home';
 import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard } from './guards/auth.guard';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
@@ -41,6 +42,7 @@ export const routes: Routes = [
   { path: 'rate-ride', component: RateRidePageComponent, canActivate: [authGuard] },
 
   // Driver only
+  { path: 'driver/home', component: DriverHomeComponent, canActivate: [driverGuard] },
   { path: 'driver/driver-ride-history', component: DriverRideHistoryComponent, canActivate: [driverGuard] },
   
   // Admin only

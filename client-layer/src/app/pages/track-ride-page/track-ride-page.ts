@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TrackRideComponent } from '../../components/track-ride/track-ride/track-ride';
 import { MapComponent } from '../../components/map/map';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +9,6 @@ import { CancelRideDialogComponent } from '../../components/cancel-ride/cancel-r
 import { StopRideDialogComponent } from '../../components/stop-ride/stop-ride';
 import { TrackRideResponse } from '../../models/track-ride.model';
 import { RideService } from '../../services/ride.service';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-track-ride-page',
@@ -24,7 +24,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class TrackRidePageComponent implements OnInit{
   ride!: TrackRideResponse;
-  rideId: number | undefined;
+  rideId: number = 0;
 
   constructor(
     private dialog: MatDialog,
@@ -35,9 +35,8 @@ export class TrackRidePageComponent implements OnInit{
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const rideId = params['rideId'];
-      if (rideId) {
-        this.rideId = +rideId;
+      this.rideId = +params['rideId'];
+      if (this.rideId) {
         this.loadRide();
       }
     });

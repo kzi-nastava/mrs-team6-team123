@@ -27,6 +27,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    // Get user by email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserProfileResponseDTO> getUserByEmail(@PathVariable String email) {
+        UserProfileResponseDTO response = userService.getUserProfileByEmail(email);
+        return ResponseEntity.ok(response);
+    }
+
     // 2.3 Profil korisnika - UPDATE
     @PutMapping("/{userId}")
     public ResponseEntity<UserProfileResponseDTO> updateProfile(@PathVariable Long userId,
