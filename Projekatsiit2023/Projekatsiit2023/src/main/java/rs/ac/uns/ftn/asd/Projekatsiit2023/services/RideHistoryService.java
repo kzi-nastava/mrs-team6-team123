@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRideHistoryDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
@@ -38,7 +39,6 @@ public class RideHistoryService {
             dto.getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
         }
         dto.setStartLocation(ride.getStartLocation());
-        dto.setEndLocation(ride.getEndLocation());
         dto.setStartedAt(ride.getStartedAt());
         dto.setEndedAt(ride.getEndedAt());
         dto.setDate(ride.getDate());
@@ -54,8 +54,30 @@ public class RideHistoryService {
         }
         dto.setStartLat(ride.getRoute().getStartLatitude());
         dto.setStartLng(ride.getRoute().getStartLongitude());
-        dto.setEndLat(ride.getRoute().getEndLatitude());
-        dto.setEndLng(ride.getRoute().getEndLongitude());
+        if (ride.getEndLatitude() == 0 && ride.getEndLongitude() == 0) {
+            dto.setEndLat(ride.getRoute().getEndLatitude());
+            dto.setEndLng(ride.getRoute().getEndLongitude());
+            dto.setEndLocation(ride.getRoute().getEndLocation());
+        } else {
+            dto.setEndLat(ride.getEndLatitude());
+            dto.setEndLng(ride.getEndLongitude());
+            dto.setEndLocation(ride.getEndLocation());
+        }
+        dto.getStops().add(mapStopToGeoPointDTO(
+                ride.getRoute().getStartLatitude(),
+                ride.getRoute().getStartLongitude(),
+                ride.getRoute().getStartLocation()));
+        for (var stop : ride.getRoute().getStops()) {
+            dto.getStops().add(mapStopToGeoPointDTO(
+                    stop.getLatitude(),
+                    stop.getLongitude(),
+                    stop.getLocation()));
+        }
+        dto.getStops().add(mapStopToGeoPointDTO(
+                dto.getEndLat(),
+                dto.getEndLng(),
+                dto.getEndLocation()
+        ));
         for (var report : ride.getIrregularityReports()) {
             dto.getReports().add(report.getDescription());
         }
@@ -64,5 +86,13 @@ public class RideHistoryService {
 
     private void sortByDateDescending(List<DriverRideHistoryDTO> rideHistory) {
         rideHistory.sort((r1, r2) -> r2.getDate().compareTo(r1.getDate()));
+    }
+
+    private GeoPointDTO mapStopToGeoPointDTO(double lat, double lng, String location) {
+        GeoPointDTO geoPointDTO = new GeoPointDTO();
+        geoPointDTO.setLatitude(lat);
+        geoPointDTO.setLongitude(lng);
+        geoPointDTO.setLocation(location);
+        return geoPointDTO;
     }
 }

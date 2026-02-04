@@ -1,30 +1,46 @@
 .ride-actions {
-  margin-top: 16px;
-  padding: 16px;
-  background-color: #ffffff;
+  background-color: rgb(233, 233, 233, 0.9);
   border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .ride-actions button {
   display: block;
-  width: 150px;
+  width: 100%;
   margin-bottom: 12px;
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-size: 14px;
-  border: none;
-  border-radius: 20px;
+  border-radius: 22px;
   cursor: pointer;
+  background-color: #f9f9f9;
+  color: #333;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.ride-actions .panic-btn {
+  background-color: #7a0000;
   color: #fff;
-  transition: background-color 0.2s;
+  border: 3px solid #7a0000;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
-.warning-btn {
-  background-color: #7A0000;
-  font-weight: bold;
+.ride-actions .panic-btn:hover {
+  background-color: #5e0000;
+  border-color: #5e0000;
 }
 
-.warning-btn:hover {
-  background-color: #5d0101;
+.ride-actions .stop-btn {
+  border: 4px solid #7a0000;
+  font-weight: 600;
+}
+
+.ride-actions .stop-btn:hover {
+  border-color: #5e0000;
 }
 
 .status-btn {
@@ -37,23 +53,26 @@
   color: #D9D9D9;
 }
 
-.finish-btn:disabled {
+.ride-actions .finish-btn:disabled {
   background-color: #cccccc;
   color: #666;
   cursor: not-allowed;
   pointer-events: none;
+  border: none;
 }
 
-.finish-btn:disabled:hover {
+.ride-actions .finish-btn:disabled:hover {
   background-color: #cccccc;
 }
 
-.ride-actions button:not(.warning-btn):not(.status-btn):not(:disabled) {
-  background-color: #618762;
+.ride-actions .report-btn,
+.ride-actions .finish-btn {
+  border: 4px solid #618762;
 }
 
-.ride-actions button:not(.warning-btn):not(.status-btn):not(:disabled):hover {
-  background-color: #436744;
+.ride-actions .report-btn:hover,
+.ride-actions .finish-btn:hover {
+  border-color: #436744;
 }
 
 @media (max-width: 768px) {

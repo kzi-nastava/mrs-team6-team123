@@ -97,4 +97,10 @@ public class Ride {
 
         @Column(nullable = false)
         private int stopsMade = 0;
+
+        @Column
+        private double endLatitude;
+
+        @Column
+        private double endLongitude;
 }

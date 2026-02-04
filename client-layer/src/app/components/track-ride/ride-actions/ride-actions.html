@@ -1,12 +1,12 @@
 <section class="ride-actions">
-    <div class="panic-btn" *ngIf="!isAdmin">
-        <button type="button" (click)="onPanic()" class="warning-btn">
+    <div *ngIf="!isAdmin">
+        <button type="button" (click)="onPanic()" class="panic-btn">
             PANIC
         </button>
     </div>
 
     <div class="passenger-btn" *ngIf="isPassenger">
-        <button type="button" (click)="onReport()">
+        <button type="button" (click)="onReport()" class="report-btn">
             Report
         </button>
 
@@ -19,7 +19,7 @@
         <button type="button" (click)="onFinish()" [disabled]="!canFinishRide" class="finish-btn">
             Finish
         </button>
-        <button type="button" (click)="onStopRide()" class="warning-btn">
+        <button type="button" (click)="onStopRide()" class="stop-btn">
             Stop
         </button>
         <button type="button" (click)="onGoInactive()" class="status-btn">
