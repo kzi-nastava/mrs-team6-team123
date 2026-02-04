@@ -1,6 +1,10 @@
 .ride-info {
-  padding: 16px;
-  background-color: #ffffff;
+  background-color: rgb(233, 233, 233, 0.9);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .admin-info,
@@ -8,42 +12,60 @@
 .price-info,
 .passengers-info,
 .reports-info {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
+  border-radius: 8px;
+  padding: 14px 16px;
 }
 
-.reports-info {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.ride-info p {
+.ride-card p {
   margin: 6px 0;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.4;
+  color: #333;
 }
 
-.ride-info p strong {
-  font-weight: bold;
+.ride-card strong {
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .passengers-list p,
 .reports-list p {
   margin: 4px 0;
+  padding-left: 8px;
+  border-left: 3px solid #e0e0e0;
 }
 
 .first-passenger {
-  font-weight: bold;
-  color: #618762; 
+  font-weight: 600;
+  color: #618762;
+  border-left-color: #618762;
 }
 
 .time-left {
-    color: #7A0000;
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #7a0000;
 }
 
 @media (max-width: 767px) {
-  .ride-info {
-    padding: 12px;
+  .ride-card {
+    padding: 14px;
+  }
+
+  .ride-card p {
+    font-size: 14px;
+  }
+
+  .time-left {
+    font-size: 16px;
   }
 }
