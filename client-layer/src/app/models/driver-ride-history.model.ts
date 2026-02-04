@@ -1,3 +1,5 @@
+import { RideStop } from "./route-stop.model";
+
 export interface DriverRideHistory {
   rideId: number;
   passengers: string[];
@@ -14,4 +16,5 @@ export interface DriverRideHistory {
   endLat: number;
   endLng: number;
   reports: string[];
+  stops: RideStop[];
 }

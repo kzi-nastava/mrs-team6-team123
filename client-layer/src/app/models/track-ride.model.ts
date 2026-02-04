@@ -1,10 +1,5 @@
 import { RideStatus } from "./enums";
-
-export interface RideStop {
-    latitude: number;
-    longitude: number;
-    location: string;
-}
+import { RideStop } from "./route-stop.model";
 
 export interface RideInfo {
     driver: string;

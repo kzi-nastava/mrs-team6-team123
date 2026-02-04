@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { RideStop } from '../models/track-ride.model';
+import { RideStop } from '../models/route-stop.model';
 import { environment } from '../../enviroment';
 
 export interface GeocodeHit {

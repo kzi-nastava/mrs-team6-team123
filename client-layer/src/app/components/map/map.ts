@@ -6,6 +6,7 @@ import { DriverRideHistory } from '../../models/driver-ride-history.model';
 import { ActiveVehicle } from '../../models/active-vehicle.model';
 import { MapMode } from '../../models/enums';
 import { TrackRideResponse } from '../../models/track-ride.model';
+import { RideStop } from '../../models/route-stop.model';
 
 @Component({
   selector: 'app-map',
@@ -15,7 +16,8 @@ import { TrackRideResponse } from '../../models/track-ride.model';
 })
 export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() mode: MapMode = 'VEHICLES';
-  @Input() ride?: DriverRideHistory | { startLat?: number; startLng?: number; endLat?: number; endLng?: number };
+  @Input() ride?: { startLat?: number; startLng?: number; endLat?: number; endLng?: number; };
+  @Input() rideHistory?: DriverRideHistory;
   @Input() track?: TrackRideResponse;
 
   private availableIcon = L.icon({
@@ -90,6 +92,13 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.mapService.trackRide(ride, this.cdr);
   }
 
+  private loadRideHistoryRoute(): void {
+    if (this.rideHistory && this.rideHistory.stops) {
+      this.mapService.rideHistory(this.rideHistory);
+      this.mapService.fitBoundsOnMarkers();
+    }
+  }
+
   ngAfterViewInit(): void {
     this.mapService.initMap('map');
     if (this.mode === 'VEHICLES') {
@@ -103,6 +112,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.loadDriversVehicle(this.track.driverId);
       this.refreshIntervalId = setInterval(() => this.loadDriversVehicle(this.track!.driverId), 1000);
       this.trackRide(this.track);
+    } else if (this.mode === 'HISTORY' && this.rideHistory) {
+      this.loadRideHistoryRoute();
     }
   }
 
@@ -114,6 +125,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     ) {
       this.mapService.clearRoute();
       this.loadRoute();
+    }
+    if (
+      changes['rideHistory'] &&
+      this.rideHistory &&
+      this.mode === 'HISTORY'
+    ) {
+      this.mapService.clearRoute();
+      this.loadRideHistoryRoute();
     }
     if (
       changes['track'] &&
