@@ -7,12 +7,21 @@ import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverAssignedRideDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.IrregularityReport;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriversRideValidation;
 
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/drivers")
@@ -20,12 +29,21 @@ import java.net.URI;
 public class DriverController {
     private final IrregularityReportService reportService;
     private final DriverService driverService;
+    private final RideRepository rideRepository;
+    private final PassengerRepository passengerRepository;
+    private final DriversRideValidation assignRideValidation;
 
     public DriverController(
             DriverService driverService,
-            IrregularityReportService reportService) {
+            IrregularityReportService reportService,
+            RideRepository rideRepository,
+            PassengerRepository passengerRepository,
+            DriversRideValidation assignRideValidation) {
         this.driverService = driverService;
         this.reportService = reportService;
+        this.rideRepository = rideRepository;
+        this.passengerRepository = passengerRepository;
+        this.assignRideValidation = assignRideValidation;
     }
 
     // 2.2.3 Registracija vozača
@@ -36,7 +54,7 @@ public class DriverController {
                 .body(response);
     }
 
-    @PostMapping({"/report"})
+    @PostMapping({ "/report" })
     public ResponseEntity<?> reportDriver(@RequestBody ReportDriverRequestDTO request) {
         try {
             reportService.reportDriver(request);
@@ -47,5 +65,85 @@ public class DriverController {
         }
     }
 
-    
+    // Get assigned rides for driver (not finished, started, or canceled)
+    @GetMapping("/{driverId}/assigned-rides")
+    public ResponseEntity<?> getAssignedRides(@PathVariable Long driverId) {
+        try {
+            // Fetch only active rides from database
+            List<RideStatus> activeStatuses = List.of(RideStatus.CREATED, RideStatus.ACCEPTED, RideStatus.STARTED);
+            List<Ride> rides = rideRepository.findByDriverIdAndStatusIn(driverId, activeStatuses);
+
+            // Map to DTOs
+            List<DriverAssignedRideDTO> assignedRides = rides.stream()
+                    .map(ride -> {
+                        DriverAssignedRideDTO dto = new DriverAssignedRideDTO();
+                        dto.setRideId(ride.getId());
+                        dto.setStartLocation(ride.getStartLocation());
+                        dto.setEndLocation(ride.getEndLocation());
+                        dto.setStartLatitude(ride.getRoute().getStartLatitude());
+                        dto.setStartLongitude(ride.getRoute().getStartLongitude());
+                        dto.setEndLatitude(ride.getRoute().getEndLatitude());
+                        dto.setEndLongitude(ride.getRoute().getEndLongitude());
+                        dto.setStatus(ride.getStatus());
+                        dto.setScheduledAt(ride.getScheduledAt());
+                        dto.setEstimatedPrice(ride.getPrice());
+                        dto.setPassengerNames(ride.getPassengers().stream()
+                                .map(p -> p.getFirstName() + " " + p.getLastName())
+                                .collect(Collectors.toList()));
+                        dto.setVehicleType(ride.getDriver().getVehicle().getVehicleType().toString());
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(assignedRides);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching assigned rides: " + e.getMessage());
+        }
+    }
+
+    // Accept a ride
+    @PostMapping("/{driverId}/rides/{rideId}/accept")
+    public ResponseEntity<?> acceptRide(@PathVariable Long driverId, @PathVariable Long rideId) {
+        try {
+            Ride ride = assignRideValidation.validateRideExists(rideId);
+            assignRideValidation.validateRideAssignedToDriver(driverId, ride);
+            assignRideValidation.validateRideStatusForAccept(ride);
+
+            ride.setStatus(RideStatus.ACCEPTED);
+            rideRepository.save(ride);
+
+            return ResponseEntity.ok().body("Ride accepted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error accepting ride: " + e.getMessage());
+        }
+    }
+
+    // Start a ride
+    @PostMapping("/{driverId}/rides/{rideId}/start")
+    public ResponseEntity<?> startRide(@PathVariable Long driverId, @PathVariable Long rideId) {
+        try {
+            Ride ride = assignRideValidation.validateRideExists(rideId);
+            assignRideValidation.validateRideAssignedToDriver(driverId, ride);
+            assignRideValidation.validateRideStatusForStart(ride);
+
+            // Set ride status to STARTED
+            ride.setStatus(RideStatus.STARTED);
+
+            // Set all passengers' startedRide flag to true
+            for (Passenger passenger : ride.getPassengers()) {
+                passenger.setStartedRide(true);
+                passengerRepository.save(passenger);
+            }
+
+            rideRepository.save(ride);
+
+            return ResponseEntity.ok().body("Ride started successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error starting ride: " + e.getMessage());
+        }
+    }
+
 }

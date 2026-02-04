@@ -74,15 +74,22 @@ export class NavbarComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.userRole = user?.role || 'GUEST';
       this.updateLinks();
-      this.cdr.markForCheck(); // Notify Angular of changes
+     this.cdr.detectChanges();
     });
   }
 
   ngOnInit() {
     this.notifcationService.getUnread().subscribe(list => {
       this.unreadCount = list.length;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     });
+    
+    // Initial load if already logged in
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.notifcationService.loadUnread(userId);
+    }
+    
     this.updateLinks();
   }
 
@@ -113,7 +120,8 @@ export class NavbarComponent implements OnInit {
     this.menuActive = !this.menuActive;
   }
 
-    logout() {
+  logout() {
+    this.notificationPanelOpen = false;
     this.authService.logout();
-    }
+  }
 }

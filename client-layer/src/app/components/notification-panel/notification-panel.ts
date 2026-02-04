@@ -6,11 +6,12 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ProfileChangeModalComponent } from '../profile-change-modal/profile-change-modal';
 
 @Component({
   selector: 'app-notification-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProfileChangeModalComponent],
   templateUrl: './notification-panel.html',
   styleUrls: ['./notification-panel.css'],
 })
@@ -24,6 +25,9 @@ export class NotificationPanelComponent {
   private userId!: number;
 
   loading = false;
+  showProfileChangeModal = false;
+  profileChangeId: number | null = null;
+  currentProfileChangeNotificationId: number | null = null;
 
   constructor(
     private notificationService: NotificationService,
@@ -88,12 +92,46 @@ export class NotificationPanelComponent {
   }
 
   onNotificationClick(notification: NotificationResponse) {
-    if (!notification.read) {
-      this.markAsRead(notification);
+    // Check if this is a profile change notification
+    if (notification.title === 'Driver Profile Change Request' && notification.link) {
+      this.profileChangeId = parseInt(notification.link);
+      this.currentProfileChangeNotificationId = notification.notificationId;
+      this.showProfileChangeModal = true;
+    } else {
+      // For other notifications, mark as read and navigate
+      if (!notification.read) {
+        this.markAsRead(notification);
+      }
+      if (notification.link) {
+        this.router.navigateByUrl(notification.link);
+      }
     }
-    if (notification.link) {
-      console.log(notification.link);
-      this.router.navigateByUrl(notification.link);
+  }
+
+  closeProfileChangeModal(actionTaken: boolean = false): void {
+    // Only mark as read if admin approved or declined
+    if (actionTaken && this.currentProfileChangeNotificationId) {
+      const notification = this.unreadNotifications.find(
+        n => n.notificationId === this.currentProfileChangeNotificationId
+      );
+      if (notification) {
+        this.notificationService.markAsRead(notification.notificationId).subscribe(() => {
+          // Update local arrays immediately
+          this.unreadNotifications = this.unreadNotifications.filter(
+            n => n.notificationId !== notification.notificationId
+          );
+          this.readNotifications.unshift(notification);
+          
+          // Refresh unread notifications to update badge count
+          this.notificationService.loadUnread(this.userId);
+          
+          this.cdr.detectChanges();
+        });
+      }
     }
+    
+    this.showProfileChangeModal = false;
+    this.profileChangeId = null;
+    this.currentProfileChangeNotificationId = null;
   }
 }

@@ -1,0 +1,108 @@
+.driver-ride-card {
+  background-color: #E9E9E9;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.driver-ride-card.accepted {
+  background-color: #c8ddc7;
+  border-left: 4px solid #5d7c5b;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.driver-ride-card.started {
+  background-color: #b8d4b8;
+  border-left: 4px solid #3a5a3a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+.card-info {
+  margin-bottom: 12px;
+}
+
+.card-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.card-info p strong {
+  color: #325639;
+  font-weight: 600;
+}
+
+.ride-status {
+  color: #3a5a3a;
+  font-size: 16px;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-accept,
+.btn-start,
+.btn-route {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-accept {
+  background-color: #618762;
+  color: white;
+  flex: 1;
+  min-width: 120px;
+}
+
+.btn-accept:hover {
+  background-color: #436744;
+}
+
+.btn-start {
+  background-color: #5d7c5b;
+  color: white;
+  flex: 1;
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.btn-start:hover {
+  background-color: #374e36;
+}
+
+.btn-route {
+  background-color: #8a9b8d;
+  color: white;
+  flex: 0 1 auto;
+}
+
+.btn-route:hover {
+  background-color: #6a7b6d;
+}
+
+@media (max-width: 767px) {
+  .card-actions {
+    flex-direction: column;
+  }
+  
+  .btn-accept,
+  .btn-start,
+  .btn-route {
+    width: 100%;
+    min-width: auto;
+  }
+}
