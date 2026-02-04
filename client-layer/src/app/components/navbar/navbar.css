@@ -68,6 +68,18 @@
   cursor: pointer;
 }
 
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #e53935;
+  border-radius: 50%;
+  border: 1px solid white;
+  box-sizing: border-box;
+}
+
 @media (max-width: 767px) {
   .logo-text {
     font-size: 16px;

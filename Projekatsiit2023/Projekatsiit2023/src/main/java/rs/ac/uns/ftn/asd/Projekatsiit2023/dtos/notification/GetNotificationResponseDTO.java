@@ -12,7 +12,7 @@ public class GetNotificationResponseDTO {
     private Long recipientId;
     private String title;
     private String message;
-    private boolean isRead;
+    private boolean read;
     private String timestamp;
     private String link;
 }

@@ -15,6 +15,10 @@
         [routerLink]="link.route || null"
         routerLinkActive="active">
         <img [src]="link.icon" alt="icon" class="link-icon" />
+        <span
+          *ngIf="link.type === 'notifications' && unreadCount > 0"
+          class="notification-badge">
+        </span>
       </a>
     
     <!-- Logout dugme - samo ako je ulogovan -->
