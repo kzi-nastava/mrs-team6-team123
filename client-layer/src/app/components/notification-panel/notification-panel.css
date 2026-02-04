@@ -1,0 +1,71 @@
+.notification-panel {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.tabs {
+  display: flex;
+  background: #f3f3f3;
+
+  button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-weight: 600;
+
+    &.active {
+      background: #ffffff;
+      border-bottom: 2px solid #4caf50;
+    }
+  }
+}
+
+.content {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+
+  &.unread {
+    background: #f6fff7;
+  }
+
+  &:hover {
+    background: #f1f1f1;
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .message {
+    font-size: 13px;
+    color: #555;
+  }
+
+  .time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+}
+
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}

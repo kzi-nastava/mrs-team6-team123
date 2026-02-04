@@ -9,9 +9,17 @@
   <span class="spacer"></span>
 
   <div class="nav-links" *ngIf="links.length" [class.active]="menuActive">
-    <a *ngFor="let link of links" [routerLink]="link.route" routerLinkActive="active">
-      <img [src]="link.icon" alt="icon" class="link-icon" />
-    </a>
+      <a
+        *ngFor="let link of links"
+        (click)="onNavClick(link, $event)"
+        [routerLink]="link.route || null"
+        routerLinkActive="active">
+        <img [src]="link.icon" alt="icon" class="link-icon" />
+        <span
+          *ngIf="link.type === 'notifications' && unreadCount > 0"
+          class="notification-badge">
+        </span>
+      </a>
     
     <!-- Logout dugme - samo ako je ulogovan -->
     <button *ngIf="isLoggedIn()" class="logout-btn" (click)="logout()" title="Logout">
@@ -21,3 +29,8 @@
 
   <button *ngIf="showHamburger" class="hamburger" (click)="toggleMenu()">&#9776;</button>
 </mat-toolbar>
+
+<app-notification-panel
+  *ngIf="notificationPanelOpen"
+  class="notification-panel">
+</app-notification-panel>
