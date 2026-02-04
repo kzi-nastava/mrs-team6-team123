@@ -14,10 +14,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.MessageRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ChatService {
@@ -71,12 +68,12 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
     }
 
-    public List<MessageResponseDTO> getChatMessages(Long chatId) {
+    public List<MessageResponseDTO> getChatMessages(Long chatId, Long userId) {
         List<Message> messages = messageRepository.findByChatId(chatId);
         messages.sort(Comparator.comparing(Message::getTimestamp));
         List<MessageResponseDTO> response = new ArrayList<>();
         for (Message message : messages) {
-            response.add(mapMessageToResponseDTO(message));
+            response.add(mapMessageToResponseDTO(message, userId));
         }
         return response;
     }
@@ -88,21 +85,20 @@ public class ChatService {
         message.setChat(chat);
         message.setContent(request.getContent());
         message.setTimestamp(LocalDateTime.now());
-        message.setRead(false);
         User sender = userRepository.findById(request.getSenderId())
                 .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
         message.setSentByUser(!sender.getUserRole().equals(UserRole.ADMIN));
         messageRepository.save(message);
     }
 
-    private MessageResponseDTO mapMessageToResponseDTO(Message message) {
+    private MessageResponseDTO mapMessageToResponseDTO(Message message, Long userId) {
         MessageResponseDTO dto = new MessageResponseDTO();
         dto.setSenderId(
                 message.isSentByUser()
                         ? message.getChat().getUser().getId()
                         : message.getChat().getAdmin().getId()
         );
-        dto.setSentByUser(message.isSentByUser());
+        dto.setMine(dto.getSenderId().equals(userId));
         dto.setContent(message.getContent());
         dto.setTimestamp(message.getTimestamp().toString());
         return dto;

@@ -29,8 +29,5 @@ public class Message {
     private LocalDateTime timestamp;
 
     @Column(nullable = false)
-    private boolean read;
-
-    @Column(nullable = false)
     private boolean sentByUser;
 }

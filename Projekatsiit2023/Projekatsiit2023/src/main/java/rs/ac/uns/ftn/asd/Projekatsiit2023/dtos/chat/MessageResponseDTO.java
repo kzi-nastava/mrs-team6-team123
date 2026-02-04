@@ -11,5 +11,5 @@ public class MessageResponseDTO {
     private Long senderId;
     private String content;
     private String timestamp;
-    private boolean sentByUser;
+    private boolean mine;
 }

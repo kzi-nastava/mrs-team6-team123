@@ -18,10 +18,10 @@ public class MessageController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chat/{chatId}")
-    public ResponseEntity<?> getChatMessages(@PathVariable Long chatId) {
+    @GetMapping("/chat/{chatId}/{userId}")
+    public ResponseEntity<?> getChatMessages(@PathVariable Long chatId, @PathVariable Long userId) {
         try {
-            List<MessageResponseDTO> response = chatService.getChatMessages(chatId);
+            List<MessageResponseDTO> response = chatService.getChatMessages(chatId, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
