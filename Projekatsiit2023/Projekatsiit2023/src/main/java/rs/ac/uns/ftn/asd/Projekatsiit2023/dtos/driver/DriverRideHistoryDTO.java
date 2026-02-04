@@ -3,6 +3,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.GeoPointDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,4 +30,5 @@ public class DriverRideHistoryDTO {
     private double endLat;
     private double endLng;
     private List<String> reports = new ArrayList<>();
+    private List<GeoPointDTO> stops = new ArrayList<>();
 }
