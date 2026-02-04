@@ -16,15 +16,16 @@
   padding: 14px 16px;
 }
 
-.ride-card p {
+.ride-info p {
   margin: 6px 0;
   font-size: 15px;
   line-height: 1.4;
   color: #333;
 }
 
-.ride-card strong {
+.ride-info strong {
   font-weight: 600;
+  color: #325639
 }
 
 .section-title {
@@ -57,11 +58,11 @@
 }
 
 @media (max-width: 767px) {
-  .ride-card {
+  .ride-info {
     padding: 14px;
   }
 
-  .ride-card p {
+  .ride-info p {
     font-size: 14px;
   }
 
