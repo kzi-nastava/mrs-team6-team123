@@ -1,8 +1,18 @@
 <div class="admin-home-container">
+    <input
+        type="text"
+        placeholder="Search by driver name..."
+        [(ngModel)]="searchTerm"
+        (input)="filterRides()"
+        class="search-input"
+    />
     <div class="rides-list">
         <app-active-rides-card
-            *ngFor="let ride of rides"
+            *ngFor="let ride of filteredRides"
             [data]="ride">
         </app-active-rides-card>
+    </div>
+    <div *ngIf="filteredRides.length === 0" class="no-rides-message">
+        No active rides found.
     </div>
 </div>
