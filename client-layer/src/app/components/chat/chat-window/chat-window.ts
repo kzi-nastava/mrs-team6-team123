@@ -13,12 +13,13 @@ import { MessageRequest, MessageResponse } from '../../../models/chat.model';
   styleUrls: ['./chat-window.css'],
 })
 export class ChatWindowComponent implements OnInit {
-  chatId: number | null = null;
+  @Input() chatId: number | null = null;
 
   @Output() close = new EventEmitter<void>();
 
   messages: MessageResponse[] = [];
   newMessage = '';
+  userId: number | null = null;
 
   constructor(
     private auth: AuthService,
@@ -31,12 +32,16 @@ export class ChatWindowComponent implements OnInit {
   }
 
   loadChat() {
-    const userId = this.auth.getCurrentUserId();
-    if (userId === null) {
+    this.userId = this.auth.getCurrentUserId();
+    if (this.userId === null) {
       console.error('You must be logged in.');
       return;
     }
-    this.chatService.getMyChat(userId).subscribe({
+    if (this.chatId !== null) {
+      this.loadMessages();
+      return;
+    }
+    this.chatService.getMyChat(this.userId).subscribe({
       next: (response) => {
         this.chatId = response.chatId;
         this.cdr.detectChanges();
@@ -48,7 +53,7 @@ export class ChatWindowComponent implements OnInit {
   }
 
   loadMessages() {
-    this.chatService.getMessages(this.chatId!).subscribe({
+    this.chatService.getMessages(this.chatId!, this.userId!).subscribe({
       next: (messages) => {
         this.messages = messages;
         this.cdr.detectChanges();

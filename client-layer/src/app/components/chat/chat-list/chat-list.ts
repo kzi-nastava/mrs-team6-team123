@@ -1,14 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatWindowComponent } from '../chat-window/chat-window';
-import { MessageResponse } from '../../../models/chat.model';
-
-export interface ChatSummary {
-  chatId: number;
-  userName: string;
-  lastMessage: string;
-}
+import { ChatListResponse, MessageResponse } from '../../../models/chat.model';
+import { AuthService } from '../../../services/auth.service';
+import { ChatService } from '../../../services/chat.service';
 
 @Component({
   selector: 'app-chat-list',
@@ -17,33 +13,41 @@ export interface ChatSummary {
   templateUrl: './chat-list.html',
   styleUrls: ['./chat-list.css'],
 })
-export class ChatListComponent {
+export class ChatListComponent implements OnInit {
   @Output() chatSelected = new EventEmitter<number>();
 
   open(chatId: number) {
     this.chatSelected.emit(chatId);
   }
 
-  @Input() chatSummaries: ChatSummary[] = [];
-  @Input() chatMessagesMap: Record<string, MessageResponse[]> = {};
+  chatList: ChatListResponse[] = [];
 
-  /*
-  chatSummaries: ChatSummary[] = [
-    { chatId: 'chat1', userName: 'John Doe', lastMessage: 'Hello, I need help' },
-    { chatId: 'chat2', userName: 'Jane Smith', lastMessage: 'Question about my order' }
-  ];
+  constructor(
+    private auth: AuthService,
+    private chatService: ChatService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  chatMessagesMap: Record<string, Message[]> = {
-    chat1: [
-      { text: 'Hello, I need help', type: 'received' },
-      { text: 'Sure, how can I assist?', type: 'sent' }
-    ],
-    chat2: [
-      { text: 'Question about my order', type: 'received' },
-      { text: 'Please provide your order ID', type: 'sent' }
-    ]
-  };
-  */
+  ngOnInit() {
+    this.loadChats();
+  }
+
+  loadChats() {
+    const userId = this.auth.getCurrentUserId();
+    if (userId === null) {
+      console.error('You must be logged in.');
+      return;
+    }
+
+    this.chatService.getAdminChats(userId).subscribe({
+      next: (chats) => {
+        this.chatList = chats;
+        this.cdr.detectChanges();
+      },
+      error: (err) => 
+        console.error('Error loading chats: ', err),  
+    });
+  }
 
   selectedChatId: number | null = null;
 
@@ -53,9 +57,5 @@ export class ChatListComponent {
 
   closeChat() {
     this.selectedChatId = null;
-  }
-
-  get selectedChatMessages(): MessageResponse[] {
-    return this.selectedChatId ? this.chatMessagesMap[this.selectedChatId] || [] : [];
   }
 }

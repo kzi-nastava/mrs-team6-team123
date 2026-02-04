@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ChatResponse, MessageRequest, MessageResponse } from "../models/chat.model";
+import { ChatListResponse, ChatResponse, MessageRequest, MessageResponse } from "../models/chat.model";
 import { environment } from "../../enviroment";
 
 @Injectable({providedIn: 'root'})
@@ -13,8 +13,12 @@ export class ChatService{
         return this.http.get<ChatResponse>(`${environment.apiUrl}/chats/my/${userId}`);
     }
 
-    getMessages(chatId: number) {
-        return this.http.get<MessageResponse[]>(`${environment.apiUrl}/messages/chat/${chatId}`);
+    getAdminChats(adminId: number) {
+        return this.http.get<ChatListResponse[]>(`${environment.apiUrl}/chats/admin/${adminId}`);
+    }
+
+    getMessages(chatId: number, userId: number) {
+        return this.http.get<MessageResponse[]>(`${environment.apiUrl}/messages/chat/${chatId}/${userId}`);
     }
 
     sendMessage(request: MessageRequest) {

@@ -80,7 +80,7 @@ export class LoginComponent {
         this.router.navigate(['/driver/driver-ride-history']);
         break;
       case 'ADMIN':
-        this.router.navigate(['/admin-home']);
+        this.router.navigate(['/admin/home']);
         break;
       case 'PASSENGER':
       default:

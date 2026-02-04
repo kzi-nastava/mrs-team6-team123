@@ -8,7 +8,7 @@ export interface MessageResponse {
     senderId: number;
     content: string;
     timestamp: string;
-    sentByUser: boolean;
+    mine: boolean;
 }
 
 export interface ChatResponse {
