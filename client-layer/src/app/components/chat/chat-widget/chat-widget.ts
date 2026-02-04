@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ChatWidgetComponent {
   isOpen = false;
-  selectedChatId: string | null = null;
+  selectedChatId: number | null = null;
 
   constructor(public auth: AuthService) {}
 
@@ -24,7 +24,7 @@ export class ChatWidgetComponent {
     this.selectedChatId = null;
   }
 
-  openChat(chatId: string) {
+  openChat(chatId: number) {
     this.selectedChatId = chatId;
   }
 
