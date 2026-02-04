@@ -1,9 +1,12 @@
-import { Component, signal, effect } from '@angular/core';
+import { Component, signal, effect, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar';
 import { AuthService } from './services/auth.service';
 import { ChatWidgetComponent } from './components/chat/chat-widget/chat-widget';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { NotificationService } from './services/notification.service';
+import { SoundService } from './services/sound.service';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +14,11 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class App {
+export class App implements OnInit, OnDestroy {
   protected readonly title = signal('client-layer');
   navLinks: { route: string; icon: string }[] = [];
+  playedOnce = false;
+  private notifSub?: Subscription;
 
   registeredUserLinks = [
     { route: '/registered-home', icon: 'home.png' },
@@ -32,27 +37,34 @@ export class App {
     { route: '/driver/profile', icon: 'user.png' }
   ];
 
-  constructor(private authService: AuthService) {
-      // TEST: Uncomment one to test
-      // this.authService.login({
-      //   id: '1',
-      //   name: 'John Driver',
-      //   email: 'driver@test.com',
-      //   type: 'driver'
-      // });
-
-      // this.authService.login({
-      //   id: '2',
-      //   name: 'Jane Passenger',
-      //   email: 'passenger@test.com',
-      //   type: 'passenger'
-      // });
+  constructor(
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private soundService: SoundService
+  ) {
     effect(() => {
       const userType = this.authService.userType();
       if (userType === 'DRIVER') {
         this.navLinks = [...this.driverLinks];
       } else {
         this.navLinks = [...this.registeredUserLinks];
+      }
+    });
+  }
+  ngOnDestroy(): void {
+    this.notifSub?.unsubscribe();
+  }
+  ngOnInit(): void {
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.notificationService.loadUnread(userId);
+    }
+    this.playedOnce = false;
+    this.notifSub = this.notificationService.getUnread().subscribe(list => {
+      if (list.length > 0 && !this.playedOnce) {
+        this.soundService.play();
+        this.playedOnce = true;
+        console.log('Playing notification sound');
       }
     });
   }

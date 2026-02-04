@@ -1,52 +1,50 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActiveRidesCardComponent } from '../../../components/active-rides-card/active-rides-card';
 import { CommonModule } from '@angular/common';
+import { RideMonitoringResponse } from '../../../models/ride-monitoring.model';
+import { RideMonitoringService } from '../../../services/ride-monitoring.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-home',
   standalone: true,
-  imports: [ActiveRidesCardComponent, CommonModule],
+  imports: [ActiveRidesCardComponent, CommonModule, FormsModule],
   templateUrl: './admin-home.html',
   styleUrls: ['./admin-home.css'],
 })
 export class AdminHomeComponent {
-  @Input() rides: any[] = [];
+  rides: RideMonitoringResponse[] = [];
+  filteredRides: RideMonitoringResponse[] = [];
+  searchTerm: string = '';
 
-  /*
-  rides = [
-    {
-      id: 'ride1',
-      from: 'Belgrade',
-      to: 'Novi Sad',
-      nextStop: 'Zemun',
-      timeLeft: '15 min',
-      driverName: 'Marko Markovic',
-      startedAt: '10:30 AM',
-      price: 1200,
-      passengers: ['Jovana J.', 'Ana A.', 'Petar P.']
-    },
-    {
-      id: 'ride2',
-      from: 'Nis',
-      to: 'Kragujevac',
-      nextStop: 'Cuprija',
-      timeLeft: '25 min',
-      driverName: 'Ivan Ivanovic',
-      startedAt: '11:00 AM',
-      price: 900,
-      passengers: ['Milan M.', 'Sara S.']
-    },
-    {
-      id: 'ride3',
-      from: 'Subotica',
-      to: 'Novi Sad',
-      nextStop: 'Backa Topola',
-      timeLeft: '40 min',
-      driverName: 'Petar Petrovic',
-      startedAt: '09:45 AM',
-      price: 1500,
-      passengers: ['Ana A.', 'Luka L.', 'Jelena J.']
-    }
-  ];
-*/
+  constructor(
+    private rideMonitoringService: RideMonitoringService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.loadRides();
+  }
+
+  loadRides(): void {
+    this.rideMonitoringService.getActiveRides().subscribe({
+      next: (data) => {
+        console.log('Rides from backend:', data);
+        this.rides = data;
+        this.filteredRides = this.rides;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading active rides', err);
+      }
+    });
+  }
+
+  filterRides() {
+    const term = this.searchTerm.toLowerCase().trim();
+
+    this.filteredRides = this.rides.filter(ride =>
+      ride.driverName?.toLowerCase().includes(term)
+    );
+  }
 }

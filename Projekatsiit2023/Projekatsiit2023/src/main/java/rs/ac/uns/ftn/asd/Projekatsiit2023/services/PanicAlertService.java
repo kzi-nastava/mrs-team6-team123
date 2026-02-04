@@ -78,7 +78,10 @@ public class PanicAlertService {
                         userName + " triggered panic button. " +
                         "Location: " + alert.getCurrentLocation();
 
-        notificationService.sendNotification(null, "PANIC ALERT", message);
+        // TODO:
+        // treba da se posalje id za primaoca umesto null
+        // ako se salje svakom administratoru, onda iterirati kroz sve admine
+        //notificationService.sendNotification(null, "PANIC ALERT", message);
     }
 
     public List<PanicAlert> getAllUnresolvedAlerts() {

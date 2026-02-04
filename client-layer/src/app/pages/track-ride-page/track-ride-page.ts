@@ -29,8 +29,8 @@ export class TrackRidePageComponent implements OnInit{
   constructor(
     private dialog: MatDialog,
     private rideService: RideService,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -43,16 +43,18 @@ export class TrackRidePageComponent implements OnInit{
   }
 
   loadRide(): void {
-    this.rideService.trackRide(this.rideId).subscribe({
-      next: (data) => {
-        this.ride = data;
-        console.log('Ride data:', this.ride);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching ride:', err);
-      }
-    });
+    if (this.rideId) {
+      this.rideService.trackRide(this.rideId).subscribe({
+        next: (data) => {
+          this.ride = data;
+          console.log('Ride data:', this.ride);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching ride:', err);
+        }
+      });
+    }
   }
 
 openCancelDialog() {
