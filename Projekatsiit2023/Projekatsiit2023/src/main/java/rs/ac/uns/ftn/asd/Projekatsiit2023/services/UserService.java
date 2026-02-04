@@ -18,33 +18,32 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.VehicleDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.User;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.UserRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PendingDriverProfileChangeRepository pendingChangeRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
-    private static final String ADMIN_EMAIL = "admin@taxiapp.com"; // TODO: Get from config or admin table
     private final String uploadDir = "uploads/profile-images/";
 
     public UserService(UserRepository userRepository,
             PendingDriverProfileChangeRepository pendingChangeRepository,
             EmailService emailService,
+            NotificationService notificationService,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.pendingChangeRepository = pendingChangeRepository;
         this.emailService = emailService;
+        this.notificationService = notificationService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -71,7 +70,6 @@ public class UserService {
             // Check if there are actual changes
             boolean hasChanges = !user.getFirstName().equals(dto.getFirstName()) ||
                     !user.getLastName().equals(dto.getLastName()) ||
-                    !user.getEmail().equals(dto.getEmail()) ||
                     !user.getPhone().equals(dto.getPhone()) ||
                     !user.getAddress().equals(dto.getAddress());
 
@@ -84,7 +82,6 @@ public class UserService {
             pendingChange.setDriver(driver);
             pendingChange.setFirstName(dto.getFirstName());
             pendingChange.setLastName(dto.getLastName());
-            pendingChange.setEmail(dto.getEmail());
             pendingChange.setPhone(dto.getPhone());
             pendingChange.setAddress(dto.getAddress());
             pendingChange.setStatus(ChangeStatus.PENDING);
@@ -99,9 +96,6 @@ public class UserService {
             if (!user.getLastName().equals(dto.getLastName())) {
                 changes.append(String.format("Last Name: %s → %s\n", user.getLastName(), dto.getLastName()));
             }
-            if (!user.getEmail().equals(dto.getEmail())) {
-                changes.append(String.format("Email: %s → %s\n", user.getEmail(), dto.getEmail()));
-            }
             if (!user.getPhone().equals(dto.getPhone())) {
                 changes.append(String.format("Phone: %s → %s\n", user.getPhone(), dto.getPhone()));
             }
@@ -109,14 +103,18 @@ public class UserService {
                 changes.append(String.format("Address: %s → %s\n", user.getAddress(), dto.getAddress()));
             }
 
-            // Send notification to admin
+            // Send notification to admin(s)
             String driverName = user.getFirstName() + " " + user.getLastName();
-            emailService.sendDriverProfileChangeNotification(
-                    ADMIN_EMAIL,
-                    driverName,
-                    user.getEmail(),
-                    saved.getId(),
-                    changes.toString());
+            List<User> admins = userRepository.findByUserRole(UserRole.ADMIN);
+
+            for (User admin : admins) {
+                String notificationLink = String.valueOf(saved.getId());
+                notificationService.sendNotification(
+                        admin.getId(),
+                        "Driver Profile Change Request",
+                        driverName + " requested a profile edit. Click to review.",
+                        notificationLink);
+            }
 
             // Return current profile (unchanged)
             return mapUserToUserResponseDTO(user);
