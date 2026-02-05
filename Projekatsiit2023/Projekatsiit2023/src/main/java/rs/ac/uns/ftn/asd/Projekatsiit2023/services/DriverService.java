@@ -13,6 +13,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.models.PasswordResetToken;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PasswordResetTokenRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriverRegistrationValidation;
 
 import java.util.UUID;
 
@@ -23,19 +24,25 @@ public class DriverService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final DriverRegistrationValidation driverRegistrationValidation;
 
     public DriverService(DriverRepository driverRepository,
             PasswordResetTokenRepository passwordResetTokenRepository,
             EmailService emailService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            DriverRegistrationValidation driverRegistrationValidation) {
         this.driverRepository = driverRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.driverRegistrationValidation = driverRegistrationValidation;
     }
 
     @Transactional
     public DriverResponseDTO registerDriver(DriverRegistrationRequestDTO request) {
+        // Validate all input data
+        driverRegistrationValidation.validateDriverRegistration(request);
+
         Driver driver = new Driver();
         driver.setFirstName(request.getFirstName());
         driver.setLastName(request.getLastName());

@@ -16,6 +16,9 @@ public class UserProfileValidation {
     // Regex patterns for validation
     private static final Pattern NAME_PATTERN = Pattern.compile("^[a-zA-ZÀ-ÿ\\s'-]+$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9]{7,15}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    );
 
     // Validation constraints
     private static final int MIN_NAME_LENGTH = 2;
@@ -25,7 +28,10 @@ public class UserProfileValidation {
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final int MAX_PASSWORD_LENGTH = 100;
 
-    public UserProfileValidation() {
+    private final UserRepository userRepository;
+
+    public UserProfileValidation(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public void validateProfileUpdate(UserProfileRequestDTO dto) {
@@ -115,6 +121,26 @@ public class UserProfileValidation {
 
         if (password.length() > MAX_PASSWORD_LENGTH) {
             throw new IllegalArgumentException("Password must not exceed " + MAX_PASSWORD_LENGTH + " characters");
+        }
+    }
+
+    public void validateEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        String trimmed = email.trim();
+
+        if (!EMAIL_PATTERN.matcher(trimmed).matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+    }
+
+    public void validateEmailUniqueness(String email) {
+        validateEmail(email);
+        
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email already exists");
         }
     }
 }
