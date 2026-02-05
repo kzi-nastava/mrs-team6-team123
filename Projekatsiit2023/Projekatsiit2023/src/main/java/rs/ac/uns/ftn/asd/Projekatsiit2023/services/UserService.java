@@ -18,6 +18,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.VehicleDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.UserProfileValidation;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,21 +31,21 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final PendingDriverProfileChangeRepository pendingChangeRepository;
-    private final EmailService emailService;
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
+    private final UserProfileValidation userProfileValidation;
     private final String uploadDir = "uploads/profile-images/";
 
     public UserService(UserRepository userRepository,
             PendingDriverProfileChangeRepository pendingChangeRepository,
-            EmailService emailService,
             NotificationService notificationService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            UserProfileValidation userProfileValidation) {
         this.userRepository = userRepository;
         this.pendingChangeRepository = pendingChangeRepository;
-        this.emailService = emailService;
         this.notificationService = notificationService;
         this.passwordEncoder = passwordEncoder;
+        this.userProfileValidation = userProfileValidation;
     }
 
     public UserProfileResponseDTO getUserProfile(Long userId) {
@@ -60,6 +61,9 @@ public class UserService {
     }
 
     public UserProfileResponseDTO updateProfile(Long userId, UserProfileRequestDTO dto) {
+        // Validate profile data
+        userProfileValidation.validateProfileUpdate(dto);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -137,6 +141,9 @@ public class UserService {
         if (!passwordMatches(currentPassword, user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
         }
+
+        // Validate new password
+        userProfileValidation.validatePassword(newPassword);
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
