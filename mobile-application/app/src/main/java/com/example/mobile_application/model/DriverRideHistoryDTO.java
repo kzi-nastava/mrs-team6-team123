@@ -4,12 +4,13 @@ import androidx.annotation.experimental.UseExperimental;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DriverRideHistoryDTO {
+public class DriverRideHistoryDTO implements Serializable {
     @SerializedName("rideId")
     private Long rideId;
     @SerializedName("passengers")

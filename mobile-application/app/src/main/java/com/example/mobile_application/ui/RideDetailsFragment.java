@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.mobile_application.R;
+import com.example.mobile_application.model.DriverRideHistoryDTO;
 
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -21,6 +22,14 @@ public class RideDetailsFragment extends Fragment {
     private MapView mapView;
     private GeoPoint startPoint = new GeoPoint(45.25187418449059, 19.837206696300832);
     private GeoPoint endPoint = new GeoPoint(45.24625972559177, 19.85169677628525);
+
+    public static RideDetailsFragment newInstance(DriverRideHistoryDTO ride) {
+        RideDetailsFragment fragment = new RideDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("ride", ride);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,

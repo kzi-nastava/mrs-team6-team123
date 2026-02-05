@@ -7,6 +7,7 @@ import com.example.mobile_application.network.DriverRideHistoryApi;
 import java.time.LocalDate;
 import java.util.List;
 
+import retrofit2.Call;
 import retrofit2.Callback;
 
 public class DriverRideHistoryRepository {
@@ -21,6 +22,7 @@ public class DriverRideHistoryRepository {
             LocalDate from,
             LocalDate to,
             Callback<List<DriverRideHistoryDTO>> callback) {
-        api.getDriverRideHistory(driverId, from, to);
+        Call<List<DriverRideHistoryDTO>> call = api.getDriverRideHistory(driverId, from, to);
+        call.enqueue(callback);
     }
 }

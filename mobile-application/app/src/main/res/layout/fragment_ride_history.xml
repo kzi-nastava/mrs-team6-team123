@@ -110,17 +110,11 @@
             android:layout_marginVertical="8dp"
             android:background="?attr/colorPrimary" />
 
-        <include
-            android:id="@+id/card1"
-            layout="@layout/item_ride_history"/>
-        <include
-            layout="@layout/item_ride_history"/>
-        <include
-            layout="@layout/item_ride_history"/>
-        <include
-            layout="@layout/item_ride_history"/>
-        <include
-            layout="@layout/item_ride_history"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDriverRideHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 </ScrollView>

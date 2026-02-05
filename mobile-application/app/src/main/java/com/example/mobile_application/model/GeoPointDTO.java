@@ -2,7 +2,9 @@ package com.example.mobile_application.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class GeoPointDTO {
+import java.io.Serializable;
+
+public class GeoPointDTO implements Serializable {
     @SerializedName("latitude")
     private double latitude;
     @SerializedName("longitude")
