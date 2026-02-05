@@ -1,4 +1,4 @@
-package com.example.mobile_application;
+package com.example.mobile_application.ui;
 
 import android.content.Context;
 import android.text.InputType;
@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
+
+import com.example.mobile_application.R;
 
 /**
  * Helper class for managing password change dialog

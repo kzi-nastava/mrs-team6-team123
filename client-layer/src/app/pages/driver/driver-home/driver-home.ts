@@ -7,6 +7,9 @@ import { DriverService, DriverAssignedRide } from '../../../services/driver.serv
 import { AuthService } from '../../../services/auth.service';
 import { RideService } from '../../../services/ride.service';
 import { MapMode } from '../../../models/enums';
+import { Subscription } from 'rxjs';
+import { NotificationService } from '../../../services/notification.service';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-driver-home',
@@ -21,6 +24,8 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   pendingRides: DriverAssignedRide[] = [];
   loading = true;
   driverId: number = 0;
+  playedOnce = false;
+  private notifSub?: Subscription;
   
   mapMode: MapMode = 'STATIC_ROUTE';
   
@@ -38,10 +43,24 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private rideService: RideService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService,
+    private soundService: SoundService
   ) {}
 
   ngOnInit() {
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      this.notificationService.loadUnread(userId);
+    }
+    this.playedOnce = false;
+    this.notifSub = this.notificationService.getUnread().subscribe(list => {
+      if (list.length > 0 && !this.playedOnce) {
+        this.soundService.play();
+        this.playedOnce = true;
+        console.log('Playing notification sound');
+      }
+    });
     this.authService.currentUser$.subscribe(user => {
       if (user?.userId && this.driverId === 0) {
         this.driverId = user.userId;

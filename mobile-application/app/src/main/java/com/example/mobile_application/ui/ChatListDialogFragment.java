@@ -1,15 +1,16 @@
-package com.example.mobile_application;
+package com.example.mobile_application.ui;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.mobile_application.R;
 
 public class ChatListDialogFragment extends DialogFragment {
 

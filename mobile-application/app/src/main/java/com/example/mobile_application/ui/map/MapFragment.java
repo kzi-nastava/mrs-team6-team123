@@ -1,4 +1,4 @@
-package com.example.mobile_application.map;
+package com.example.mobile_application.ui.map;
 
 import android.os.Bundle;
 

@@ -1,4 +1,4 @@
-package com.example.mobile_application;
+package com.example.mobile_application.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+
+import com.example.mobile_application.R;
 
 public class RegisterFragment extends Fragment {
 
