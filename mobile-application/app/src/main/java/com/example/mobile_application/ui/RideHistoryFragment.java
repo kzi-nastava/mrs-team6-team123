@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -126,8 +127,12 @@ public class RideHistoryFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<List<DriverRideHistoryDTO>> call, @NonNull Throwable t) {
                 t.printStackTrace();
-                Toast.makeText(getContext(),
-                        "Failed loading rides", Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(),
+                            "Failed loading rides", Toast.LENGTH_SHORT).show();
+                    Log.e("RidesRepository", "Failed loading rides: ${error.message}");
+                }
+
             }
         });
     }

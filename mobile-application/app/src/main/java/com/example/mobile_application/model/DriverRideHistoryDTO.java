@@ -20,11 +20,11 @@ public class DriverRideHistoryDTO implements Serializable {
     @SerializedName("endLocation")
     private String endLocation;
     @SerializedName("startedAt")
-    private LocalTime startedAt;
+    private String startedAt;
     @SerializedName("endedAt")
-    private LocalTime endedAt;
+    private String endedAt;
     @SerializedName("date")
-    private LocalDate date;
+    private String date;
     @SerializedName("price")
     private double price;
     @SerializedName("panicTriggered")
@@ -78,27 +78,27 @@ public class DriverRideHistoryDTO implements Serializable {
         this.endLocation = endLocation;
     }
 
-    public LocalTime getStartedAt() {
+    public String getStartedAt() {
         return startedAt;
     }
 
-    public void setStartedAt(LocalTime startedAt) {
+    public void setStartedAt(String startedAt) {
         this.startedAt = startedAt;
     }
 
-    public LocalTime getEndedAt() {
+    public String getEndedAt() {
         return endedAt;
     }
 
-    public void setEndedAt(LocalTime endedAt) {
+    public void setEndedAt(String endedAt) {
         this.endedAt = endedAt;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
