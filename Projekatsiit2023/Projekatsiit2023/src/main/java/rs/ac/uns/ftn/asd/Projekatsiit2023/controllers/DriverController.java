@@ -17,6 +17,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.LinkedPassengersService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriversRideValidation;
 
 import java.net.URI;
@@ -31,6 +32,7 @@ public class DriverController {
     private final DriverService driverService;
     private final RideRepository rideRepository;
     private final PassengerRepository passengerRepository;
+    private final LinkedPassengersService linkedPassengersService;
     private final DriversRideValidation assignRideValidation;
 
     public DriverController(
@@ -38,11 +40,13 @@ public class DriverController {
             IrregularityReportService reportService,
             RideRepository rideRepository,
             PassengerRepository passengerRepository,
+            LinkedPassengersService linkedPassengersService,
             DriversRideValidation assignRideValidation) {
         this.driverService = driverService;
         this.reportService = reportService;
         this.rideRepository = rideRepository;
         this.passengerRepository = passengerRepository;
+        this.linkedPassengersService = linkedPassengersService;
         this.assignRideValidation = assignRideValidation;
     }
 
@@ -128,13 +132,16 @@ public class DriverController {
             assignRideValidation.validateRideAssignedToDriver(driverId, ride);
             assignRideValidation.validateRideStatusForStart(ride);
 
-            // Set ride status to STARTED
+            // Set ride status to STARTED and update actual start time
             ride.setStatus(RideStatus.STARTED);
+            ride.setStartedAt(java.time.LocalTime.now());
 
-            // Set all passengers' startedRide flag to true
+            // Set all passengers' startedRide flag to true and send notifications
             for (Passenger passenger : ride.getPassengers()) {
                 passenger.setStartedRide(true);
                 passengerRepository.save(passenger);
+                // Send notification to passenger with ride details and encouragement
+                linkedPassengersService.sendNotification(passenger, ride);
             }
 
             rideRepository.save(ride);

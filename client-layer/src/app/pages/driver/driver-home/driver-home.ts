@@ -105,10 +105,17 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   }
 
   organizeRides() {
-    const accepted = this.rides.find(r => r.status === 'ACCEPTED' || r.status === 'STARTED');
+    //  STARTED ride - redirect to track page
+    const startedRide = this.rides.find(r => r.status === 'STARTED');
+    if (startedRide) {
+      this.router.navigate(['/track-ride-page'], { queryParams: { rideId: startedRide.rideId } });
+      return;
+    }
+
+    const accepted = this.rides.find(r => r.status === 'ACCEPTED');
     this.acceptedRide = accepted;
     
-    // If there's an accepted/started ride, show route on map
+    // If there's an accepted ride, show route on map
     if (this.acceptedRide) {
       this.mapMode = 'STATIC_ROUTE';
       this.rideForMap = {
