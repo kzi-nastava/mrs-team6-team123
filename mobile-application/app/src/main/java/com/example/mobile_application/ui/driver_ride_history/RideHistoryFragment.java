@@ -1,4 +1,4 @@
-package com.example.mobile_application.ui;
+package com.example.mobile_application.ui.driver_ride_history;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -14,14 +14,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.DriverRideHistoryAdapter;
 import com.example.mobile_application.model.DriverRideHistoryDTO;
 import com.example.mobile_application.repository.DriverRideHistoryRepository;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.time.LocalDate;

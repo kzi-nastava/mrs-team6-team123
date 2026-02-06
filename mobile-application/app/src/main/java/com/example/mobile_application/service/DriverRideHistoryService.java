@@ -1,4 +1,4 @@
-package com.example.mobile_application.network;
+package com.example.mobile_application.service;
 
 import com.example.mobile_application.model.DriverRideHistoryDTO;
 
@@ -10,7 +10,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-public interface DriverRideHistoryApi {
+public interface DriverRideHistoryService {
 
     @GET("api/ride-history/{driverId}/rides")
     Call<List<DriverRideHistoryDTO>> getDriverRideHistory(
