@@ -14,8 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mobile_application.R;
-import com.example.mobile_application.model.DriverRideHistoryDTO;
-import com.example.mobile_application.model.GeoPointDTO;
+import com.example.mobile_application.dto.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.GeoPointDTO;
 
 import org.json.JSONArray;
 import org.json.JSONException;

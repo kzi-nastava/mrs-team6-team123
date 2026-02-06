@@ -1,4 +1,4 @@
-package com.example.mobile_application.model;
+package com.example.mobile_application.dto;
 
 import com.google.gson.annotations.SerializedName;
 

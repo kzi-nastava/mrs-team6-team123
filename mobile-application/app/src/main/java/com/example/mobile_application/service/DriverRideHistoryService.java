@@ -1,6 +1,6 @@
 package com.example.mobile_application.service;
 
-import com.example.mobile_application.model.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.DriverRideHistoryDTO;
 
 import java.time.LocalDate;
 import java.util.List;

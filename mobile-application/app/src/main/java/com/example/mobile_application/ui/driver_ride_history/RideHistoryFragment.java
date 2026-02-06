@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.DriverRideHistoryAdapter;
-import com.example.mobile_application.model.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.DriverRideHistoryDTO;
 import com.example.mobile_application.repository.DriverRideHistoryRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -113,12 +112,18 @@ public class RideHistoryFragment extends Fragment {
                     adapter.setRides(rides);
 
                     if (rides.isEmpty()) {
-                        Toast.makeText(getContext(),
-                                "No rides for wanted period", Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() ->
+                                    showToast("No rides for wanted time period")
+                            );
+                        }
                     }
                 } else {
-                    Toast.makeText(getContext(),
-                            "Error while loading rides", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() ->
+                                showToast("Error while loading rides")
+                        );
+                    }
                 }
             }
 
@@ -126,11 +131,10 @@ public class RideHistoryFragment extends Fragment {
             public void onFailure(@NonNull Call<List<DriverRideHistoryDTO>> call, @NonNull Throwable t) {
                 t.printStackTrace();
                 if (isAdded()) {
-                    Toast.makeText(getContext(),
-                            "Failed loading rides", Toast.LENGTH_SHORT).show();
-                    Log.e("RidesRepository", "Failed loading rides: ${error.message}");
+                    requireActivity().runOnUiThread(() ->
+                            showToast("Failed loading rides")
+                    );
                 }
-
             }
         });
     }
@@ -177,5 +181,10 @@ public class RideHistoryFragment extends Fragment {
         etDateFrom.setText("");
         etDateTo.setText("");
         loadRides(null, null);
+    }
+
+    private void showToast(String message) {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
     }
 }
