@@ -44,4 +44,6 @@
     <string name="ride_details">Ride Details</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="passengers">Passengers:</string>
+    <string name="irregularity_reports">Irregularity Reports:</string>
 </resources>

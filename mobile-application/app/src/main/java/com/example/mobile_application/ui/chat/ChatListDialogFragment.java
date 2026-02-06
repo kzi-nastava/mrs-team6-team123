@@ -1,4 +1,4 @@
-package com.example.mobile_application.ui;
+package com.example.mobile_application.ui.chat;
 
 import android.os.Bundle;
 
