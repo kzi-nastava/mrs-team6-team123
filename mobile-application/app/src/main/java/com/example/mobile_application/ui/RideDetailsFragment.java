@@ -20,9 +20,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RideDetailsFragment extends Fragment {
@@ -78,11 +76,11 @@ public class RideDetailsFragment extends Fragment {
     private void showRideInfo() {
         String routeStr = ride.getStartLocation() + " -> " + ride.getEndLocation();
         tvRoute.setText(routeStr);
-        tvStartedAt.setText("Started at: " + ride.getStartedAt().toString());
-        tvEndedAt.setText("Ended at: " + ride.getEndedAt().toString());
-        tvPrice.setText("Price: " + String.valueOf(ride.getPrice()));
-        tvPanic.setText("PANIC: " + ride.getPanicTriggered());
-        tvCanceledBy.setText("Canceled by: " + ride.getCanceledBy());
+        tvStartedAt.setText(String.format("Started at: %s", ride.getStartedAt()));
+        tvEndedAt.setText(String.format("Ended at: %s", ride.getEndedAt()));
+        tvPrice.setText(String.format("Price: %s", ride.getPrice()));
+        tvPanic.setText(String.format("PANIC: %s", ride.getPanicTriggered()));
+        tvCanceledBy.setText(String.format("Canceled by: %s", ride.getCanceledBy()));
         List<String> passengers = ride.getPassengers();
         String passengersText = TextUtils.join("\n", passengers);
         tvPassengers.setText(passengersText);
