@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobile_application.R;
-import com.example.mobile_application.model.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.DriverRideHistoryDTO;
 
 import java.util.ArrayList;
 import java.util.List;

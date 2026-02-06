@@ -11,18 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.mobile_application.R;
-import com.example.mobile_application.model.GeoPointDTO;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MapFragment extends Fragment {
 

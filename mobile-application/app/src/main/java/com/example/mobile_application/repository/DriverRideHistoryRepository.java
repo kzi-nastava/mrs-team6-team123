@@ -1,6 +1,6 @@
 package com.example.mobile_application.repository;
 
-import com.example.mobile_application.model.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.DriverRideHistoryDTO;
 import com.example.mobile_application.service.ApiClient;
 import com.example.mobile_application.service.DriverRideHistoryService;
 
@@ -11,10 +11,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class DriverRideHistoryRepository {
-    private final DriverRideHistoryService api;
+    private final DriverRideHistoryService service;
 
     public DriverRideHistoryRepository() {
-        api = ApiClient.getInstance().create(DriverRideHistoryService.class);
+        service = ApiClient.getInstance().create(DriverRideHistoryService.class);
     }
 
     public void getDriverRideHistory(
@@ -22,7 +22,7 @@ public class DriverRideHistoryRepository {
             LocalDate from,
             LocalDate to,
             Callback<List<DriverRideHistoryDTO>> callback) {
-        Call<List<DriverRideHistoryDTO>> call = api.getDriverRideHistory(driverId, from, to);
+        Call<List<DriverRideHistoryDTO>> call = service.getDriverRideHistory(driverId, from, to);
         call.enqueue(callback);
     }
 }

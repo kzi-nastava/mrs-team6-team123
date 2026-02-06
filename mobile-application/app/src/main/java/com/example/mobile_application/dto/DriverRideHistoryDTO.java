@@ -1,12 +1,8 @@
-package com.example.mobile_application.model;
-
-import androidx.annotation.experimental.UseExperimental;
+package com.example.mobile_application.dto;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
