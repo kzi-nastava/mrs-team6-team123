@@ -12,7 +12,7 @@
     <color name="black_70">#B3000000</color>
     <color name="go_inactive">#FF575757</color>
     <color name="red">#FF7A0000</color>
-    <color name="red_hover">#FF5D0101</color>
+    <color name="light_red">#FFAB0202</color>
     <color name="night_background">#FF121212</color>
     <color name="green_light_banner">#FFEEF4EE</color>
 </resources>

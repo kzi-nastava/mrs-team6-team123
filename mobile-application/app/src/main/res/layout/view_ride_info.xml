@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvDriver"
+        style="@style/TextParagraph"/>
+    <TextView
+        android:id="@+id/tvStartedAt"
+        style="@style/TextParagraph"/>
+    <TextView
+        android:id="@+id/tvPrice"
+        style="@style/TextParagraph"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginVertical="8dp"
+        android:background="?attr/colorPrimary" />
+
+    <TextView
+        android:text="@string/passengers"
+        style="@style/TextSubHeading"/>
+    <TextView
+        android:id="@+id/tvPassengers"
+        style="@style/TextParagraph"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginVertical="8dp"
+        android:background="?attr/colorPrimary" />
+
+    <TextView
+        android:text="@string/irregularity_reports"
+        style="@style/TextSubHeading"/>
+    <TextView
+        android:id="@+id/tvReports"
+        style="@style/TextParagraph"/>
+
+</LinearLayout>
