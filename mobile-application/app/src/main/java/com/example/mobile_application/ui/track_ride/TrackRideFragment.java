@@ -329,9 +329,10 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "passenger";
+        String userRole = "driver";
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
+        tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
         if (userRole.equals("passenger")) {
             tvPrice.setVisibility(View.GONE);
             tvPassengers.setVisibility(View.GONE);
