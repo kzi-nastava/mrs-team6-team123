@@ -23,6 +23,7 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.ActiveVehicleDTO;
 import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.dto.TrackRideDTO;
+import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
 
@@ -67,6 +68,7 @@ public class TrackRideFragment extends Fragment {
     private BitmapDrawable taxiIcon;
     private BitmapDrawable stopIcon;
     private boolean rideInfoInitialized = false;
+    private MapRouteHelper mapRouteHelper;
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
@@ -117,6 +119,7 @@ public class TrackRideFragment extends Fragment {
         stopIcon = new BitmapDrawable(getResources(), smallBitmap);
 
         mapSetup();
+        mapRouteHelper = new MapRouteHelper(mapView);
 
         return view;
     }
@@ -143,107 +146,10 @@ public class TrackRideFragment extends Fragment {
 
     private void showRoute(List<GeoPointDTO> stops) {
         for (int i = 0; i < stops.size() - 1; ++i) {
-            fetchRoute(stops.get(i), stops.get(i+1));
+            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i+1));
         }
         for (GeoPointDTO stop : stops)
             drawMarkers(stop);
-    }
-
-    private void fetchRoute(GeoPointDTO stop1, GeoPointDTO stop2) {
-        new Thread(() -> {
-            try {
-                if (stop1 == null || stop2 == null) {
-                    if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("No points were sent")
-                        );
-                    }
-                }
-                GeoPoint startPoint = new GeoPoint(stop1.getLatitude(), stop1.getLongitude());
-                GeoPoint endPoint = new GeoPoint(stop2.getLatitude(), stop2.getLongitude());
-                if (startPoint != null && endPoint != null) {
-                    List<GeoPoint> routePoints = getRoute(startPoint, endPoint);
-                    if (routePoints != null && isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                drawRoute(routePoints)
-                        );
-                    } else if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("Unable to fetch route")
-                        );
-                    }
-                } else if (isAdded()) {
-                    if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("Error fetching route")
-                        );
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-
-    }
-
-    private List<GeoPoint> getRoute(GeoPoint startPoint, GeoPoint endPoint)
-            throws IOException, JSONException {
-        String url = "https://router.project-osrm.org/route/v1/driving/" +
-                startPoint.getLongitude() + "," + startPoint.getLatitude() + ";" +
-                endPoint.getLongitude() + "," + endPoint.getLatitude() +
-                "?overview=simplified&geometries=geojson";
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .header("User-Agent", "OSMDroidExample/1.0, osmdroid@gmail.com")
-                .build();
-
-        try (okhttp3.Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful() || response.body() == null) {
-                return null;
-            }
-            JSONObject json = new JSONObject(response.body().string());
-            JSONArray routes = json.optJSONArray("routes");
-            if (routes == null || routes.length() == 0) {
-                return null;
-            }
-
-            JSONArray coordinates = routes.getJSONObject(0)
-                    .getJSONObject("geometry")
-                    .getJSONArray("coordinates");
-
-            List<GeoPoint> routePoints = new ArrayList<>(coordinates.length());
-
-            for (int i = 0; i < coordinates.length(); i++) {
-                JSONArray point = coordinates.getJSONArray(i);
-                double lon = point.getDouble(0);
-                double lat = point.getDouble(1);
-                routePoints.add(new GeoPoint(lat, lon));
-            }
-
-            return routePoints;
-        }
-    }
-
-    private void drawRoute(List<GeoPoint> routePoints) {
-        Polyline routeLine = new Polyline();
-        routeLine.setPoints(routePoints);
-        routeLine.setColor(0xFF0000FF);
-        routeLine.setWidth(10.0f);
-
-        mapView.getOverlays().add(routeLine);
-        mapView.invalidate();
-
-        if (!routePoints.isEmpty()) {
-            IMapController mapController = mapView.getController();
-            mapController.setZoom(15.0);
-            mapController.setCenter(routePoints.get(0));
-        }
     }
 
     private void showToast(String message) {
