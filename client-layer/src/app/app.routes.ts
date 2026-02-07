@@ -17,6 +17,7 @@ import { ActivateAccountComponent } from './pages/auth/activate-account/activate
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password';
 import { PassengerRideHistoryComponent } from './pages/user/passenger-ride-history/passenger-ride-history';
 import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admin-ride-history';
+import { ReportsComponent } from './components/reports/reports';
 
 
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
@@ -44,12 +45,14 @@ export const routes: Routes = [
   // Driver only
   { path: 'driver/home', component: DriverHomeComponent, canActivate: [driverGuard] },
   { path: 'driver/driver-ride-history', component: DriverRideHistoryComponent, canActivate: [driverGuard] },
+  { path: 'driver/reports', component: ReportsComponent, canActivate: [driverGuard] },
   
   // Admin only
   { path: 'admin/home', component: AdminHomeComponent, canActivate: [adminGuard] },
   { path: 'admin/drivers', component: DriverRegistration, canActivate: [adminGuard] },
   { path: 'admin/pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
   { path: 'admin/ride-history', component: AdminRideHistoryComponent, canActivate: [adminGuard] },
+  { path: 'admin/reports', component: ReportsComponent, canActivate: [adminGuard] },
   
   // Fallback
   { path: '**', redirectTo: '/unregistered-home' }
