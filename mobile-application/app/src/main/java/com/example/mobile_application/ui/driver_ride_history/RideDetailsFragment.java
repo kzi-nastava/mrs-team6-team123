@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.mobile_application.R;
 import com.example.mobile_application.dto.DriverRideHistoryDTO;
 import com.example.mobile_application.dto.GeoPointDTO;
+import com.example.mobile_application.helper.DrawMarkerHelper;
 import com.example.mobile_application.helper.MapRouteHelper;
 
 import org.json.JSONArray;
@@ -55,6 +56,7 @@ public class RideDetailsFragment extends Fragment {
     private DriverRideHistoryDTO ride;
     private BitmapDrawable stopIcon;
     private MapRouteHelper mapRouteHelper;
+    private DrawMarkerHelper drawMarkerHelper;
 
     public static RideDetailsFragment newInstance(DriverRideHistoryDTO ride) {
         RideDetailsFragment fragment = new RideDetailsFragment();
@@ -131,22 +133,13 @@ public class RideDetailsFragment extends Fragment {
         mapController.setZoom(16.0);
         mapController.setCenter(centerPoint);
         mapRouteHelper = new MapRouteHelper(mapView);
+        drawMarkerHelper = new DrawMarkerHelper(mapView);
 
         for (int i = 0; i < ride.getStops().size()-1; ++i) {
             mapRouteHelper.fetchRoute(ride.getStops().get(i), ride.getStops().get(i+1));
         }
 
         for (GeoPointDTO stop : ride.getStops())
-            drawMarkers(stop);
-    }
-
-    private void drawMarkers(GeoPointDTO dto) {
-        Marker marker = new Marker(mapView);
-        GeoPoint point = new GeoPoint(dto.getLatitude(), dto.getLongitude());
-        marker.setPosition(point);
-        marker.setTitle(dto.getLocation());
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        marker.setIcon(stopIcon);
-        mapView.getOverlays().add(marker);
+            drawMarkerHelper.drawMarkers(stop, stopIcon);
     }
 }

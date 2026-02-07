@@ -2,7 +2,6 @@ package com.example.mobile_application.ui.track_ride;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,29 +22,20 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.ActiveVehicleDTO;
 import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.dto.TrackRideDTO;
+import com.example.mobile_application.helper.DrawMarkerHelper;
 import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,6 +59,7 @@ public class TrackRideFragment extends Fragment {
     private BitmapDrawable stopIcon;
     private boolean rideInfoInitialized = false;
     private MapRouteHelper mapRouteHelper;
+    private DrawMarkerHelper drawMarkerHelper;
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
@@ -120,6 +111,7 @@ public class TrackRideFragment extends Fragment {
 
         mapSetup();
         mapRouteHelper = new MapRouteHelper(mapView);
+        drawMarkerHelper = new DrawMarkerHelper(mapView);
 
         return view;
     }
@@ -134,22 +126,12 @@ public class TrackRideFragment extends Fragment {
         mapController.setCenter(centerPoint);
     }
 
-    private void drawMarkers(GeoPointDTO dto) {
-        Marker marker = new Marker(mapView);
-        GeoPoint point = new GeoPoint(dto.getLatitude(), dto.getLongitude());
-        marker.setPosition(point);
-        marker.setTitle(dto.getLocation());
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        marker.setIcon(stopIcon);
-        mapView.getOverlays().add(marker);
-    }
-
     private void showRoute(List<GeoPointDTO> stops) {
         for (int i = 0; i < stops.size() - 1; ++i) {
             mapRouteHelper.fetchRoute(stops.get(i), stops.get(i+1));
         }
         for (GeoPointDTO stop : stops)
-            drawMarkers(stop);
+            drawMarkerHelper.drawMarkers(stop, stopIcon);
     }
 
     private void showToast(String message) {
