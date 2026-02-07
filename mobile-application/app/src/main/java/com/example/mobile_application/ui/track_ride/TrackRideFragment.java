@@ -218,7 +218,7 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "admin"; // current logged in user role
+        String userRole = "ADMIN"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -228,36 +228,46 @@ public class TrackRideFragment extends Fragment {
         tvPassengers.setText(passengersText);
         String reportsText = TextUtils.join("\n", dto.getInfo().getReports());
         tvReports.setText(reportsText);
-        if (userRole.equals("passenger")) {
-            tvPrice.setVisibility(View.GONE);
-            tvPassengers.setVisibility(View.GONE);
-            tvReports.setVisibility(View.GONE);
-            tvDriver.setVisibility(View.GONE);
-            tvStartedAt.setVisibility(View.GONE);
-            tvPassengersHeading.setVisibility(View.GONE);
-            tvReportsHeading.setVisibility(View.GONE);
-            btnStop.setVisibility(View.GONE);
-            btnFinish.setVisibility(View.GONE);
-        }
-        if (userRole.equals("driver")) {
-            tvPassengers.setVisibility(View.GONE);
-            tvReports.setVisibility(View.GONE);
-            tvDriver.setVisibility(View.GONE);
-            tvPassengersHeading.setVisibility(View.GONE);
-            tvReportsHeading.setVisibility(View.GONE);
-            tvStartedAt.setVisibility(View.GONE);
-            btnReport.setVisibility(View.GONE);
-        }
-        if (userRole.equals("admin")) {
-            btnStop.setVisibility(View.GONE);
-            btnFinish.setVisibility(View.GONE);
-            btnReport.setVisibility(View.GONE);
-            btnPanic.setVisibility(View.GONE);
-        }
+        if (userRole.equals(getString(R.string.role_passenger)))
+            setVisibilityPassenger();
+        if (userRole.equals(getString(R.string.role_driver)))
+            setVisibilityDriver();
+        if (userRole.equals(getString(R.string.role_admin)))
+            hideButtons();
 
         rideInfoInitialized = true;
     }
 
+    private void setVisibilityPassenger() {
+        tvPrice.setVisibility(View.GONE);
+        tvPassengers.setVisibility(View.GONE);
+        tvReports.setVisibility(View.GONE);
+        tvDriver.setVisibility(View.GONE);
+        tvStartedAt.setVisibility(View.GONE);
+        tvPassengersHeading.setVisibility(View.GONE);
+        tvReportsHeading.setVisibility(View.GONE);
+        btnStop.setVisibility(View.GONE);
+        btnFinish.setVisibility(View.GONE);
+    }
+
+    private void setVisibilityDriver() {
+        tvPassengers.setVisibility(View.GONE);
+        tvReports.setVisibility(View.GONE);
+        tvDriver.setVisibility(View.GONE);
+        tvPassengersHeading.setVisibility(View.GONE);
+        tvReportsHeading.setVisibility(View.GONE);
+        tvStartedAt.setVisibility(View.GONE);
+        btnReport.setVisibility(View.GONE);
+    }
+
+    private void hideButtons() {
+        btnStop.setVisibility(View.GONE);
+        btnFinish.setVisibility(View.GONE);
+        btnReport.setVisibility(View.GONE);
+        btnPanic.setVisibility(View.GONE);
+    }
+
+    // TODO: live time left update
     private void updateTimeLeft(TrackRideDTO dto) {
         tvTimeLeft.setText(String.format("%d min", dto.getInfo().getDuration()));
     }
