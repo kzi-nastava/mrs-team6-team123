@@ -18,6 +18,7 @@ import com.example.mobile_application.ui.FavoriteRoutesFragment;
 import com.example.mobile_application.ui.LoginFragment;
 import com.example.mobile_application.ui.ProfileFragment;
 import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
+import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -31,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ImageButton chatButton;
 
-    private boolean isLoggedIn = false;
-    private String userRole = "driver"; // "driver" | "admin"
+    private boolean isLoggedIn = true;
+    private String userRole = "passenger"; // "driver" | "admin"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (saveInstanceState == null) {
             if (isLoggedIn)
-                loadFragment(new MapFragment());
+                loadFragment(TrackRideFragment.newInstance(4L));
             else
                 loadFragment(new UnregisteredHomeFragment());
         }

@@ -20,4 +20,9 @@ public class ActiveVehicleRepository {
         Call<List<ActiveVehicleDTO>> call = service.getActiveVehicles();
         call.enqueue(callback);
     }
+
+    public void getDriversVehicle(Long driverId, Callback<ActiveVehicleDTO> callback) {
+        Call<ActiveVehicleDTO> call = service.getDriversVehicle(driverId);
+        call.enqueue(callback);
+    }
 }

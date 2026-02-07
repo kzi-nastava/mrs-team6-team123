@@ -14,7 +14,9 @@
     <TextView
         android:id="@+id/tvPrice"
         style="@style/TextParagraph"/>
-
+    <TextView
+        android:id="@+id/tvTimeLeft"
+        style="@style/TextParagraph"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -22,6 +24,7 @@
         android:background="?attr/colorPrimary" />
 
     <TextView
+        android:id="@+id/tvPassengersHeading"
         android:text="@string/passengers"
         style="@style/TextSubHeading"/>
     <TextView
@@ -35,6 +38,7 @@
         android:background="?attr/colorPrimary" />
 
     <TextView
+        android:id="@+id/tvReportsHeading"
         android:text="@string/irregularity_reports"
         style="@style/TextSubHeading"/>
     <TextView
