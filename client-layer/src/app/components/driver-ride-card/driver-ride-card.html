@@ -11,9 +11,6 @@
     <p *ngIf="ride.scheduledAt">
       <strong>Scheduled:</strong> {{ formatScheduledTime(ride.scheduledAt) }}
     </p>
-    <p *ngIf="ride.status === 'STARTED'" class="ride-status">
-      <strong>🚕 RIDE IN PROGRESS</strong>
-    </p>
   </div>
 
   <div class="card-actions">
