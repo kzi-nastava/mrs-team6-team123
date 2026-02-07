@@ -66,7 +66,6 @@ public class TrackRideFragment extends Fragment {
     private BitmapDrawable taxiIcon;
     private BitmapDrawable stopIcon;
     private boolean rideInfoInitialized = false;
-    private boolean routeDrawn = false;
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
