@@ -10,6 +10,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
 import com.example.mobile_application.ui.map.MapFragment;
 import com.example.mobile_application.ui.chat.ChatDialogFragment;
 import com.example.mobile_application.ui.chat.ChatListDialogFragment;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton chatButton;
 
     private boolean isLoggedIn = true;
-    private String userRole = "driver"; // "driver" | "admin"
+    private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (saveInstanceState == null) {
             if (isLoggedIn)
-                loadFragment(TrackRideFragment.newInstance(13L));
+                loadFragment(new MapFragment());
             else
                 loadFragment(new UnregisteredHomeFragment());
         }
@@ -104,7 +105,10 @@ public class MainActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
                 return false;
             } else if (id == R.id.nav_home) {
-                loadFragment(new MapFragment());
+                if (userRole.equals(getString(R.string.role_admin)))
+                    loadFragment(new AdminHomeFragment());
+                else
+                    loadFragment(new MapFragment());
                 return true;
             } else if (id == R.id.nav_profile) {
                 if (isLoggedIn) {
