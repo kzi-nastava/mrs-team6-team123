@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -329,10 +330,16 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "driver";
+        String userRole = "admin"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
+        tvDriver.setText(dto.getInfo().getDriver());
+        tvStartedAt.setText(dto.getInfo().getStartedAt());
+        String passengersText = TextUtils.join("\n", dto.getInfo().getPassengers());
+        tvPassengers.setText(passengersText);
+        String reportsText = TextUtils.join("\n", dto.getInfo().getReports());
+        tvReports.setText(reportsText);
         if (userRole.equals("passenger")) {
             tvPrice.setVisibility(View.GONE);
             tvPassengers.setVisibility(View.GONE);
