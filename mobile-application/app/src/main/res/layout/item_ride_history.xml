@@ -22,18 +22,16 @@
             android:id="@+id/tvFromTo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:fontFamily="@font/nobile_bold"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="?attr/colorOnSurface"
+            style="@style/TextSubHeading"/>
 
         <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:fontFamily="@font/nobile"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            style="@style/TextParagraph"/>
 
     </LinearLayout>
 
