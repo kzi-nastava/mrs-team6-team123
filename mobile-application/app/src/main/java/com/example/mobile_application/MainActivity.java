@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (saveInstanceState == null) {
             if (isLoggedIn)
-                loadFragment(TrackRideFragment.newInstance(4L));
+                loadFragment(TrackRideFragment.newInstance(13L));
             else
                 loadFragment(new UnregisteredHomeFragment());
         }

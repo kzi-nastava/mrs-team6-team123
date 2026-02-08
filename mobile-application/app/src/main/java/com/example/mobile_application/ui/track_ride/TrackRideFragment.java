@@ -25,6 +25,7 @@ import com.example.mobile_application.dto.TrackRideDTO;
 import com.example.mobile_application.helper.DrawMarkerHelper;
 import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
+import com.example.mobile_application.repository.RideRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
 
 import org.osmdroid.config.Configuration;
@@ -53,6 +54,7 @@ public class TrackRideFragment extends Fragment {
     private Long driverId;
     private TrackRideRepository trackRideRepository;
     private ActiveVehicleRepository activeVehicleRepository;
+    private RideRepository rideRepository;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable refreshRunnable;
     private BitmapDrawable taxiIcon;
@@ -99,6 +101,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading = view.findViewById(R.id.tvReportsHeading);
         trackRideRepository = new TrackRideRepository();
         activeVehicleRepository = new ActiveVehicleRepository();
+        rideRepository = new RideRepository();
 
         int newSize = 36;
         Bitmap originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.taxi)).getBitmap();
@@ -112,6 +115,8 @@ public class TrackRideFragment extends Fragment {
         mapSetup();
         mapRouteHelper = new MapRouteHelper(mapView);
         drawMarkerHelper = new DrawMarkerHelper(mapView);
+
+        btnFinish.setOnClickListener(v -> finishRide());
 
         return view;
     }
@@ -218,7 +223,7 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "ADMIN"; // current logged in user role
+        String userRole = "DRIVER"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -301,5 +306,32 @@ public class TrackRideFragment extends Fragment {
     public void onPause() {
         super.onPause();
         stopAutoRefresh();
+    }
+
+    public void finishRide() {
+        btnFinish.setEnabled(false);
+        rideRepository.finishRide(rideId, new Callback<Void>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<Void> call,
+                    @NonNull Response<Void> response) {
+                btnFinish.setEnabled(true);
+                if (response.isSuccessful()) {
+                    if (isAdded())
+                        showToast("Ride successfully finished!");
+                } else {
+                    if (isAdded())
+                        showToast("Error while finishing the ride");
+                }
+            }
+            @Override
+            public void onFailure(
+                    @NonNull Call<Void> call,
+                    @NonNull Throwable t) {
+                btnFinish.setEnabled(true);
+                if (isAdded())
+                    showToast("Failed finishing ride");
+            }
+        });
     }
 }
