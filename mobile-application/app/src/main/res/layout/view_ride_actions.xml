@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnPanic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PANIC"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.PanicButton"/>
+
+    <Button
+        android:id="@+id/btnReport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Report"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.PrimaryButton"/>
+
+    <Button
+        android:id="@+id/btnFinish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish ride"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.PrimaryButton"/>
+
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop ride"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.StopButton"/>
+
+</LinearLayout>

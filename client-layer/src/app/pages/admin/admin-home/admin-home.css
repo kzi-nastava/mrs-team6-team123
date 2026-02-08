@@ -8,6 +8,24 @@
   gap: 20px;
 }
 
+.search-input {
+  width: 100%;
+  margin-bottom: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.no-rides-message {
+  text-align: center;
+  font-size: 20px;
+  color: #777;
+  margin-top: 20px;
+}
+
 @media (max-width: 767px) {
   .rides-list {
     grid-template-columns: 1fr;

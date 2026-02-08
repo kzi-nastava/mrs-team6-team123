@@ -10,7 +10,17 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.mobile_application.map.MapFragment;
+import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
+import com.example.mobile_application.ui.map.MapFragment;
+import com.example.mobile_application.ui.chat.ChatDialogFragment;
+import com.example.mobile_application.ui.chat.ChatListDialogFragment;
+import com.example.mobile_application.ui.DriverRegistrationFragment;
+import com.example.mobile_application.ui.FavoriteRoutesFragment;
+import com.example.mobile_application.ui.LoginFragment;
+import com.example.mobile_application.ui.ProfileFragment;
+import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
+import com.example.mobile_application.ui.track_ride.TrackRideFragment;
+import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import androidx.fragment.app.FragmentManager;
@@ -23,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ImageButton chatButton;
 
-    private boolean isLoggedIn = true;
-    private String userRole = "driver"; // "driver" | "admin"
+    private boolean isLoggedIn = true; // TODO: Change to false after login is implemented
+    private Long testUserId = 3L; // TODO: Get from login authentication
+    private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -72,7 +83,10 @@ public class MainActivity extends AppCompatActivity {
         setUpDrawerMenu();
 
         if (saveInstanceState == null) {
-            loadFragment(new MapFragment());
+            if (isLoggedIn)
+                loadFragment(new MapFragment());
+            else
+                loadFragment(new UnregisteredHomeFragment());
         }
     }
 
@@ -92,11 +106,14 @@ public class MainActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
                 return false;
             } else if (id == R.id.nav_home) {
-                loadFragment(new MapFragment());
+                if (userRole.equals(getString(R.string.role_admin)))
+                    loadFragment(new AdminHomeFragment());
+                else
+                    loadFragment(new MapFragment());
                 return true;
             } else if (id == R.id.nav_profile) {
                 if (isLoggedIn) {
-                    loadFragment(ProfileFragment.newInstance(userRole));
+                    loadFragment(ProfileFragment.newInstance(userRole, testUserId));
                 } else {
                     loadFragment(new LoginFragment());
                 }

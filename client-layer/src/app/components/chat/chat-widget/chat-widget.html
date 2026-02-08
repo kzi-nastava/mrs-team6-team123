@@ -10,12 +10,11 @@
 
   <app-chat-list
     *ngIf="showChatList"
-    (chatSelected)="openChat($event)">
+    (chatSelected)="openChat(+($event))">
   </app-chat-list>
 
   <app-chat-window
     *ngIf="showChatWindow"
-    [chatId]="selectedChatId"
     (close)="close()">
   </app-chat-window>
 

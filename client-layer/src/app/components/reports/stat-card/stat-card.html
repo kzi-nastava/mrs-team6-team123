@@ -1,0 +1,33 @@
+<mat-card class="stat-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>{{ icon }}</mat-icon>
+      {{ title }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="stat-summary">
+      <div class="stat-item">
+        <span class="stat-label">{{ totalLabel }}</span>
+        <span class="stat-value">{{ totalValue }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">{{ avgLabel }}</span>
+        <span class="stat-value">{{ avgValue }}</span>
+      </div>
+    </div>
+
+    <div class="chart-container" #chartContainer (wheel)="onWheel($event)">
+      <div class="bar-chart">
+        <div *ngFor="let item of chartData" class="bar-wrapper">
+          <div
+            class="bar"
+            [style.height.%]="getBarHeight(item[dataKey] || 0)"
+            [title]="getBarTitle(item)"
+          ></div>
+          <span class="bar-label">{{ item.date }}</span>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

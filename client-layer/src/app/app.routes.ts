@@ -9,6 +9,7 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
+import { DriverHomeComponent } from './pages/driver/driver-home/driver-home';
 import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard } from './guards/auth.guard';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
@@ -16,6 +17,7 @@ import { ActivateAccountComponent } from './pages/auth/activate-account/activate
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password';
 import { PassengerRideHistoryComponent } from './pages/user/passenger-ride-history/passenger-ride-history';
 import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admin-ride-history';
+import { ReportsComponent } from './components/reports/reports';
 
 
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
@@ -41,13 +43,16 @@ export const routes: Routes = [
   { path: 'rate-ride', component: RateRidePageComponent, canActivate: [authGuard] },
 
   // Driver only
+  { path: 'driver/home', component: DriverHomeComponent, canActivate: [driverGuard] },
   { path: 'driver/driver-ride-history', component: DriverRideHistoryComponent, canActivate: [driverGuard] },
+  { path: 'driver/reports', component: ReportsComponent, canActivate: [driverGuard] },
   
   // Admin only
   { path: 'admin/home', component: AdminHomeComponent, canActivate: [adminGuard] },
   { path: 'admin/drivers', component: DriverRegistration, canActivate: [adminGuard] },
   { path: 'admin/pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
   { path: 'admin/ride-history', component: AdminRideHistoryComponent, canActivate: [adminGuard] },
+  { path: 'admin/reports', component: ReportsComponent, canActivate: [adminGuard] },
   
   // Fallback
   { path: '**', redirectTo: '/unregistered-home' }

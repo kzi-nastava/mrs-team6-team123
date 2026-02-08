@@ -1,0 +1,70 @@
+<div class="reports-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>analytics</mat-icon>
+        Ride Analytics & Statistics
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <app-ride-history-filter
+        (filterApplied)="onFilterApplied($event)"
+        (filterCleared)="onFilterCleared()"
+      >
+      </app-ride-history-filter>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading statistics...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="onFilterCleared()">Retry</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && statistics" class="statistics-grid">
+    <!-- Rides Statistics -->
+    <app-stat-card
+      icon="local_taxi"
+      title="Rides"
+      totalLabel="Total rides"
+      [totalValue]="formatNumber(statistics.totalRides)"
+      avgLabel="Avg rides per day"
+      [avgValue]="statistics.avgRidesPerDay.toFixed(1)"
+      [chartData]="statistics.ridesData"
+      dataKey="rides"
+    >
+    </app-stat-card>
+
+    <!-- Kilometers Statistics -->
+    <app-stat-card
+      icon="route"
+      title="Kilometers Traveled"
+      totalLabel="Total km traveled"
+      [totalValue]="formatNumber(statistics.totalKmTraveled)"
+      avgLabel="Avg km traveled per day"
+      [avgValue]="statistics.avgKmPerDay.toFixed(1)"
+      [chartData]="statistics.kmData"
+      dataKey="km"
+    >
+    </app-stat-card>
+
+    <!-- Amount Spent Statistics -->
+    <app-stat-card
+      icon="attach_money"
+      title="Amount Spent"
+      totalLabel="Total spent"
+      [totalValue]="formatCurrency(statistics.totalAmountSpent)"
+      avgLabel="Avg spent per day"
+      [avgValue]="formatCurrency(statistics.avgAmountPerDay)"
+      [chartData]="statistics.amountData"
+      dataKey="spent"
+    >
+    </app-stat-card>
+  </div>
+</div>

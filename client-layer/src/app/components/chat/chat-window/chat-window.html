@@ -5,8 +5,8 @@
   </div>
 
   <div class="chat-messages">
-    <div *ngFor="let msg of messages" [ngClass]="['message', msg.type]">
-      {{ msg.text }}
+    <div *ngFor="let msg of messages" [ngClass]="['message', msg.mine ? 'sent' : 'received']">
+      {{ msg.content }}
     </div>
   </div>
 

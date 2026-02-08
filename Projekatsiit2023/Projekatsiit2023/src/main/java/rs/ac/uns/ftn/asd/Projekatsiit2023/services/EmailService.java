@@ -1,6 +1,5 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
-import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class EmailService {
             System.out.println("   Link: " + activationLink);
 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("taxiappftn@gmail.com"); 
+            message.setFrom("taxiappftn@gmail.com");
             message.setTo(to);
             message.setSubject("Activate Your Account");
             message.setText("Click the link to activate your account:\n\n" + activationLink +
@@ -31,7 +30,7 @@ public class EmailService {
             System.out.println("✅ Activation email sent successfully to: " + to);
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
 
@@ -53,29 +52,6 @@ public class EmailService {
             System.out.println("✅ Password reset email sent to: " + to);
         } catch (Exception e) {
             System.err.println("❌ Failed to send email: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public void sendDriverProfileChangeNotification(String adminEmail, String driverName,
-            String driverEmail, Long changeRequestId,
-            String changes) {
-        try {
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("taxiappftn@gmail.com");
-            message.setTo(adminEmail);
-            message.setSubject("Driver Profile Change Request - " + driverName);
-            message.setText(String.format(
-                    "A driver has requested to update their profile.\n\n" +
-                            "Driver: %s (%s)\n" +
-                            "Changes requested:\n%s\n\n" +
-                            "Please review and approve/reject this request in the admin panel.\n" +
-                            "Review URL: http://localhost:4200/admin/profile-changes/%d",
-                    driverName, driverEmail, changes, changeRequestId));
-
-            mailSender.send(message);
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -124,6 +100,28 @@ public class EmailService {
                             "Thank you for choosing our taxi service!\n\n",
                     rideDetails,
                     rateLink);
+            message.setText(emailBody);
+            mailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendLinkedPassengersEmail(String to, String rideDetails, String trackRideLink) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("taxiappftn@gmail.com");
+            message.setTo(to);
+            message.setSubject("Ride Started - Track Your Ride!");
+            String emailBody = String.format(
+                    "Hello,\n\n" +
+                            "Your ride has started. Here are the details of your ride:\n\n" +
+                            "%s\n\n" +
+                            "You can track your ride in real-time using the link below:\n\n" +
+                            "%s\n\n" +
+                            "Thank you for choosing our taxi service!\n\n",
+                    rideDetails,
+                    trackRideLink);
             message.setText(emailBody);
             mailSender.send(message);
         } catch (Exception e) {

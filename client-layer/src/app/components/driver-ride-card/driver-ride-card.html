@@ -1,0 +1,31 @@
+<div
+  class="driver-ride-card"
+  [class.accepted]="ride.status === 'ACCEPTED'"
+  [class.started]="ride.status === 'STARTED'"
+>
+  <div class="card-info">
+    <p><strong>From:</strong> {{ ride.startLocation }}</p>
+    <p><strong>To:</strong> {{ ride.endLocation }}</p>
+    <p><strong>Passengers:</strong> {{ ride.passengerNames.join(', ') }}</p>
+    <p><strong>Price:</strong> ${{ ride.estimatedPrice.toFixed(2) }}</p>
+    <p *ngIf="ride.scheduledAt">
+      <strong>Scheduled:</strong> {{ formatScheduledTime(ride.scheduledAt) }}
+    </p>
+  </div>
+
+  <div class="card-actions">
+    <button
+      *ngIf="ride.status === 'CREATED' && !hasAcceptedRide"
+      class="btn-accept"
+      (click)="onAccept()"
+    >
+      Accept Ride
+    </button>
+
+    <button *ngIf="ride.status === 'ACCEPTED'" class="btn-start" (click)="onStart()">
+      Start Ride
+    </button>
+
+    <button class="btn-route" (click)="onSeeRoute()">See Route</button>
+  </div>
+</div>

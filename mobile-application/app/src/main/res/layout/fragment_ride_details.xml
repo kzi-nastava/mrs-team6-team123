@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/colorSurface">
 
     <LinearLayout
@@ -27,78 +26,6 @@
 
         </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/container_stats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="18dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:padding="18dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/stats_card_bg">
-
-                <TextView
-                    android:id="@+id/driver_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="4 ⭐"
-                    android:fontFamily="@font/nobile_bold"
-                    android:textSize="28sp"
-                    android:textColor="?attr/colorOnPrimary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="driver rating"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/nobile_regular"
-                    android:textColor="?attr/colorOnPrimary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:padding="18dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/stats_card_bg">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/text_rating"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3 ⭐"
-                        android:fontFamily="@font/nobile_bold"
-                        android:textSize="28sp"
-                        android:textColor="?attr/colorOnPrimary" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="vehicle rating"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/nobile_regular"
-                    android:textColor="?attr/colorOnPrimary" />
-            </LinearLayout>
-        </LinearLayout>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
@@ -106,22 +33,22 @@
             android:background="?attr/colorPrimary" />
 
         <TextView
-            android:text="Boulevard -> University"
+            android:id="@+id/tvRoute"
             style="@style/TextSubHeading"/>
         <TextView
-            android:text="Started at: 09:47"
+            android:id="@+id/tvStartedAt"
             style="@style/TextParagraph"/>
         <TextView
-            android:text="Ended at: 10:03"
+            android:id="@+id/tvEndedAt"
             style="@style/TextParagraph"/>
         <TextView
-            android:text="Price: 400"
+            android:id="@+id/tvPrice"
             style="@style/TextParagraph"/>
         <TextView
-            android:text="PANIC: - "
+            android:id="@+id/tvPanic"
             style="@style/TextParagraph"/>
         <TextView
-            android:text="Canceled by: - "
+            android:id="@+id/tvCanceledBy"
             style="@style/TextParagraph"/>
 
         <View
@@ -131,10 +58,23 @@
             android:background="?attr/colorPrimary" />
 
         <TextView
-            android:text="Passengers:"
+            android:text="@string/passengers"
             style="@style/TextSubHeading"/>
         <TextView
-            android:text="Jane Doe\nMinnie Mouse\nLily Lily"
+            android:id="@+id/tvPassengers"
+            style="@style/TextParagraph"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginVertical="8dp"
+            android:background="?attr/colorPrimary" />
+
+        <TextView
+            android:text="@string/irregularity_reports"
+            style="@style/TextSubHeading"/>
+        <TextView
+            android:id="@+id/tvReports"
             style="@style/TextParagraph"/>
 
     </LinearLayout>

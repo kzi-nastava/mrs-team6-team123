@@ -1,8 +1,10 @@
 import { ChangeDetectorRef, Injectable, NgZone } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
-import { RideStop, TrackRideResponse } from '../models/track-ride.model';
+import { TrackRideResponse } from '../models/track-ride.model';
 import { GraphhopperService } from './graphhopper.service';
+import { RideStop } from '../models/route-stop.model';
+import { DriverRideHistory } from '../models/driver-ride-history.model';
 
 declare module 'leaflet' {
   namespace Routing {
@@ -124,6 +126,22 @@ export class MapService {
         this.drawRoute();
         this.drawStops(ride.stops);
         this.startRideCountdown(ride, cdr);
+      },
+      error: (err) => {
+        console.error('GraphHopper error: ', err);
+      }
+    });
+  }
+
+  rideHistory(ride: DriverRideHistory) {
+    this.graphhopperService.getRoute(ride.stops).subscribe({
+      next: (res) => {
+        const coordinates = res.paths[0].points.coordinates;
+        this.routePoints = coordinates.map(
+          (c: number[]) => L.latLng(c[1], c[0])
+        );
+        this.drawRoute();
+        this.drawStops(ride.stops);
       },
       error: (err) => {
         console.error('GraphHopper error: ', err);
