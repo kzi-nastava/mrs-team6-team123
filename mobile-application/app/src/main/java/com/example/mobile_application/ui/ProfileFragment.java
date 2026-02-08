@@ -2,20 +2,23 @@ package com.example.mobile_application.ui;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_application.R;
+import com.example.mobile_application.dto.UserProfileDTO;
+import com.example.mobile_application.dto.UserProfileRequestDTO;
+import com.example.mobile_application.repository.UserProfileRepository;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * ProfileFragment manages the user profile display
@@ -24,35 +27,24 @@ import com.example.mobile_application.R;
 public class ProfileFragment extends Fragment {
 
     private static final String ARG_USER_ROLE = "userRole";
+    private static final String ARG_USER_ID = "userId";
+    private static final String API_BASE_URL = "http://10.0.2.2:8080";
 
     private String mUserRole;
+    private Long mUserId = 3L; // Default user ID, should be passed from MainActivity
 
-    // Driver-specific containers
-    private LinearLayout statsContainer;
-    private TextView textActiveHours;
-    private LinearLayout vehicleContainer;
-
-    // Personal info fields
-    private EditText editFullName;
-    private EditText editAddress;
-    private EditText editPhone;
-
-    // Profile image and controls
-    private ImageView imageProfile;
-    private ImageButton btnChangePhoto;
-    private Button btnEdit;
-    private Button btnSave;
+    private ProfileViewBinder viewBinder;
+    private ProfileImageLoader imageLoader;
 
     // Image picker for profile photo selection
     private ActivityResultLauncher<String> imagePickerLauncher;
 
+    // Repository and data
+    private UserProfileRepository profileRepository;
+    private UserProfileDTO currentProfile;
+
     private boolean isDriver = false;
     private boolean isEditMode = false;
-
-    // Store original paddings
-    private int[] fullNamePadding;
-    private int[] addressPadding;
-    private int[] phonePadding;
 
     public ProfileFragment() {
     }
@@ -61,6 +53,15 @@ public class ProfileFragment extends Fragment {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_USER_ROLE, userRole);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static ProfileFragment newInstance(String userRole, Long userId) {
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_USER_ROLE, userRole);
+        args.putLong(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,8 +77,8 @@ public class ProfileFragment extends Fragment {
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
-                    if (uri != null) {
-                        imageProfile.setImageURI(uri);
+                    if (uri != null && viewBinder != null) {
+                        viewBinder.getImageProfile().setImageURI(uri);
                     }
                 });
     }
@@ -85,6 +86,9 @@ public class ProfileFragment extends Fragment {
     private void extractUserRoleFromArguments() {
         if (getArguments() != null) {
             mUserRole = getArguments().getString(ARG_USER_ROLE);
+            if (getArguments().containsKey(ARG_USER_ID)) {
+                mUserId = getArguments().getLong(ARG_USER_ID);
+            }
         }
     }
 
@@ -93,66 +97,37 @@ public class ProfileFragment extends Fragment {
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        initializeUIComponents(view);
-        captureOriginalPaddings();
+        profileRepository = new UserProfileRepository();
+        viewBinder = new ProfileViewBinder(view);
+        imageLoader = new ProfileImageLoader(API_BASE_URL);
         setupEventListeners();
 
         // Configure UI based on user role
         isDriver = "driver".equalsIgnoreCase(mUserRole);
         updateRoleSpecificUI();
+        viewBinder.setEditMode(false);
 
-        applyViewModeStyle(editFullName, fullNamePadding);
-        applyViewModeStyle(editAddress, addressPadding);
-        applyViewModeStyle(editPhone, phonePadding);
+        // Load profile from backend
+        loadProfile();
 
         return view;
-    }
-
-    private void initializeUIComponents(View view) {
-        // Driver-specific containers
-        statsContainer = view.findViewById(R.id.container_stats);
-        textActiveHours = view.findViewById(R.id.text_active_hours);
-        vehicleContainer = view.findViewById(R.id.container_vehicle);
-
-        // Personal info fields
-        editFullName = view.findViewById(R.id.edit_first_name);
-        editAddress = view.findViewById(R.id.edit_address);
-        editPhone = view.findViewById(R.id.edit_phone);
-
-        // Profile image and controls
-        imageProfile = view.findViewById(R.id.image_profile);
-        btnChangePhoto = view.findViewById(R.id.btn_change_photo);
-        btnEdit = view.findViewById(R.id.btn_edit);
-        btnSave = view.findViewById(R.id.btn_save);
-    }
-
-    private void captureOriginalPaddings() {
-        fullNamePadding = storePaddingValues(editFullName);
-        addressPadding = storePaddingValues(editAddress);
-        phonePadding = storePaddingValues(editPhone);
-    }
-
-    private int[] storePaddingValues(EditText editText) {
-        return new int[] {
-                editText.getPaddingLeft(),
-                editText.getPaddingTop(),
-                editText.getPaddingRight(),
-                editText.getPaddingBottom()
-        };
     }
 
     /**
      * Sets up click listeners for all interactive UI elements.
      */
     private void setupEventListeners() {
-        imageProfile.setOnClickListener(v -> launchImagePicker());
-        btnChangePhoto.setOnClickListener(v -> launchImagePicker());
+        viewBinder.getImageProfile().setOnClickListener(v -> launchImagePicker());
+        viewBinder.getChangePhotoButton().setOnClickListener(v -> launchImagePicker());
 
-        btnEdit.setOnClickListener(v -> toggleEditMode(true));
-        btnSave.setOnClickListener(v -> toggleEditMode(false));
+        viewBinder.getEditButton().setOnClickListener(v -> toggleEditMode(true));
+        viewBinder.getSaveButton().setOnClickListener(v -> {
+            saveProfileChanges();
+            toggleEditMode(false);
+        });
 
-        Button btnChangePassword = imageProfile.getRootView().findViewById(R.id.btn_change_password);
-        btnChangePassword.setOnClickListener(v -> PasswordChangeDialogHelper.showChangePasswordDialog(getContext()));
+        viewBinder.getChangePasswordButton()
+                .setOnClickListener(v -> PasswordChangeDialogHelper.showChangePasswordDialog(getContext(), mUserId));
     }
 
     private void launchImagePicker() {
@@ -160,86 +135,113 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateRoleSpecificUI() {
-        if (isDriver) {
-            showDriverUI();
-        } else {
-            hideDriverUI();
-        }
-    }
-
-    private void showDriverUI() {
-        setVisibility(statsContainer, View.VISIBLE);
-        setVisibility(textActiveHours, View.VISIBLE);
-        setVisibility(vehicleContainer, View.VISIBLE);
-    }
-
-    private void hideDriverUI() {
-        setVisibility(statsContainer, View.GONE);
-        setVisibility(textActiveHours, View.GONE);
-        setVisibility(vehicleContainer, View.GONE);
-    }
-
-    private void setVisibility(View view, int visibility) {
-        if (view != null) {
-            view.setVisibility(visibility);
-        }
-    }
-
-    private void restorePadding(EditText editText, int[] paddingValues) {
-        if (paddingValues != null && paddingValues.length == 4) {
-            editText.setPadding(paddingValues[0], paddingValues[1], paddingValues[2], paddingValues[3]);
-        }
+        viewBinder.setDriverMode(isDriver);
     }
 
     private void toggleEditMode(boolean enabled) {
         isEditMode = enabled;
+        viewBinder.setEditMode(enabled);
+    }
 
-        if (enabled) {
-            enterEditMode();
-        } else {
-            exitEditMode();
+    /**
+     * Loads the user profile from the backend
+     */
+    private void loadProfile() {
+        profileRepository.getProfile(mUserId, new Callback<UserProfileDTO>() {
+            @Override
+            public void onResponse(@NonNull Call<UserProfileDTO> call, @NonNull Response<UserProfileDTO> response) {
+                if (!isAdded())
+                    return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    currentProfile = response.body();
+
+                    // Always update user role from backend (backend is source of truth)
+                    mUserRole = currentProfile.getUserRole();
+                    isDriver = "driver".equalsIgnoreCase(mUserRole);
+                    updateRoleSpecificUI();
+
+                    populateProfileUI();
+                    showToast("Profile loaded");
+                } else {
+                    showToast("Failed to load profile");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
+                if (isAdded()) {
+                    showToast("Error: " + t.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * Populates the UI with the loaded profile data
+     */
+    private void populateProfileUI() {
+        if (currentProfile != null) {
+            viewBinder.bindProfile(currentProfile, isDriver, this, imageLoader);
         }
     }
 
-    private void enterEditMode() {
-        enableEditFields(true);
+    /**
+     * Saves the profile changes to the backend
+     */
+    private void saveProfileChanges() {
+        String fullName = viewBinder.getFullNameInput();
+        String address = viewBinder.getAddressInput();
+        String phone = viewBinder.getPhoneInput();
 
-        btnEdit.setVisibility(View.GONE);
-        btnSave.setVisibility(View.VISIBLE);
+        // Split full name into first and last name
+        String[] nameParts = fullName.split(" ", 2);
+        String firstName = nameParts.length > 0 ? nameParts[0] : "";
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
-        applyEditModeStyle(editFullName);
-        applyEditModeStyle(editAddress);
-        applyEditModeStyle(editPhone);
+        // Validate required fields
+        if (firstName.isEmpty() || lastName.isEmpty()) {
+            showToast("First and last name are required");
+            return;
+        }
+
+        // Create request DTO (email is read-only, not sent in update)
+        UserProfileRequestDTO request = new UserProfileRequestDTO(
+                firstName,
+                lastName,
+                phone,
+                address);
+
+        // Send update request
+        profileRepository.updateProfile(mUserId, request, new Callback<UserProfileDTO>() {
+            @Override
+            public void onResponse(@NonNull Call<UserProfileDTO> call, @NonNull Response<UserProfileDTO> response) {
+                if (!isAdded())
+                    return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    currentProfile = response.body();
+                    showToast("Profile updated successfully");
+                } else {
+                    showToast("Failed to update profile");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
+                if (isAdded()) {
+                    showToast("Error updating profile: " + t.getMessage());
+                }
+            }
+        });
     }
 
-    private void exitEditMode() {
-        enableEditFields(false);
-
-        btnEdit.setVisibility(View.VISIBLE);
-        btnSave.setVisibility(View.GONE);
-
-        applyViewModeStyle(editFullName, fullNamePadding);
-        applyViewModeStyle(editAddress, addressPadding);
-        applyViewModeStyle(editPhone, phonePadding);
-    }
-
-    private void enableEditFields(boolean enabled) {
-        editFullName.setEnabled(enabled);
-        editAddress.setEnabled(enabled);
-        editPhone.setEnabled(enabled);
-    }
-
-    private void applyViewModeStyle(EditText editText, int[] originalPadding) {
-        editText.setEnabled(false);
-        editText.setBackground(null);
-        editText.setTextColor(getResources().getColor(R.color.black));
-
-        // Restore original paddings
-        restorePadding(editText, originalPadding);
-    }
-
-    private void applyEditModeStyle(EditText editText) {
-        editText.setBackground(getResources().getDrawable(R.drawable.editable_field_bg));
-        editText.setTextColor(getResources().getColor(R.color.black));
+    /**
+     * Displays a toast message
+     */
+    private void showToast(String message) {
+        if (isAdded()) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
