@@ -24,13 +24,6 @@
         style="@style/TextParagraph"/>
 
     <TextView
-        android:id="@+id/tvLicencePlate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        style="@style/TextParagraph"/>
-
-    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Comment:"
