@@ -2,7 +2,6 @@ package com.example.mobile_application.ui.track_ride;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,28 +22,20 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.ActiveVehicleDTO;
 import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.dto.TrackRideDTO;
+import com.example.mobile_application.helper.DrawMarkerHelper;
+import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,6 +58,8 @@ public class TrackRideFragment extends Fragment {
     private BitmapDrawable taxiIcon;
     private BitmapDrawable stopIcon;
     private boolean rideInfoInitialized = false;
+    private MapRouteHelper mapRouteHelper;
+    private DrawMarkerHelper drawMarkerHelper;
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
@@ -117,6 +110,8 @@ public class TrackRideFragment extends Fragment {
         stopIcon = new BitmapDrawable(getResources(), smallBitmap);
 
         mapSetup();
+        mapRouteHelper = new MapRouteHelper(mapView);
+        drawMarkerHelper = new DrawMarkerHelper(mapView);
 
         return view;
     }
@@ -131,119 +126,12 @@ public class TrackRideFragment extends Fragment {
         mapController.setCenter(centerPoint);
     }
 
-    private void drawMarkers(GeoPointDTO dto) {
-        Marker marker = new Marker(mapView);
-        GeoPoint point = new GeoPoint(dto.getLatitude(), dto.getLongitude());
-        marker.setPosition(point);
-        marker.setTitle(dto.getLocation());
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        marker.setIcon(stopIcon);
-        mapView.getOverlays().add(marker);
-    }
-
     private void showRoute(List<GeoPointDTO> stops) {
         for (int i = 0; i < stops.size() - 1; ++i) {
-            fetchRoute(stops.get(i), stops.get(i+1));
+            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i+1));
         }
         for (GeoPointDTO stop : stops)
-            drawMarkers(stop);
-    }
-
-    private void fetchRoute(GeoPointDTO stop1, GeoPointDTO stop2) {
-        new Thread(() -> {
-            try {
-                if (stop1 == null || stop2 == null) {
-                    if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("No points were sent")
-                        );
-                    }
-                }
-                GeoPoint startPoint = new GeoPoint(stop1.getLatitude(), stop1.getLongitude());
-                GeoPoint endPoint = new GeoPoint(stop2.getLatitude(), stop2.getLongitude());
-                if (startPoint != null && endPoint != null) {
-                    List<GeoPoint> routePoints = getRoute(startPoint, endPoint);
-                    if (routePoints != null && isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                drawRoute(routePoints)
-                        );
-                    } else if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("Unable to fetch route")
-                        );
-                    }
-                } else if (isAdded()) {
-                    if (isAdded()) {
-                        requireActivity().runOnUiThread(() ->
-                                showToast("Error fetching route")
-                        );
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-
-    }
-
-    private List<GeoPoint> getRoute(GeoPoint startPoint, GeoPoint endPoint)
-            throws IOException, JSONException {
-        String url = "https://router.project-osrm.org/route/v1/driving/" +
-                startPoint.getLongitude() + "," + startPoint.getLatitude() + ";" +
-                endPoint.getLongitude() + "," + endPoint.getLatitude() +
-                "?overview=simplified&geometries=geojson";
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .header("User-Agent", "OSMDroidExample/1.0, osmdroid@gmail.com")
-                .build();
-
-        try (okhttp3.Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful() || response.body() == null) {
-                return null;
-            }
-            JSONObject json = new JSONObject(response.body().string());
-            JSONArray routes = json.optJSONArray("routes");
-            if (routes == null || routes.length() == 0) {
-                return null;
-            }
-
-            JSONArray coordinates = routes.getJSONObject(0)
-                    .getJSONObject("geometry")
-                    .getJSONArray("coordinates");
-
-            List<GeoPoint> routePoints = new ArrayList<>(coordinates.length());
-
-            for (int i = 0; i < coordinates.length(); i++) {
-                JSONArray point = coordinates.getJSONArray(i);
-                double lon = point.getDouble(0);
-                double lat = point.getDouble(1);
-                routePoints.add(new GeoPoint(lat, lon));
-            }
-
-            return routePoints;
-        }
-    }
-
-    private void drawRoute(List<GeoPoint> routePoints) {
-        Polyline routeLine = new Polyline();
-        routeLine.setPoints(routePoints);
-        routeLine.setColor(0xFF0000FF);
-        routeLine.setWidth(10.0f);
-
-        mapView.getOverlays().add(routeLine);
-        mapView.invalidate();
-
-        if (!routePoints.isEmpty()) {
-            IMapController mapController = mapView.getController();
-            mapController.setZoom(15.0);
-            mapController.setCenter(routePoints.get(0));
-        }
+            drawMarkerHelper.drawMarkers(stop, stopIcon);
     }
 
     private void showToast(String message) {
@@ -330,7 +218,7 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "admin"; // current logged in user role
+        String userRole = "ADMIN"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -340,36 +228,46 @@ public class TrackRideFragment extends Fragment {
         tvPassengers.setText(passengersText);
         String reportsText = TextUtils.join("\n", dto.getInfo().getReports());
         tvReports.setText(reportsText);
-        if (userRole.equals("passenger")) {
-            tvPrice.setVisibility(View.GONE);
-            tvPassengers.setVisibility(View.GONE);
-            tvReports.setVisibility(View.GONE);
-            tvDriver.setVisibility(View.GONE);
-            tvStartedAt.setVisibility(View.GONE);
-            tvPassengersHeading.setVisibility(View.GONE);
-            tvReportsHeading.setVisibility(View.GONE);
-            btnStop.setVisibility(View.GONE);
-            btnFinish.setVisibility(View.GONE);
-        }
-        if (userRole.equals("driver")) {
-            tvPassengers.setVisibility(View.GONE);
-            tvReports.setVisibility(View.GONE);
-            tvDriver.setVisibility(View.GONE);
-            tvPassengersHeading.setVisibility(View.GONE);
-            tvReportsHeading.setVisibility(View.GONE);
-            tvStartedAt.setVisibility(View.GONE);
-            btnReport.setVisibility(View.GONE);
-        }
-        if (userRole.equals("admin")) {
-            btnStop.setVisibility(View.GONE);
-            btnFinish.setVisibility(View.GONE);
-            btnReport.setVisibility(View.GONE);
-            btnPanic.setVisibility(View.GONE);
-        }
+        if (userRole.equals(getString(R.string.role_passenger)))
+            setVisibilityPassenger();
+        if (userRole.equals(getString(R.string.role_driver)))
+            setVisibilityDriver();
+        if (userRole.equals(getString(R.string.role_admin)))
+            hideButtons();
 
         rideInfoInitialized = true;
     }
 
+    private void setVisibilityPassenger() {
+        tvPrice.setVisibility(View.GONE);
+        tvPassengers.setVisibility(View.GONE);
+        tvReports.setVisibility(View.GONE);
+        tvDriver.setVisibility(View.GONE);
+        tvStartedAt.setVisibility(View.GONE);
+        tvPassengersHeading.setVisibility(View.GONE);
+        tvReportsHeading.setVisibility(View.GONE);
+        btnStop.setVisibility(View.GONE);
+        btnFinish.setVisibility(View.GONE);
+    }
+
+    private void setVisibilityDriver() {
+        tvPassengers.setVisibility(View.GONE);
+        tvReports.setVisibility(View.GONE);
+        tvDriver.setVisibility(View.GONE);
+        tvPassengersHeading.setVisibility(View.GONE);
+        tvReportsHeading.setVisibility(View.GONE);
+        tvStartedAt.setVisibility(View.GONE);
+        btnReport.setVisibility(View.GONE);
+    }
+
+    private void hideButtons() {
+        btnStop.setVisibility(View.GONE);
+        btnFinish.setVisibility(View.GONE);
+        btnReport.setVisibility(View.GONE);
+        btnPanic.setVisibility(View.GONE);
+    }
+
+    // TODO: live time left update
     private void updateTimeLeft(TrackRideDTO dto) {
         tvTimeLeft.setText(String.format("%d min", dto.getInfo().getDuration()));
     }
