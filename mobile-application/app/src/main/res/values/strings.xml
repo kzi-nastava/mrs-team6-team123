@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">mobile-application</string>
     <string name="taxi_name">Dusha Taxi</string>
-    <string name="report">report</string>
+    <string name="report">Report</string>
     <string name="stop">stop</string>
     <string name="panic">PANIC</string>
     <string name="go_inactive">go inactive</string>
@@ -50,4 +50,8 @@
     <string name="role_admin">ADMIN</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="report_header">Report</string>
+    <string name="comment">Comment:</string>
+    <string name="comment_hint">Write your comment here...</string>
+    <string name="cancel">Cancel</string>
 </resources>

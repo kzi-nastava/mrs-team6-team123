@@ -27,6 +27,7 @@ import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.RideRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
+import com.example.mobile_application.ui.irregularity_report.IrregularityReportFragment;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -49,6 +50,7 @@ public class TrackRideFragment extends Fragment {
             tvRouteName, tvStartedAt, tvTimeLeft,
             tvDriver, tvPrice, tvPassengers, tvReports,
             tvPassengersHeading, tvReportsHeading;
+    private View viewButtons, viewPassengers;
     private static final String ARG_RIDE_ID = "ride_id";
     private Long rideId;
     private Long driverId;
@@ -62,6 +64,7 @@ public class TrackRideFragment extends Fragment {
     private boolean rideInfoInitialized = false;
     private MapRouteHelper mapRouteHelper;
     private DrawMarkerHelper drawMarkerHelper;
+    private TrackRideDTO dto;
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
@@ -99,6 +102,8 @@ public class TrackRideFragment extends Fragment {
         tvReports = view.findViewById(R.id.tvReports);
         tvPassengersHeading = view.findViewById(R.id.tvPassengersHeading);
         tvReportsHeading = view.findViewById(R.id.tvReportsHeading);
+        viewButtons = view.findViewById(R.id.viewButtons);
+        viewPassengers = view.findViewById(R.id.viewPassengers);
         trackRideRepository = new TrackRideRepository();
         activeVehicleRepository = new ActiveVehicleRepository();
         rideRepository = new RideRepository();
@@ -117,6 +122,7 @@ public class TrackRideFragment extends Fragment {
         drawMarkerHelper = new DrawMarkerHelper(mapView);
 
         btnFinish.setOnClickListener(v -> finishRide());
+        btnReport.setOnClickListener(v -> reportDriver());
 
         return view;
     }
@@ -153,7 +159,7 @@ public class TrackRideFragment extends Fragment {
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    TrackRideDTO dto = response.body();
+                    dto = response.body();
 
                     if (!rideInfoInitialized) {
                         updateRideStaticUI(dto);
@@ -223,7 +229,7 @@ public class TrackRideFragment extends Fragment {
 
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "DRIVER"; // current logged in user role
+        String userRole = "PASSENGER"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -253,6 +259,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         btnStop.setVisibility(View.GONE);
         btnFinish.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void setVisibilityDriver() {
@@ -263,6 +270,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         tvStartedAt.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void hideButtons() {
@@ -270,6 +278,7 @@ public class TrackRideFragment extends Fragment {
         btnFinish.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
         btnPanic.setVisibility(View.GONE);
+        viewButtons.setVisibility(View.GONE);
     }
 
     // TODO: live time left update
@@ -333,5 +342,14 @@ public class TrackRideFragment extends Fragment {
                     showToast("Failed finishing ride");
             }
         });
+    }
+
+    public void reportDriver() {
+        Fragment fragment = IrregularityReportFragment.newInstance(dto);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.main_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

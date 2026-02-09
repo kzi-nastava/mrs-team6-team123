@@ -4,6 +4,7 @@
     <style name="Widget.PrimaryButton" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
     </style>
     <style name="ChatMessageBase">
         <item name="android:textColor">?attr/colorOnSurface</item>
@@ -20,14 +21,17 @@
     <style name="Widget.SecondaryButton" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
     </style>
     <style name="Widget.PanicButton" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">@color/red</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
     </style>
     <style name="Widget.StopButton" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">@color/light_red</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:fontFamily">@font/nobile_bold</item>
     </style>
     <style name="TextHeading">
         <item name="android:layout_width">wrap_content</item>
