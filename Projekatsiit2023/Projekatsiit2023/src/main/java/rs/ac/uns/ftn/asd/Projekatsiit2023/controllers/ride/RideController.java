@@ -35,6 +35,7 @@ public class RideController {
     private final FinishRideService finishRideService;
     private final RateRideService rateRideService;
     private final RideStopService rideStopService;
+    private final NotificationService notificationService;
     private final DriverMatchingService driverMatchingService;
     private final RideService rideService;
     private final PassengerRepository passengerRepository;
@@ -46,6 +47,7 @@ public class RideController {
             RideCancellationService cancellationService,
             TrackRideService trackRideService,
             RideStopService rideStopService,
+            NotificationService notificationService,
             DriverMatchingService driverMatchingService,
             RideService rideService,
             PassengerRepository passengerRepository,
@@ -57,6 +59,7 @@ public class RideController {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.rideStopService = rideStopService;
+        this.notificationService = notificationService;
         this.driverMatchingService = driverMatchingService;
         this.rideService = rideService;
         this.passengerRepository = passengerRepository;
@@ -89,10 +92,17 @@ public class RideController {
                     request.isBabySeat(),
                     request.isPetFriendly(),
                     request.getStartLatitude(),
-                    request.getStartLongitude());
+                    request.getStartLongitude(),
+                    request.getEndLatitude(),
+                    request.getEndLongitude());
 
             if (driverOptional.isEmpty()) {
-                // No driver available
+                // No driver available - notify the ride creator
+                notificationService.sendNotification(
+                        request.getCreatorId(),
+                        "No Drivers Available",
+                        "We could not find an available driver for your ride. Please try again later.",
+                        null);
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                         .body("No drivers currently available. Please try again later.");
             }
@@ -108,8 +118,12 @@ public class RideController {
                     .orElseThrow(() -> new RuntimeException("Creator not found"));
             ride.setCreator(creator);
 
-            // Add all passengers
-            ride.setPassengers(passengerRepository.findAllById(request.getPassengerIds()));
+            // Add all passengers (if any)
+            if (request.getPassengerIds() != null && !request.getPassengerIds().isEmpty()) {
+                ride.setPassengers(passengerRepository.findAllById(request.getPassengerIds()));
+            } else {
+                ride.setPassengers(new java.util.ArrayList<>());
+            }
 
             // Set location and time info
             ride.setStartLocation(request.getStartLocation());

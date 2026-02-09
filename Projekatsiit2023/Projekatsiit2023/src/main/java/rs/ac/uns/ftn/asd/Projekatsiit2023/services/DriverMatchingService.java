@@ -7,6 +7,8 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationResponseDTO;
 
 import java.util.*;
 
@@ -15,15 +17,18 @@ public class DriverMatchingService {
 
     private final DriverRepository driverRepository;
     private final RideRepository rideRepository;
+    private final RideEstimationService estimationService;
 
-    public DriverMatchingService(DriverRepository driverRepository, RideRepository rideRepository) {
+    public DriverMatchingService(DriverRepository driverRepository, RideRepository rideRepository,
+            RideEstimationService estimationService) {
         this.driverRepository = driverRepository;
         this.rideRepository = rideRepository;
+        this.estimationService = estimationService;
     }
 
-    
     public Optional<Driver> findBestDriver(VehicleType vehicleType, boolean babyTransport,
-            boolean petTransport, double startLatitude, double startLongitude) {
+            boolean petTransport, double startLatitude, double startLongitude,
+            double endLatitude, double endLongitude) {
 
         // Get all active drivers available for ride (not currently on a STARTED ride)
         List<Driver> availableDrivers = driverRepository.findAvailableDrivers(RideStatus.STARTED,
@@ -33,7 +38,16 @@ public class DriverMatchingService {
             return Optional.empty();
         }
 
-        // vehicle type
+        // Filter by active status (driver must be active to receive rides)
+        availableDrivers = availableDrivers.stream()
+                .filter(Driver::isActive)
+                .toList();
+
+        if (availableDrivers.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Filter by vehicle type
         availableDrivers = availableDrivers.stream()
                 .filter(d -> d.getVehicle() != null && d.getVehicle().getVehicleType() == vehicleType)
                 .toList();
@@ -42,34 +56,80 @@ public class DriverMatchingService {
             return Optional.empty();
         }
 
-        //  <= 8 hours in last 24h
+        // Filter by work hour limit with consideration for upcoming ride duration
+        // Estimate the ride time for this request
+        int estimatedRideTimeMinutes = estimateRideTime(startLatitude, startLongitude,
+                endLatitude, endLongitude, vehicleType);
+
         List<Driver> eligibleDrivers = availableDrivers.stream()
-                .filter(d -> d.getActiveMinutesLast24h() <= 480)
+                .filter(d -> {
+                    int currentActiveMinutes = d.getActiveMinutesLast24h();
+                    int projectedTotalMinutes = currentActiveMinutes + estimatedRideTimeMinutes;
+                    // Driver can take the ride only if total time stays under 8 hours (480 minutes)
+                    return projectedTotalMinutes <= 480;
+                })
                 .toList();
 
         if (eligibleDrivers.isEmpty()) {
             return Optional.empty();
         }
 
-        // not on ACCEPTED or STARTED rides
-        List<Driver> freeDrivers = new ArrayList<>();
+        // Priority-based driver selection
+        // Priority 1: Drivers with NO active rides (neither CREATED nor STARTED)
+        List<Driver> noActiveRidesDrivers = new ArrayList<>();
+        // Priority 2: Drivers with only STARTED rides (no CREATED rides - assigned but not started)
+        List<Driver> onlyStartedRidesDrivers = new ArrayList<>();
 
         for (Driver driver : eligibleDrivers) {
-            List<Ride> activeRides = rideRepository.findByDriverId(driver.getId()).stream()
-                    .filter(r -> r.getStatus() == RideStatus.ACCEPTED || r.getStatus() == RideStatus.STARTED)
+            List<Ride> createdRides = rideRepository.findByDriverId(driver.getId()).stream()
+                    .filter(r -> r.getStatus() == RideStatus.CREATED)
                     .toList();
 
-            if (activeRides.isEmpty()) {
-                freeDrivers.add(driver);
+            List<Ride> startedRides = rideRepository.findByDriverId(driver.getId()).stream()
+                    .filter(r -> r.getStatus() == RideStatus.STARTED)
+                    .toList();
+
+            if (createdRides.isEmpty() && startedRides.isEmpty()) {
+                // Priority 1: No assigned or active rides
+                noActiveRidesDrivers.add(driver);
+            } else if (createdRides.isEmpty() && !startedRides.isEmpty()) {
+                // Priority 2: Only STARTED rides, no assigned (CREATED) rides
+                onlyStartedRidesDrivers.add(driver);
             }
         }
 
-        // If no free drivers, return empty (ride queues or is rejected)
-        if (freeDrivers.isEmpty()) {
-            return Optional.empty();
+        // Return Priority 1 drivers first (no active rides)
+        if (!noActiveRidesDrivers.isEmpty()) {
+            return noActiveRidesDrivers.stream().findFirst();
         }
 
-        // Return any free driver
-        return freeDrivers.stream().findFirst();
+        // Fall back to Priority 2 drivers (only STARTED rides)
+        if (!onlyStartedRidesDrivers.isEmpty()) {
+            return onlyStartedRidesDrivers.stream().findFirst();
+        }
+
+        // No suitable drivers available
+        return Optional.empty();
+    }
+
+    /**
+     * Estimates the ride time in minutes for a given route.
+     * Uses the actual start and end coordinates for accurate estimation.
+     */
+    private int estimateRideTime(double startLatitude, double startLongitude,
+            double endLatitude, double endLongitude, VehicleType vehicleType) {
+        try {
+            RideEstimationRequestDTO estimationRequest = new RideEstimationRequestDTO();
+            estimationRequest.setStartLocation(startLatitude + "," + startLongitude);
+            estimationRequest.setEndLocation(endLatitude + "," + endLongitude);
+            estimationRequest.setVehicleType(vehicleType);
+
+            RideEstimationResponseDTO estimation = estimationService.estimate(estimationRequest);
+            return estimation.getEstimatedTime();
+        } catch (Exception e) {
+            // Fallback to conservative estimate (30 minutes) if estimation fails
+            System.err.println("Failed to estimate ride time, using default: " + e.getMessage());
+            return 30;
+        }
     }
 }

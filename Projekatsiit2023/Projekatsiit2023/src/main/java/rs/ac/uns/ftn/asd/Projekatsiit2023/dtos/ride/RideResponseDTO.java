@@ -9,7 +9,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 public class RideResponseDTO {
     private Long rideId;
     private Long driverId;
-    private RideStatus status; // CREATED, ACCEPTED, STARTED, FINISHED
+    private RideStatus status; // CREATED, STARTED, FINISHED
     private Integer estimatedTimeMinutes;
     private Double estimatedPrice;
 

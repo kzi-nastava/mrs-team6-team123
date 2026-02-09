@@ -227,6 +227,14 @@ export class ScheduleRideComponent {
   }
 
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
+    // Format scheduledAt: combine today's date with the time if scheduling for later
+    let scheduledAt: string | undefined = undefined;
+    if (this.scheduleType === 'later' && this.scheduledTime) {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0]; // Get YYYY-MM-DD
+      scheduledAt = `${dateStr}T${this.scheduledTime}:00`; // Combine with HH:mm and add seconds
+    }
+
     const request: RideOrderRequest = {
       creatorId,
       passengerIds,
@@ -238,7 +246,7 @@ export class ScheduleRideComponent {
       endLongitude: this.endLng!,
       waypoints: this.stopManagement.getValidStops()
         .map(s => `${s.lat},${s.lng}`),
-      scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
+      scheduledAt: scheduledAt,
       babySeat: this.hasBaby,
       petFriendly: this.hasPet,
       vehicleType: this.vehicleType as VehicleType,

@@ -74,14 +74,16 @@ export class NavbarComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.userRole = user?.role || 'GUEST';
       this.updateLinks();
-     this.cdr.detectChanges();
+      // Defer change detection to avoid triggering during Angular's change detection cycle
+      setTimeout(() => this.cdr.detectChanges(), 0);
     });
   }
 
   ngOnInit() {
     this.notifcationService.getUnread().subscribe(list => {
       this.unreadCount = list.length;
-      this.cdr.detectChanges();
+      // Defer change detection to avoid triggering during Angular's change detection cycle
+      setTimeout(() => this.cdr.detectChanges(), 0);
     });
     
     // Initial load if already logged in

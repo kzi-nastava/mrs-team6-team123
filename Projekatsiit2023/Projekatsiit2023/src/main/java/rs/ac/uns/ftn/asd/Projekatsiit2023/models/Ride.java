@@ -44,7 +44,7 @@ public class Ride {
         @Column
         private LocalDateTime scheduledAt;
 
-        @Column(nullable = false)
+        @Column
         private LocalTime startedAt;
 
         @Column
