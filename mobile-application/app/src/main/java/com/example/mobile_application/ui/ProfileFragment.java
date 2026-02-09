@@ -205,10 +205,12 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        // Create request DTO (email is read-only, not sent in update)
+        // Create request DTO
+        String email = currentProfile != null ? currentProfile.getEmail() : "";
         UserProfileRequestDTO request = new UserProfileRequestDTO(
                 firstName,
                 lastName,
+                email,
                 phone,
                 address);
 
