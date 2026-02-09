@@ -3,15 +3,17 @@ package com.example.mobile_application.dto;
 public class UserProfileRequestDTO {
     private String firstName;
     private String lastName;
+    private String email;
     private String phone;
     private String address;
 
     public UserProfileRequestDTO() {
     }
 
-    public UserProfileRequestDTO(String firstName, String lastName, String phone, String address) {
+    public UserProfileRequestDTO(String firstName, String lastName, String email, String phone, String address) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
         this.phone = phone;
         this.address = address;
     }
@@ -31,6 +33,14 @@ public class UserProfileRequestDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPhone() {
