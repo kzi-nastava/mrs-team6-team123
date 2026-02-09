@@ -61,13 +61,13 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
         Menu menu = drawerMenuView.getMenu();
-        if (userRole.equals("admin")) {
+        if (userRole.equals(getString(R.string.role_admin))) {
             menu.findItem(R.id.favorites).setVisible(false);
-        } else if (userRole.equals("driver")) {
+        } else if (userRole.equals(getString(R.string.role_driver))) {
             menu.findItem(R.id.favorites).setVisible(false);
             menu.findItem(R.id.drivers).setVisible(false);
             menu.findItem(R.id.pricing).setVisible(false);
-        } else if (userRole.equals("user")) {
+        } else if (userRole.equals(getString(R.string.role_passenger))) {
             menu.findItem(R.id.drivers).setVisible(false);
             menu.findItem(R.id.pricing).setVisible(false);
         }
