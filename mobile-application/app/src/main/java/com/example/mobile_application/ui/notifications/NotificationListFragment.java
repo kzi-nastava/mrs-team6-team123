@@ -15,7 +15,11 @@ import android.widget.Toast;
 import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.NotificationAdapter;
 import com.example.mobile_application.dto.NotificationDTO;
+import com.example.mobile_application.dto.RateRideRequestDTO;
+import com.example.mobile_application.helper.RateRideHelper;
 import com.example.mobile_application.repository.NotificationRepository;
+import com.example.mobile_application.repository.RateRideRepository;
+import com.example.mobile_application.ui.rate_ride.RateRideFragment;
 
 import java.util.List;
 
@@ -29,6 +33,7 @@ public class NotificationListFragment extends Fragment {
     private RecyclerView recyclerView;
     private NotificationAdapter adapter;
     private NotificationRepository repository;
+    private RateRideHelper rateRideHelper;
 
     public static NotificationListFragment newInstance(boolean unread) {
         Bundle args = new Bundle();
@@ -125,7 +130,32 @@ public class NotificationListFragment extends Fragment {
 
     private void notificationClick(NotificationDTO notification) {
         markAsRead(notification.getNotificationId());
-        // TODO: check if notification has a link and do rate ride logic
+
+        if (!notification.getLink().isEmpty()) {
+            String link = notification.getLink();
+            String rateRidePrefix = "/rate-ride?rideId=";
+            if (link.startsWith(rateRidePrefix)) {
+                String rideIdString = link.substring(rateRidePrefix.length());
+                Long rideId = Long.parseLong(rideIdString);
+                openRateRide(rideId);
+            }
+        }
+    }
+
+    private void openRateRide(Long rideId) {
+        rateRideHelper = new RateRideHelper();
+        RateRideRequestDTO dto = rateRideHelper.fetchRide(rideId);
+        if (dto != null)
+            if (isAdded()) {
+                showToast("Ride for rating wasn't found");
+                return;
+            }
+        Fragment fragment = RateRideFragment.newInstance(dto);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.main_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void markAsRead(Long notificationId) {
