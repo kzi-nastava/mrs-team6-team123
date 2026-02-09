@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton chatButton;
 
     private boolean isLoggedIn = true;
-    private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
+    private String userRole = "PASSENGER"; // "DRIVER" | "PASSENGER"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (saveInstanceState == null) {
             if (isLoggedIn)
-                loadFragment(new MapFragment());
+                loadFragment(TrackRideFragment.newInstance(14L));
             else
                 loadFragment(new UnregisteredHomeFragment());
         }

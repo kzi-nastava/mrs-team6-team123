@@ -2,6 +2,7 @@ package com.example.mobile_application.ui.irregularity_report;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -14,9 +15,15 @@ import android.widget.Toast;
 
 import com.example.mobile_application.R;
 import com.example.mobile_application.dto.DriverRideHistoryDTO;
+import com.example.mobile_application.dto.IrregularityReportDTO;
 import com.example.mobile_application.dto.TrackRideDTO;
+import com.example.mobile_application.repository.IrregularityReportRepository;
 
 import java.io.Serializable;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class IrregularityReportFragment extends Fragment {
     private static final String ARG_RIDE = "ride";
@@ -24,6 +31,7 @@ public class IrregularityReportFragment extends Fragment {
     private EditText etComment;
     private Button btnReport, btnCancel;
     private TrackRideDTO ride;
+    private IrregularityReportRepository repository;
 
     public static IrregularityReportFragment newInstance(TrackRideDTO ride) {
         IrregularityReportFragment fragment = new IrregularityReportFragment();
@@ -42,6 +50,7 @@ public class IrregularityReportFragment extends Fragment {
         etComment = view.findViewById(R.id.etComment);
         btnReport = view.findViewById(R.id.btnReport);
         btnCancel = view.findViewById(R.id.btnCancel);
+        repository = new IrregularityReportRepository();
 
         if (getArguments() != null) {
             ride = (TrackRideDTO) getArguments().getSerializable("ride");
@@ -71,7 +80,36 @@ public class IrregularityReportFragment extends Fragment {
             return;
         }
 
-        // TODO: implement sending report to backend
+        IrregularityReportDTO dto = new IrregularityReportDTO();
+        dto.setRideId(ride.getRideId());
+        dto.setAuthorId(2L); // TODO: current logged in user id
+        dto.setComment(comment);
+        btnReport.setEnabled(false);
+
+        repository.reportDriver(dto, new Callback<Void>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<Void> call,
+                    @NonNull Response<Void> response) {
+                btnReport.setEnabled(true);
+                if (response.isSuccessful()) {
+                    if (isAdded())
+                        showToast("Report sent successfully!");
+                } else {
+                    if (isAdded())
+                        showToast("Error while sending report");
+                }
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<Void> call,
+                    @NonNull Throwable t) {
+                btnReport.setEnabled(true);
+                if (isAdded())
+                    showToast("Failed sending report");
+            }
+        });
 
         requireActivity().getSupportFragmentManager().popBackStack();
     }
