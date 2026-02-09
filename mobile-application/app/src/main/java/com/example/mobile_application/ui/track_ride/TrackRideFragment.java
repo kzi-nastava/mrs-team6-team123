@@ -50,6 +50,7 @@ public class TrackRideFragment extends Fragment {
             tvRouteName, tvStartedAt, tvTimeLeft,
             tvDriver, tvPrice, tvPassengers, tvReports,
             tvPassengersHeading, tvReportsHeading;
+    private View viewButtons, viewPassengers;
     private static final String ARG_RIDE_ID = "ride_id";
     private Long rideId;
     private Long driverId;
@@ -101,6 +102,8 @@ public class TrackRideFragment extends Fragment {
         tvReports = view.findViewById(R.id.tvReports);
         tvPassengersHeading = view.findViewById(R.id.tvPassengersHeading);
         tvReportsHeading = view.findViewById(R.id.tvReportsHeading);
+        viewButtons = view.findViewById(R.id.viewButtons);
+        viewPassengers = view.findViewById(R.id.viewPassengers);
         trackRideRepository = new TrackRideRepository();
         activeVehicleRepository = new ActiveVehicleRepository();
         rideRepository = new RideRepository();
@@ -256,6 +259,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         btnStop.setVisibility(View.GONE);
         btnFinish.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void setVisibilityDriver() {
@@ -266,6 +270,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         tvStartedAt.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void hideButtons() {
@@ -273,6 +278,7 @@ public class TrackRideFragment extends Fragment {
         btnFinish.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
         btnPanic.setVisibility(View.GONE);
+        viewButtons.setVisibility(View.GONE);
     }
 
     // TODO: live time left update

@@ -36,6 +36,7 @@
         <include layout="@layout/view_ride_actions"/>
 
         <View
+            android:id="@+id/viewButtons"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_marginVertical="8dp"
