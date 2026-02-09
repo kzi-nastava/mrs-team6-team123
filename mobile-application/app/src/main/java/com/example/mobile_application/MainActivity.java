@@ -32,6 +32,7 @@ import com.example.mobile_application.ui.chat.ChatDialogFragment;
 import com.example.mobile_application.ui.chat.ChatListDialogFragment;
 import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
 import com.example.mobile_application.ui.map.MapFragment;
+import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             if (tokenManager.isLoggedIn()) {
-                loadHomeForRole();
+                loadFragment(TrackRideFragment.newInstance(14L));
             } else {
                 loadFragment(new UnregisteredHomeFragment());
             }
@@ -100,16 +101,10 @@ public class MainActivity extends AppCompatActivity
         handleDeepLink(intent);
     }
 
-    /**
-     * Handle deep links for password reset tokens.
-     * If your app has an intent filter for the reset-password URL,
-     * this will extract the token and show the ResetPasswordFragment.
-     */
     private void handleDeepLink(Intent intent) {
         if (intent == null || intent.getData() == null) return;
         Uri uri = intent.getData();
 
-        // Check if it's a reset-password deep link
         String path = uri.getPath();
         if (path != null && path.contains("reset-password")) {
             String token = uri.getQueryParameter("token");
@@ -119,30 +114,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Called by LoginFragment after successful login
-     */
     @Override
     public void onLoginSuccess(Long userId, String role) {
         updateUIForAuthState();
         loadHomeForRole();
     }
 
-    /**
-     * Updates bottom nav, drawer menu, and chat button based on login state
-     */
     private void updateUIForAuthState() {
         boolean loggedIn = tokenManager.isLoggedIn();
         String role = tokenManager.getRole();
 
-        // Chat button only for logged-in users
         chatButton.setVisibility(loggedIn ? View.VISIBLE : View.GONE);
 
-        // Hamburger menu only for logged-in users
         Menu bottomMenu = bottomNavigationView.getMenu();
         bottomMenu.findItem(R.id.nav_hamburger).setVisible(loggedIn);
 
-        // Configure drawer menu based on role
         Menu drawerMenu = drawerMenuView.getMenu();
         if (loggedIn && role != null) {
             drawerMenu.findItem(R.id.logout).setVisible(true);
@@ -167,9 +153,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Loads the appropriate home fragment based on user role
-     */
     private void loadHomeForRole() {
         String role = tokenManager.getRole();
         if (role == null) {
@@ -200,7 +183,8 @@ public class MainActivity extends AppCompatActivity
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            if (id == R.id.nav_hamburger) {
+            if (id == R.id.nav_hamburger
+                    && findViewById(R.id.nav_hamburger).getVisibility() == View.VISIBLE) {
                 drawerLayout.openDrawer(GravityCompat.START);
                 return false;
             } else if (id == R.id.nav_home) {
@@ -221,6 +205,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+
             return false;
         });
     }
@@ -236,6 +221,10 @@ public class MainActivity extends AppCompatActivity
                 fragment = new FavoriteRoutesFragment();
             } else if (id == R.id.drivers) {
                 fragment = new DriverRegistrationFragment();
+            } else if (id == R.id.notifications) {
+                // TODO: implement NotificationsFragment
+            } else if (id == R.id.reports) {
+                // TODO: implement ReportsFragment
             } else if (id == R.id.logout) {
                 performLogout();
                 drawerLayout.closeDrawers();
@@ -243,19 +232,16 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (fragment != null) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.main_container, fragment)
-                        .commit();
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.main_container, fragment);
+                ft.commit();
             }
             drawerLayout.closeDrawers();
             return true;
         });
     }
 
-    /**
-     * Performs logout: calls backend, clears local auth, resets UI
-     */
     private void performLogout() {
         Long userId = tokenManager.getUserId();
 
@@ -273,7 +259,6 @@ public class MainActivity extends AppCompatActivity
                                         body.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            // Even if backend fails, clear local session
                             clearSessionAndGoToLogin();
                         }
                     }
@@ -281,7 +266,6 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Call<LogoutResponseDTO> call,
                                           @NonNull Throwable t) {
-                        // Network error — still clear local session
                         clearSessionAndGoToLogin();
                     }
                 });
@@ -292,7 +276,6 @@ public class MainActivity extends AppCompatActivity
         ApiClient.resetClient();
         updateUIForAuthState();
 
-        // Clear back stack
         getSupportFragmentManager()
                 .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
