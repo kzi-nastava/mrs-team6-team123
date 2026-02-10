@@ -3,6 +3,8 @@ import { RideStatus, VehicleType } from "./enums";
 export interface RideResponse {
   rideId: number;
   driverId: number;
+  driverName: string;
+  vehicleLicense: string;
   status: RideStatus;
   estimatedTimeMinutes: number;
   estimatedPrice: number;

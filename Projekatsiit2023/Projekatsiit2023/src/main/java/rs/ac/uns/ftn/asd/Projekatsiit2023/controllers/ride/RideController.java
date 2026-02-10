@@ -145,8 +145,30 @@ public class RideController {
             RideResponseDTO response = new RideResponseDTO();
             response.setRideId(savedRide.getId());
             response.setDriverId(driver.getId());
+            response.setDriverName(driver.getFirstName() + " " + driver.getLastName());
+            response.setVehicleLicense(driver.getVehicle().getLicensePlate());
             response.setStatus(RideStatus.CREATED);
             response.setEstimatedTimeMinutes(8); // TODO: calculate from route
+
+            // Send success notification to passenger with driver details
+            // Send success notification to creator and all passengers with driver details
+            String notificationMessage = "Your ride has been booked. Driver: " + response.getDriverName()
+                    + " | Vehicle: " + response.getVehicleLicense();
+
+            notificationService.sendNotification(
+                    creator.getId(),
+                    "Ride Booked Successfully",
+                    notificationMessage,
+                    null);
+
+            // Send notification to all passengers
+            for (Passenger passenger : savedRide.getPassengers()) {
+                notificationService.sendNotification(
+                        passenger.getId(),
+                        "Ride Booked Successfully",
+                        notificationMessage,
+                        null);
+            }
 
             return ResponseEntity.ok(response);
 

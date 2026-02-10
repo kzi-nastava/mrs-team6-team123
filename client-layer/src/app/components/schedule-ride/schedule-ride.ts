@@ -255,10 +255,13 @@ export class ScheduleRideComponent {
 
     this.orderRideService.orderRide(request).subscribe({
       next: (response: RideResponse) => {
-        alert(`Ride booked successfully! Ride ID: ${response.rideId}. Estimated time: ${response.estimatedTimeMinutes} minutes.`);
-        // TODO: Navigate to tracking page or show ride details
+        console.log(`Ride booked successfully! Ride ID: ${response.rideId}`);
       },
       error: (err: HttpErrorResponse) => {
+        if (err.status === 503) {
+          console.log('No drivers available. Notification sent to passenger.');
+          return;
+        }
         alert('Failed to book ride. Please try again.');
       }
     });
