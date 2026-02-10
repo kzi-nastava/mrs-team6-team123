@@ -2,7 +2,9 @@ package com.example.mobile_application.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ChatDTO {
+import java.io.Serializable;
+
+public class ChatDTO implements Serializable {
     @SerializedName("chatId")
     private Long chatId;
 

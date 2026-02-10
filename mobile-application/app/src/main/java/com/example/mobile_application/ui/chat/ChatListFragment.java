@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.ChatListAdapter;
+import com.example.mobile_application.dto.ChatDTO;
 import com.example.mobile_application.dto.ChatListDTO;
 import com.example.mobile_application.repository.ChatRepository;
 
@@ -37,7 +38,14 @@ public class ChatListFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.rvChatList);
         adapter = new ChatListAdapter(chat -> {
-           // TODO: open chat fragment
+            ChatDTO dto = new ChatDTO();
+            dto.setChatId(chat);
+            ChatFragment fragment = ChatFragment.newInstance(dto);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.main_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);

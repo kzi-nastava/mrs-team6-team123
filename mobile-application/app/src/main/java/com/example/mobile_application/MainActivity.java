@@ -4,11 +4,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.mobile_application.dto.ChatDTO;
+import com.example.mobile_application.repository.ChatRepository;
 import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
 import com.example.mobile_application.ui.chat.ChatFragment;
 import com.example.mobile_application.ui.chat.ChatListFragment;
@@ -27,19 +30,25 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
     private boolean isLoggedIn = true;
-    private String userRole = "DRIVER"; // "DRIVER" | "PASSENGER"
+    private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
+    private ChatRepository chatRepository;
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
 
         setContentView(R.layout.activity_main);
+        chatRepository = new ChatRepository();
 
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerMenuView = findViewById(R.id.navigation_view);
@@ -131,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 if (userRole.equals(getString(R.string.role_admin)))
                     fragment = new ChatListFragment();
                 else
-                    fragment = new ChatFragment();
+                    findChat();
             }
 
             if (fragment != null) {
@@ -142,6 +151,27 @@ public class MainActivity extends AppCompatActivity {
             }
             drawerLayout.closeDrawers();
             return true;
+        });
+    }
+
+    private void findChat() {
+        chatRepository.getMyChat(2L, new Callback<ChatDTO>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<ChatDTO> call,
+                    @NonNull Response<ChatDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ChatDTO chat = response.body();
+                    loadFragment(ChatFragment.newInstance(chat));
+                }
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<ChatDTO> call,
+                    @NonNull Throwable t) {
+                return;
+            }
         });
     }
 }

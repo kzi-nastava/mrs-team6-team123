@@ -49,7 +49,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Type a message..."
+            android:hint="@string/message_hint"
             android:minHeight="48dp"
             android:paddingHorizontal="12dp"
             android:inputType="textMultiLine"
