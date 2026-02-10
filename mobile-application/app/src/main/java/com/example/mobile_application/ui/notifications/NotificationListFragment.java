@@ -16,7 +16,6 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.NotificationAdapter;
 import com.example.mobile_application.dto.NotificationDTO;
 import com.example.mobile_application.dto.RateRideRequestDTO;
-import com.example.mobile_application.helper.RateRideHelper;
 import com.example.mobile_application.repository.NotificationRepository;
 import com.example.mobile_application.repository.RateRideRepository;
 import com.example.mobile_application.ui.rate_ride.RateRideFragment;
@@ -33,7 +32,7 @@ public class NotificationListFragment extends Fragment {
     private RecyclerView recyclerView;
     private NotificationAdapter adapter;
     private NotificationRepository repository;
-    private RateRideHelper rateRideHelper;
+    private RateRideRepository rateRideRepository;
 
     public static NotificationListFragment newInstance(boolean unread) {
         Bundle args = new Bundle();
@@ -49,6 +48,7 @@ public class NotificationListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notification_list, container, false);
 
         repository = new NotificationRepository();
+        rateRideRepository = new RateRideRepository();
         boolean unread = getArguments() != null && getArguments().getBoolean(ARG_UNREAD);
 
         recyclerView = view.findViewById(R.id.rvNotifications);
@@ -142,22 +142,6 @@ public class NotificationListFragment extends Fragment {
         }
     }
 
-    private void openRateRide(Long rideId) {
-        rateRideHelper = new RateRideHelper();
-        RateRideRequestDTO dto = rateRideHelper.fetchRide(rideId);
-        if (dto != null)
-            if (isAdded()) {
-                showToast("Ride for rating wasn't found");
-                return;
-            }
-        Fragment fragment = RateRideFragment.newInstance(dto);
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.main_container, fragment)
-                .addToBackStack(null)
-                .commit();
-    }
-
     private void markAsRead(Long notificationId) {
         repository.markAsRead(notificationId, new Callback<Void>() {
             @Override
@@ -191,5 +175,38 @@ public class NotificationListFragment extends Fragment {
     private void showToast(String message) {
         requireActivity().runOnUiThread(() ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
+    }
+
+    private void openRateRide(Long rideId) {
+        final RateRideRequestDTO dto;
+        rateRideRepository.getRideForRating(rideId, new Callback<RateRideRequestDTO>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<RateRideRequestDTO> call,
+                    @NonNull Response<RateRideRequestDTO> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    if (isAdded())
+                        showToast("Ride for rating wasn't found");
+                    return;
+                }
+
+                RateRideRequestDTO dto = response.body();
+
+                Fragment fragment = RateRideFragment.newInstance(dto);
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.main_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<RateRideRequestDTO> call,
+                    @NonNull Throwable t) {
+                if (isAdded())
+                    showToast("Failed loading the ride");
+            }
+        });
     }
 }
