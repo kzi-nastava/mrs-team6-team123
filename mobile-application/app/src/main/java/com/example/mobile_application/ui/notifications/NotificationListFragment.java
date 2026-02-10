@@ -19,6 +19,7 @@ import com.example.mobile_application.dto.RateRideRequestDTO;
 import com.example.mobile_application.repository.NotificationRepository;
 import com.example.mobile_application.repository.RateRideRepository;
 import com.example.mobile_application.ui.rate_ride.RateRideFragment;
+import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 
 import java.util.List;
 
@@ -134,10 +135,15 @@ public class NotificationListFragment extends Fragment {
         if (!notification.getLink().isEmpty()) {
             String link = notification.getLink();
             String rateRidePrefix = "/rate-ride?rideId=";
+            String trackRidePrefix = "/track-ride-page?rideId=";
             if (link.startsWith(rateRidePrefix)) {
                 String rideIdString = link.substring(rateRidePrefix.length());
                 Long rideId = Long.parseLong(rideIdString);
                 openRateRide(rideId);
+            } else if (link.startsWith(trackRidePrefix)) {
+                String rideIdString = link.substring(trackRidePrefix.length());
+                Long rideId = Long.parseLong(rideIdString);
+                openTrackRide(rideId);
             }
         }
     }
@@ -208,5 +214,14 @@ public class NotificationListFragment extends Fragment {
                     showToast("Failed loading the ride");
             }
         });
+    }
+
+    private void openTrackRide(Long rideId) {
+        Fragment fragment = TrackRideFragment.newInstance(rideId);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.main_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

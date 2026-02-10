@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isLoggedIn = true;
     private ChatRepository chatRepository;
     private Long testUserId = 3L; // TODO: Get from login authentication
-    private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
+    private String userRole = "PASSENGER"; // "DRIVER" | "ADMIN"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 if (userRole.equals(getString(R.string.role_admin)))
                     loadFragment(new AdminHomeFragment());
                 else
-                    loadFragment(TrackRideFragment.newInstance(14L));
+                    loadFragment(new MapFragment());
             }
             else
                 loadFragment(new UnregisteredHomeFragment());
