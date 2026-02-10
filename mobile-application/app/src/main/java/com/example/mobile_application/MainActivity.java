@@ -3,7 +3,6 @@ package com.example.mobile_application;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -11,9 +10,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
+import com.example.mobile_application.ui.chat.ChatFragment;
+import com.example.mobile_application.ui.chat.ChatListFragment;
 import com.example.mobile_application.ui.map.MapFragment;
-import com.example.mobile_application.ui.chat.ChatDialogFragment;
-import com.example.mobile_application.ui.chat.ChatListDialogFragment;
 import com.example.mobile_application.ui.DriverRegistrationFragment;
 import com.example.mobile_application.ui.FavoriteRoutesFragment;
 import com.example.mobile_application.ui.LoginFragment;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
-    private ImageButton chatButton;
 
     private boolean isLoggedIn = true; // TODO: Change to false after login is implemented
     private Long testUserId = 3L; // TODO: Get from login authentication
@@ -48,18 +46,6 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerMenuView = findViewById(R.id.navigation_view);
         bottomNavigationView = findViewById(R.id.navbar);
-        chatButton = findViewById(R.id.btnChat);
-
-        chatButton.setOnClickListener(v -> {
-            if ("admin".equals(userRole)) {
-                ChatListDialogFragment listDialog = new ChatListDialogFragment();
-                listDialog.show(getSupportFragmentManager(), "ChatListDialog");
-            } else {
-                ChatDialogFragment dialog = ChatDialogFragment.newInstance(
-                        getString(R.string.support_chat));
-                dialog.show(getSupportFragmentManager(), "ChatDialog");
-            }
-        });
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
@@ -76,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!isLoggedIn) {
-            chatButton.setVisibility(View.GONE);
             menu = bottomNavigationView.getMenu();
             menu.findItem(R.id.nav_hamburger).setVisible(false);
         }
@@ -144,6 +129,11 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new NotificationsFragment();
             } else if (id == R.id.pricing) {
                 fragment = new PricingFragment();
+            } else if (id == R.id.chat) {
+                if (userRole.equals(getString(R.string.role_admin)))
+                    fragment = new ChatListFragment();
+                else
+                    fragment = new ChatFragment();
             }
 
             if (fragment != null) {

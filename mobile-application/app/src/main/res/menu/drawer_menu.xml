@@ -25,6 +25,10 @@
         android:icon="@drawable/drivers"
         android:title="@string/drivers"/>
     <item
+        android:id="@+id/chat"
+        android:icon="@drawable/chat"
+        android:title="@string/chat"/>
+    <item
         android:id="@+id/logout"
         android:icon="@drawable/logout"
         android:title="@string/logout"/>
