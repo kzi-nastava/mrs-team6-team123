@@ -8,7 +8,6 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestD
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverAssignedRideDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.IrregularityReport;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
