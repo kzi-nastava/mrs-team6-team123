@@ -11,6 +11,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RouteRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
@@ -38,6 +39,8 @@ public class RideController {
     private final NotificationService notificationService;
     private final DriverMatchingService driverMatchingService;
     private final RideService rideService;
+    private final RideEstimationService estimationService;
+    private final DriverRepository driverRepository;
     private final PassengerRepository passengerRepository;
     private final RouteRepository routeRepository;
     private final RideRepository rideRepository;
@@ -50,6 +53,8 @@ public class RideController {
             NotificationService notificationService,
             DriverMatchingService driverMatchingService,
             RideService rideService,
+            RideEstimationService estimationService,
+            DriverRepository driverRepository,
             PassengerRepository passengerRepository,
             RouteRepository routeRepository,
             RideRepository rideRepository,
@@ -62,6 +67,8 @@ public class RideController {
         this.notificationService = notificationService;
         this.driverMatchingService = driverMatchingService;
         this.rideService = rideService;
+        this.estimationService = estimationService;
+        this.driverRepository = driverRepository;
         this.passengerRepository = passengerRepository;
         this.routeRepository = routeRepository;
         this.rideRepository = rideRepository;
@@ -110,6 +117,9 @@ public class RideController {
 
             // Create ride with assigned driver
             Driver driver = driverOptional.get();
+            driver.setTotalRides(driver.getTotalRides() + 1);
+            driverRepository.save(driver);
+
             Ride ride = new Ride();
             ride.setDriver(driver);
             ride.setRoute(savedRoute);
@@ -133,7 +143,21 @@ public class RideController {
             ride.setDate(LocalDate.now());
             ride.setStatus(RideStatus.CREATED);
             ride.setPrice(request.getEstimatedPrice() != null ? request.getEstimatedPrice() : 0.0);
-            ride.setTotalDistance(0.0); // Will be calculated from route
+
+            // Calculate actual distance using estimation service
+            double distance = 0.0;
+            try {
+                RideEstimationRequestDTO estimationRequest = new RideEstimationRequestDTO();
+                estimationRequest.setStartLocation(request.getStartLatitude() + "," + request.getStartLongitude());
+                estimationRequest.setEndLocation(request.getEndLatitude() + "," + request.getEndLongitude());
+                estimationRequest.setVehicleType(request.getVehicleType());
+                RideEstimationResponseDTO estimation = estimationService.estimate(estimationRequest);
+                distance = estimation.getEstimatedDistance();
+            } catch (Exception e) {
+                System.err.println("Failed to calculate distance: " + e.getMessage());
+            }
+            ride.setTotalDistance(distance);
+
             ride.setPanicTriggered(false);
             ride.setRideRated(false);
             ride.setDriverReported(false);
