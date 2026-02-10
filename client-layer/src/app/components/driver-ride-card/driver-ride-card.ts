@@ -11,15 +11,10 @@ import { DriverAssignedRide } from '../../services/driver.service';
 })
 export class DriverRideCardComponent {
   @Input() ride!: DriverAssignedRide;
-  @Input() hasAcceptedRide: boolean = false;
+  @Input() canStart: boolean = false;
   
-  @Output() accept = new EventEmitter<number>();
   @Output() start = new EventEmitter<number>();
   @Output() seeRoute = new EventEmitter<DriverAssignedRide>();
-
-  onAccept() {
-    this.accept.emit(this.ride.rideId);
-  }
 
   onStart() {
     this.start.emit(this.ride.rideId);
