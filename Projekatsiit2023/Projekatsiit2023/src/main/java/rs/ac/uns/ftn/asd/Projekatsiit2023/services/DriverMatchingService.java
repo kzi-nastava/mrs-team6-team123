@@ -1,19 +1,28 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationRequestDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideEstimationResponseDTO;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class DriverMatchingService {
+
+    private static final int BUFFER_MINUTES = 10;
+    private static final int DEFAULT_ESTIMATED_MINUTES = 30;
 
     private final DriverRepository driverRepository;
     private final RideRepository rideRepository;
@@ -28,44 +37,32 @@ public class DriverMatchingService {
 
     public Optional<Driver> findBestDriver(VehicleType vehicleType, boolean babyTransport,
             boolean petTransport, double startLatitude, double startLongitude,
-            double endLatitude, double endLongitude) {
+            double endLatitude, double endLongitude, LocalDateTime requestedScheduledAt) {
 
-        // Get all active drivers available for ride (not currently on a STARTED ride)
-        List<Driver> availableDrivers = driverRepository.findAvailableDrivers(RideStatus.STARTED,
-                babyTransport, petTransport);
-
+        // STEP 1: get all active drivers
+        List<Driver> availableDrivers = driverRepository.findByActive(true);
         if (availableDrivers.isEmpty()) {
             return Optional.empty();
         }
 
-        // Filter by active status (driver must be active to receive rides)
-        availableDrivers = availableDrivers.stream()
-                .filter(Driver::isActive)
-                .toList();
-
-        if (availableDrivers.isEmpty()) {
-            return Optional.empty();
-        }
-
-        // Filter by vehicle type
+        // STEP 2: get drivers with right vehicle and correct preferences
         availableDrivers = availableDrivers.stream()
                 .filter(d -> d.getVehicle() != null && d.getVehicle().getVehicleType() == vehicleType)
+                .filter(d -> !babyTransport || d.getVehicle().isBabyTransport())
+                .filter(d -> !petTransport || d.getVehicle().isPetTransport())
                 .toList();
-
         if (availableDrivers.isEmpty()) {
             return Optional.empty();
         }
 
-        // Filter by work hour limit with consideration for upcoming ride duration
-        // Estimate the ride time for this request
         int estimatedRideTimeMinutes = estimateRideTime(startLatitude, startLongitude,
                 endLatitude, endLongitude, vehicleType);
 
+        // STEP 3: make sure driver will work <= 8hrs
         List<Driver> eligibleDrivers = availableDrivers.stream()
                 .filter(d -> {
                     int currentActiveMinutes = d.getActiveMinutesLast24h();
                     int projectedTotalMinutes = currentActiveMinutes + estimatedRideTimeMinutes;
-                    // Driver can take the ride only if total time stays under 8 hours (480 minutes)
                     return projectedTotalMinutes <= 480;
                 })
                 .toList();
@@ -74,48 +71,115 @@ public class DriverMatchingService {
             return Optional.empty();
         }
 
-        // Priority-based driver selection
-        // Priority 1: Drivers with NO active rides (neither CREATED nor STARTED)
-        List<Driver> noActiveRidesDrivers = new ArrayList<>();
-        // Priority 2: Drivers with only STARTED rides (no CREATED rides - assigned but not started)
-        List<Driver> onlyStartedRidesDrivers = new ArrayList<>();
+        return findBestDriverWithConflictResolution(eligibleDrivers, requestedScheduledAt, estimatedRideTimeMinutes);
+    }
 
+    private Optional<Driver> findBestDriverWithConflictResolution(List<Driver> eligibleDrivers,
+            LocalDateTime referenceTime, int estimatedRideTimeMinutes) {
+        LocalDateTime reference = referenceTime != null ? referenceTime : LocalDateTime.now();
+        int requestedDuration = estimatedRideTimeMinutes + BUFFER_MINUTES;
+        LocalDateTime requestedEnd = reference.plusMinutes(requestedDuration);
+        List<Driver> noConflictDrivers = new ArrayList<>();
+        Map<Driver, LocalDateTime> conflictEndTimes = new HashMap<>();
+
+        // STEP 4: get all drivers rides
         for (Driver driver : eligibleDrivers) {
-            List<Ride> createdRides = rideRepository.findByDriverId(driver.getId()).stream()
-                    .filter(r -> r.getStatus() == RideStatus.CREATED)
+            List<Ride> driverRides = rideRepository.findByDriverId(driver.getId()).stream()
+                    .filter(r -> r.getStatus() == RideStatus.CREATED || r.getStatus() == RideStatus.STARTED)
                     .toList();
 
-            List<Ride> startedRides = rideRepository.findByDriverId(driver.getId()).stream()
-                    .filter(r -> r.getStatus() == RideStatus.STARTED)
-                    .toList();
-
-            if (createdRides.isEmpty() && startedRides.isEmpty()) {
-                // Priority 1: No assigned or active rides
-                noActiveRidesDrivers.add(driver);
-            } else if (createdRides.isEmpty() && !startedRides.isEmpty()) {
-                // Priority 2: Only STARTED rides, no assigned (CREATED) rides
-                onlyStartedRidesDrivers.add(driver);
+            // if driver has no rides he is a match
+            if (driverRides.isEmpty()) {
+                noConflictDrivers.add(driver);
+                continue;
             }
+
+            // Build busy windows and sort them so we can find the first feasible gap.
+            List<RideWindow> windows = new ArrayList<>();
+            for (Ride existingRide : driverRides) {
+                LocalDateTime rideStart = resolveRideStart(existingRide);
+                int duration = getRideDurationMinutes(existingRide);
+                LocalDateTime rideEnd = rideStart.plusMinutes(duration + BUFFER_MINUTES);
+                windows.add(new RideWindow(rideStart, rideEnd));
+            }
+            windows.sort(Comparator.comparing(window -> window.start));
+
+            // Priority 1: driver is free for the whole requested window.
+            boolean overlapsRequestedWindow = windows.stream()
+                    .anyMatch(window -> window.start.isBefore(requestedEnd) && window.end.isAfter(reference));
+
+            if (!overlapsRequestedWindow) {
+                noConflictDrivers.add(driver);
+                continue;
+            }
+
+            // Priority 2: find the ride that overlaps the requested time, then see if the
+            // post-overlap window can fit the full new ride without hitting another window.
+            LocalDateTime possibleStart = reference;
+            for (RideWindow window : windows) {
+                if (window.start.isBefore(reference) && window.end.isAfter(reference)) {
+                    possibleStart = window.end;
+                    break;
+                }
+            }
+
+            final LocalDateTime possibleStartFinal = possibleStart;
+            LocalDateTime possibleEnd = possibleStartFinal.plusMinutes(requestedDuration);
+            boolean overlapsAnotherWindow = windows.stream()
+                    .anyMatch(window -> window.start.isBefore(possibleEnd)
+                            && window.end.isAfter(possibleStartFinal));
+
+            if (!overlapsAnotherWindow) {
+                conflictEndTimes.put(driver, possibleStartFinal);
+            }
+
         }
 
-        // Return Priority 1 drivers first (no active rides)
-        if (!noActiveRidesDrivers.isEmpty()) {
-            return noActiveRidesDrivers.stream().findFirst();
+        // Priority 1: Return drivers with no conflicts
+        if (!noConflictDrivers.isEmpty()) {
+            return noConflictDrivers.stream().findFirst();
         }
 
-        // Fall back to Priority 2 drivers (only STARTED rides)
-        if (!onlyStartedRidesDrivers.isEmpty()) {
-            return onlyStartedRidesDrivers.stream().findFirst();
+        // Priority 2: Return driver with earliest conflict end time (fastest available)
+        if (!conflictEndTimes.isEmpty()) {
+            return conflictEndTimes.entrySet().stream()
+                    .min(Comparator.comparing(Map.Entry::getValue))
+                    .map(Map.Entry::getKey);
         }
 
-        // No suitable drivers available
         return Optional.empty();
     }
 
-    /**
-     * Estimates the ride time in minutes for a given route.
-     * Uses the actual start and end coordinates for accurate estimation.
-     */
+    private LocalDateTime resolveRideStart(Ride ride) {
+        // For started rides, use actual start time
+        if (ride.getStatus() == RideStatus.STARTED) {
+            return ride.getStartedAt();
+        }
+
+        // For created rides, use scheduled time or now if not scheduled
+        if (ride.getScheduledAt() != null) {
+            return ride.getScheduledAt();
+        }
+
+        return LocalDateTime.now();
+    }
+
+    private static final class RideWindow {
+        private final LocalDateTime start;
+        private final LocalDateTime end;
+
+        private RideWindow(LocalDateTime start, LocalDateTime end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+
+    private int getRideDurationMinutes(Ride ride) {
+        return ride.getEstimatedDurationMinutes() != null
+                ? ride.getEstimatedDurationMinutes()
+                : DEFAULT_ESTIMATED_MINUTES;
+    }
+
     private int estimateRideTime(double startLatitude, double startLongitude,
             double endLatitude, double endLongitude, VehicleType vehicleType) {
         try {
@@ -127,9 +191,8 @@ public class DriverMatchingService {
             RideEstimationResponseDTO estimation = estimationService.estimate(estimationRequest);
             return estimation.getEstimatedTime();
         } catch (Exception e) {
-            // Fallback to conservative estimate (30 minutes) if estimation fails
             System.err.println("Failed to estimate ride time, using default: " + e.getMessage());
-            return 30;
+            return DEFAULT_ESTIMATED_MINUTES;
         }
     }
 }

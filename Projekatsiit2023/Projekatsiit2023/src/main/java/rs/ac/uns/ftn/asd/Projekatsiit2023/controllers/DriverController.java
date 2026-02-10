@@ -117,7 +117,7 @@ public class DriverController {
 
             // Set ride status to STARTED and update actual start time
             ride.setStatus(RideStatus.STARTED);
-            ride.setStartedAt(java.time.LocalTime.now());
+            ride.setStartedAt(java.time.LocalDateTime.now());
 
             // Set all passengers' startedRide flag to true and send notifications
             for (Passenger passenger : ride.getPassengers()) {

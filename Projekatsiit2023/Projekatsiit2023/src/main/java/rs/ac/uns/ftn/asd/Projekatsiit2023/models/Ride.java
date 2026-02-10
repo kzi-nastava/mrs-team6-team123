@@ -45,7 +45,7 @@ public class Ride {
         private LocalDateTime scheduledAt;
 
         @Column
-        private LocalTime startedAt;
+        private LocalDateTime startedAt;
 
         @Column
         private LocalTime endedAt;
@@ -55,6 +55,9 @@ public class Ride {
 
         @Column(nullable = false)
         private double price;
+
+        @Column
+        private Integer estimatedDurationMinutes; // Duration of this ride in minutes
 
         @Column(nullable = false)
         private boolean isPaid = false;

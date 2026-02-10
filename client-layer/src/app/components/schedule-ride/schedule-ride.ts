@@ -231,12 +231,15 @@ export class ScheduleRideComponent {
   }
 
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
-    // Format scheduledAt: combine today's date with the time if scheduling for later
-    let scheduledAt: string | undefined = undefined;
+    // Format scheduledAt: always send a time (now for immediate, or scheduled time for later)
+    let scheduledAt: string;
     if (this.scheduleType === 'later' && this.scheduledHour && this.scheduledMinute) {
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0]; // Get YYYY-MM-DD
       scheduledAt = `${dateStr}T${this.scheduledHour}:${this.scheduledMinute}:00`; // Combine with HH:mm and add seconds
+    } else {
+      // For immediate rides, send current time
+      scheduledAt = new Date().toISOString().substring(0, 19); // Format: YYYY-MM-DDTHH:mm:ss
     }
 
     const request: RideOrderRequest = {

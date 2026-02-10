@@ -94,7 +94,8 @@ public class RideController {
                     request.getStartLatitude(),
                     request.getStartLongitude(),
                     request.getEndLatitude(),
-                    request.getEndLongitude());
+                    request.getEndLongitude(),
+                    request.getScheduledAt());
 
             if (driverOptional.isEmpty()) {
                 // No driver available - notify the ride creator
