@@ -162,13 +162,15 @@ public class RideController {
                     notificationMessage,
                     null);
 
-            // Send notification to all passengers
+            // Send notification to all passengers (skip creator to avoid duplicate)
             for (Passenger passenger : savedRide.getPassengers()) {
-                notificationService.sendNotification(
-                        passenger.getId(),
-                        "Ride Booked Successfully",
-                        notificationMessage,
-                        null);
+                if (!passenger.getId().equals(creator.getId())) {
+                    notificationService.sendNotification(
+                            passenger.getId(),
+                            "Ride Booked Successfully",
+                            notificationMessage,
+                            null);
+                }
             }
 
             return ResponseEntity.ok(response);

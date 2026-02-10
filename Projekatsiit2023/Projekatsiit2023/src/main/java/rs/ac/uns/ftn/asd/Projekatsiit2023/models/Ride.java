@@ -106,4 +106,14 @@ public class Ride {
 
         @Column
         private double endLongitude;
+
+        // Track if reminder notifications have been sent
+        @Column(nullable = false)
+        private boolean notified15Min = false;
+
+        @Column(nullable = false)
+        private boolean notified10Min = false;
+
+        @Column(nullable = false)
+        private boolean notified5Min = false;
 }
