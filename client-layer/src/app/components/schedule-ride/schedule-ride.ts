@@ -17,6 +17,7 @@ import { RideOrderRequest, RideResponse } from '../../models/ride.model';
 import { VehicleType } from '../../models/enums';
 import { GeocodeHit } from '../../services/graphhopper.service';
 import { LocationInputComponent } from './location-input/location-input.component';
+import { ScheduleTimeComponent } from './schedule-time/schedule-time.component';
 
 @Component({
   selector: 'app-schedule-ride',
@@ -29,7 +30,8 @@ import { LocationInputComponent } from './location-input/location-input.componen
     MatFormFieldModule,
     MatSlideToggleModule,
     MatIconModule,
-    LocationInputComponent
+    LocationInputComponent,
+    ScheduleTimeComponent
   ],
   templateUrl: './schedule-ride.html',
   styleUrl: './schedule-ride.css'
@@ -41,7 +43,8 @@ export class ScheduleRideComponent {
   hasBaby = false;
   vehicleType = 'STANDARD';
   scheduleType = 'now';
-  scheduledTime = '';
+  scheduledHour = '12';
+  scheduledMinute = '00';
   additionalInstructions = '';
 
   @Output() locationsChanged = new EventEmitter<{
@@ -77,6 +80,7 @@ export class ScheduleRideComponent {
     private stopManagement: StopManagementService,
     private cdr: ChangeDetectorRef
   ) {}
+
 
   addPassenger() {
     this.passengerManagement.addPassenger();
@@ -229,10 +233,10 @@ export class ScheduleRideComponent {
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
     // Format scheduledAt: combine today's date with the time if scheduling for later
     let scheduledAt: string | undefined = undefined;
-    if (this.scheduleType === 'later' && this.scheduledTime) {
+    if (this.scheduleType === 'later' && this.scheduledHour && this.scheduledMinute) {
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0]; // Get YYYY-MM-DD
-      scheduledAt = `${dateStr}T${this.scheduledTime}:00`; // Combine with HH:mm and add seconds
+      scheduledAt = `${dateStr}T${this.scheduledHour}:${this.scheduledMinute}:00`; // Combine with HH:mm and add seconds
     }
 
     const request: RideOrderRequest = {
