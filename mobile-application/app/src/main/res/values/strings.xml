@@ -51,7 +51,7 @@
     <string name="comment">Comment:</string>
     <string name="comment_hint">Write your comment here...</string>
     <string name="cancel">Cancel</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="rate_ride">Rate Ride</string>
+    <string name="confirm">Confirm</string>
+    <string name="new_price_hint">Enter new price</string>
 </resources>
