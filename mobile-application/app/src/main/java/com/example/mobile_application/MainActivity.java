@@ -20,6 +20,7 @@ import com.example.mobile_application.ui.LoginFragment;
 import com.example.mobile_application.ui.ProfileFragment;
 import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
 import com.example.mobile_application.ui.notifications.NotificationsFragment;
+import com.example.mobile_application.ui.pricing.PricingFragment;
 import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -141,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new DriverRegistrationFragment();
             } else if (id == R.id.notifications) {
                 fragment = new NotificationsFragment();
+            } else if (id == R.id.pricing) {
+                fragment = new PricingFragment();
             }
 
             if (fragment != null) {

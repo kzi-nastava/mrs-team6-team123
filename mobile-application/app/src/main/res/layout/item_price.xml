@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvVehicleType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextSubHeading" />
+
+        <TextView
+            android:id="@+id/tvCurrentPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            style="@style/TextParagraph"/>
+
+        <EditText
+            android:id="@+id/etNewPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/new_price_hint"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp"
+            style="@style/TextParagraph"/>
+
+        <Button
+            android:id="@+id/btnConfirmPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm"
+            android:layout_marginTop="8dp"
+            style="@style/Widget.PrimaryButton"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

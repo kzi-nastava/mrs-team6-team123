@@ -107,6 +107,8 @@ public class RateRideFragment extends Fragment {
             return;
         }
         String comment = etComment.getText().toString().trim();
+        if (comment.isEmpty())
+            comment = "";
         RateRideResponseDTO dto = new RateRideResponseDTO();
         dto.setRideId(ride.getRideId());
         dto.setAuthorId(2L); // TODO: current user id
