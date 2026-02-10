@@ -30,15 +30,10 @@ public class DriversRideValidation {
         }
     }
 
-    public void validateRideStatusForAccept(Ride ride) {
-        if (ride.getStatus() != RideStatus.CREATED) {
-            throw new RuntimeException("Ride cannot be accepted in current status");
-        }
-    }
-
     public void validateRideStatusForStart(Ride ride) {
-        if (ride.getStatus() != RideStatus.ACCEPTED) {
-            throw new RuntimeException("Ride must be accepted before starting");
+        // Ride must be in CREATED status to start
+        if (ride.getStatus() != RideStatus.CREATED) {
+            throw new RuntimeException("Ride must be in assigned state to start");
         }
     }
 }

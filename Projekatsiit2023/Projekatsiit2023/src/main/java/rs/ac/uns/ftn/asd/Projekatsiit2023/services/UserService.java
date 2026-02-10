@@ -34,7 +34,7 @@ public class UserService {
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
     private final UserProfileValidation userProfileValidation;
-    private final String uploadDir = "../uploads/profile-images/";
+    private final String uploadDir = "./uploads/profile-images/";
 
     public UserService(UserRepository userRepository,
             PendingDriverProfileChangeRepository pendingChangeRepository,

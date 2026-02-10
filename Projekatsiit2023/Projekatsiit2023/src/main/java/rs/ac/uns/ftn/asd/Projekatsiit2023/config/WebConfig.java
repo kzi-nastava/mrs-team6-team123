@@ -9,8 +9,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Use parent directory (workspace root) for uploads
-        String uploadPath = new java.io.File("..").getAbsolutePath() + "/uploads";
+        // App runs from workspace root, so uploads folder is in current directory
+        String uploadPath = new java.io.File("./uploads").getAbsolutePath();
+        System.out.println("Serving static files from: " + uploadPath);
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath + "/");
     }

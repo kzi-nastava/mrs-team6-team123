@@ -17,6 +17,7 @@ import { RideOrderRequest, RideResponse } from '../../models/ride.model';
 import { VehicleType } from '../../models/enums';
 import { GeocodeHit } from '../../services/graphhopper.service';
 import { LocationInputComponent } from './location-input/location-input.component';
+import { ScheduleTimeComponent } from './schedule-time/schedule-time.component';
 
 @Component({
   selector: 'app-schedule-ride',
@@ -29,7 +30,8 @@ import { LocationInputComponent } from './location-input/location-input.componen
     MatFormFieldModule,
     MatSlideToggleModule,
     MatIconModule,
-    LocationInputComponent
+    LocationInputComponent,
+    ScheduleTimeComponent
   ],
   templateUrl: './schedule-ride.html',
   styleUrl: './schedule-ride.css'
@@ -41,7 +43,8 @@ export class ScheduleRideComponent {
   hasBaby = false;
   vehicleType = 'STANDARD';
   scheduleType = 'now';
-  scheduledTime = '';
+  scheduledHour = '12';
+  scheduledMinute = '00';
   additionalInstructions = '';
 
   @Output() locationsChanged = new EventEmitter<{
@@ -77,6 +80,7 @@ export class ScheduleRideComponent {
     private stopManagement: StopManagementService,
     private cdr: ChangeDetectorRef
   ) {}
+
 
   addPassenger() {
     this.passengerManagement.addPassenger();
@@ -227,6 +231,17 @@ export class ScheduleRideComponent {
   }
 
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
+    // Format scheduledAt: always send a time (now for immediate, or scheduled time for later)
+    let scheduledAt: string;
+    if (this.scheduleType === 'later' && this.scheduledHour && this.scheduledMinute) {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0]; // Get YYYY-MM-DD
+      scheduledAt = `${dateStr}T${this.scheduledHour}:${this.scheduledMinute}:00`; // Combine with HH:mm and add seconds
+    } else {
+      // For immediate rides, send current time
+      scheduledAt = new Date().toISOString().substring(0, 19); // Format: YYYY-MM-DDTHH:mm:ss
+    }
+
     const request: RideOrderRequest = {
       creatorId,
       passengerIds,
@@ -238,7 +253,7 @@ export class ScheduleRideComponent {
       endLongitude: this.endLng!,
       waypoints: this.stopManagement.getValidStops()
         .map(s => `${s.lat},${s.lng}`),
-      scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
+      scheduledAt: scheduledAt,
       babySeat: this.hasBaby,
       petFriendly: this.hasPet,
       vehicleType: this.vehicleType as VehicleType,
@@ -247,10 +262,13 @@ export class ScheduleRideComponent {
 
     this.orderRideService.orderRide(request).subscribe({
       next: (response: RideResponse) => {
-        alert(`Ride booked successfully! Ride ID: ${response.rideId}. Estimated time: ${response.estimatedTimeMinutes} minutes.`);
-        // TODO: Navigate to tracking page or show ride details
+        console.log(`Ride booked successfully! Ride ID: ${response.rideId}`);
       },
       error: (err: HttpErrorResponse) => {
+        if (err.status === 503) {
+          console.log('No drivers available. Notification sent to passenger.');
+          return;
+        }
         alert('Failed to book ride. Please try again.');
       }
     });

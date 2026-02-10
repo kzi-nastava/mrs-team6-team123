@@ -74,7 +74,7 @@ public class FinishRideService {
     private boolean isDriverAvailable(Long driverId) {
         List<Ride> rides = rideRepository.findByDriverId(driverId);
         for (Ride ride : rides) {
-            if (ride.getStatus() == RideStatus.ACCEPTED) {
+            if (ride.getStatus() == RideStatus.CREATED) {
                 return false;
             }
         }

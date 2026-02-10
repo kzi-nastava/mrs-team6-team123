@@ -19,4 +19,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     Long driver(Driver driver);
     List<Ride> findByStatus(RideStatus status);
+
+    @Query("SELECT r FROM Ride r WHERE r.scheduledAt IS NOT NULL AND r.status = 'CREATED'")
+    List<Ride> findScheduledRides();
 }

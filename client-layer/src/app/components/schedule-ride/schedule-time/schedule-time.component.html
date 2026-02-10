@@ -1,0 +1,9 @@
+<div class="schedule-time">
+  <select [(ngModel)]="selectedHour" (ngModelChange)="onHourChange()" class="time-select">
+    <option *ngFor="let hour of hours" [value]="hour">{{ hour }}</option>
+  </select>
+  <span class="time-separator">:</span>
+  <select [(ngModel)]="selectedMinute" (ngModelChange)="onMinuteChange()" class="time-select">
+    <option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</option>
+  </select>
+</div>

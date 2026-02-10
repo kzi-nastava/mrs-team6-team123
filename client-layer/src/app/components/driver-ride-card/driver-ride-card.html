@@ -1,8 +1,4 @@
-<div
-  class="driver-ride-card"
-  [class.accepted]="ride.status === 'ACCEPTED'"
-  [class.started]="ride.status === 'STARTED'"
->
+<div class="driver-ride-card" [class.started]="ride.status === 'STARTED'">
   <div class="card-info">
     <p><strong>From:</strong> {{ ride.startLocation }}</p>
     <p><strong>To:</strong> {{ ride.endLocation }}</p>
@@ -15,14 +11,11 @@
 
   <div class="card-actions">
     <button
-      *ngIf="ride.status === 'CREATED' && !hasAcceptedRide"
-      class="btn-accept"
-      (click)="onAccept()"
+      *ngIf="ride.status !== 'STARTED'"
+      class="btn-start"
+      [disabled]="!canStart"
+      (click)="onStart()"
     >
-      Accept Ride
-    </button>
-
-    <button *ngIf="ride.status === 'ACCEPTED'" class="btn-start" (click)="onStart()">
       Start Ride
     </button>
 
