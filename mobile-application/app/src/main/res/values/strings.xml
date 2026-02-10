@@ -54,4 +54,6 @@
     <string name="rate_ride">Rate Ride</string>
     <string name="confirm">Confirm</string>
     <string name="new_price_hint">Enter new price</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
