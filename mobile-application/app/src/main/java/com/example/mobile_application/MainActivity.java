@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ImageButton chatButton;
 
-    private boolean isLoggedIn = true;
+    private boolean isLoggedIn = true; // TODO: Change to false after login is implemented
+    private Long testUserId = 3L; // TODO: Get from login authentication
     private String userRole = "ADMIN"; // "DRIVER" | "PASSENGER"
 
     @Override
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_profile) {
                 if (isLoggedIn) {
-                    loadFragment(ProfileFragment.newInstance(userRole));
+                    loadFragment(ProfileFragment.newInstance(userRole, testUserId));
                 } else {
                     loadFragment(new LoginFragment());
                 }
