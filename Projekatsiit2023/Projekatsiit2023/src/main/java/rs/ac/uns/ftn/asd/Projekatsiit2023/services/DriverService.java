@@ -6,7 +6,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.PasswordResetToken;
@@ -58,7 +57,6 @@ public class DriverService {
         driver.setAccountBlocked(false);
 
         // Driver defaults
-        driver.setStatus(DriverStatus.PENDING_APPROVAL);
         driver.setActive(false);
         driver.setActiveMinutesLast24h(0);
         driver.setTotalRides(0);
@@ -99,7 +97,6 @@ public class DriverService {
             dto.setVehicleModel(driver.getVehicle().getVehicleModel());
             dto.setLicensePlate(driver.getVehicle().getLicensePlate());
         }
-        dto.setStatus(driver.getStatus());
         return dto;
     }
 }
