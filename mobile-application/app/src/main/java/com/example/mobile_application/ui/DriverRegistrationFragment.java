@@ -14,6 +14,13 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_application.R;
+import com.example.mobile_application.dto.DriverRegistrationRequestDTO;
+import com.example.mobile_application.dto.DriverResponseDTO;
+import com.example.mobile_application.repository.DriverRepository;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DriverRegistrationFragment extends Fragment {
 
@@ -33,10 +40,14 @@ public class DriverRegistrationFragment extends Fragment {
     private CheckBox petFriendlyCheckbox;
 
     private Button createAccountButton;
+    private DriverRepository driverRepository;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_driver_registration, container, false);
+
+        // Initialize repository
+        driverRepository = new DriverRepository();
 
         // Initialize fields
         firstNameInput = view.findViewById(R.id.first_name_input);
@@ -62,7 +73,7 @@ public class DriverRegistrationFragment extends Fragment {
     }
 
     private void setupVehicleTypeSpinner() {
-        String[] vehicleTypes = { "Standard", "Luxury", "Van" };
+        String[] vehicleTypes = { "STANDARD", "LUXURY", "VAN" };
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_dropdown_item,
@@ -86,10 +97,65 @@ public class DriverRegistrationFragment extends Fragment {
         boolean babyFriendly = babyFriendlyCheckbox.isChecked();
         boolean petFriendly = petFriendlyCheckbox.isChecked();
 
-        // Success message
-        Toast.makeText(getContext(), "Driver account created. Activation link sent.", Toast.LENGTH_LONG).show();
+        // Validate inputs
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
+                address.isEmpty() || phone.isEmpty() || vehicleModel.isEmpty() ||
+                licensePlate.isEmpty() || seatsStr.isEmpty()) {
+            Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        clearForm();
+        int seats;
+        try {
+            seats = Integer.parseInt(seatsStr);
+            if (seats < 1 || seats > 8) {
+                Toast.makeText(getContext(), "Seats must be between 1 and 8", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid number for seats", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create request DTO
+        DriverRegistrationRequestDTO request = new DriverRegistrationRequestDTO(
+                firstName, lastName, email, address, phone,
+                vehicleModel, vehicleType, licensePlate, seats,
+                babyFriendly, petFriendly);
+
+        // Disable button while processing
+        createAccountButton.setEnabled(false);
+        createAccountButton.setText("Creating...");
+
+        // Call API
+        driverRepository.registerDriver(request, new Callback<DriverResponseDTO>() {
+            @Override
+            public void onResponse(Call<DriverResponseDTO> call, Response<DriverResponseDTO> response) {
+                createAccountButton.setEnabled(true);
+                createAccountButton.setText("Create account and send link");
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(),
+                            "Driver account created successfully! Activation link sent to "
+                                    + response.body().getEmail(),
+                            Toast.LENGTH_LONG).show();
+                    clearForm();
+                } else {
+                    Toast.makeText(getContext(),
+                            "Failed to create driver account. Please try again.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DriverResponseDTO> call, Throwable t) {
+                createAccountButton.setEnabled(true);
+                createAccountButton.setText("Create account and send link");
+                Toast.makeText(getContext(),
+                        "Network error: " + t.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void clearForm() {

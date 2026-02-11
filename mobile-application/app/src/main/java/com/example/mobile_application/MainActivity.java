@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private boolean isLoggedIn = true;
     private ChatRepository chatRepository;
-    private Long testUserId = 3L; // TODO: Get from login authentication
-    private String userRole = "PASSENGER"; // "DRIVER" | "ADMIN"
+    private Long testUserId = 1L; // TODO: Get from login authentication
+    private String userRole = "ADMIN"; // "DRIVER" | "ADMIN"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
