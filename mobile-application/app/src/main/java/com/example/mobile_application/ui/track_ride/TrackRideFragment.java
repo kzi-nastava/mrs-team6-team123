@@ -46,8 +46,7 @@ public class TrackRideFragment extends Fragment {
     private MapView mapView;
     private Marker vehicleMarker;
     private Button btnPanic, btnReport, btnFinish, btnStop;
-    private TextView
-            tvRouteName, tvStartedAt, tvTimeLeft,
+    private TextView tvRouteName, tvStartedAt, tvTimeLeft,
             tvDriver, tvPrice, tvPassengers, tvReports,
             tvPassengersHeading, tvReportsHeading;
     private View viewButtons, viewPassengers;
@@ -57,7 +56,7 @@ public class TrackRideFragment extends Fragment {
     private TrackRideRepository trackRideRepository;
     private ActiveVehicleRepository activeVehicleRepository;
     private RideRepository rideRepository;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable refreshRunnable;
     private BitmapDrawable taxiIcon;
     private BitmapDrawable stopIcon;
@@ -85,7 +84,7 @@ public class TrackRideFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_track_ride, container, false);
 
         mapView = view.findViewById(R.id.map);
@@ -109,11 +108,13 @@ public class TrackRideFragment extends Fragment {
         rideRepository = new RideRepository();
 
         int newSize = 36;
-        Bitmap originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.taxi)).getBitmap();
+        Bitmap originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.taxi))
+                .getBitmap();
         Bitmap smallBitmap = Bitmap.createScaledBitmap(originalBitmap, newSize, newSize, true);
         taxiIcon = new BitmapDrawable(getResources(), smallBitmap);
 
-        originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.location_icon)).getBitmap();
+        originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.location_icon))
+                .getBitmap();
         smallBitmap = Bitmap.createScaledBitmap(originalBitmap, newSize, newSize, true);
         stopIcon = new BitmapDrawable(getResources(), smallBitmap);
 
@@ -139,15 +140,14 @@ public class TrackRideFragment extends Fragment {
 
     private void showRoute(List<GeoPointDTO> stops) {
         for (int i = 0; i < stops.size() - 1; ++i) {
-            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i+1));
+            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i + 1));
         }
         for (GeoPointDTO stop : stops)
             drawMarkerHelper.drawMarkers(stop, stopIcon);
     }
 
     private void showToast(String message) {
-        requireActivity().runOnUiThread(() ->
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
+        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
     }
 
     private void loadRide() {
@@ -156,7 +156,8 @@ public class TrackRideFragment extends Fragment {
             public void onResponse(
                     @NonNull Call<TrackRideDTO> call,
                     @NonNull Response<TrackRideDTO> response) {
-                if (!isAdded()) return;
+                if (!isAdded())
+                    return;
 
                 if (response.isSuccessful() && response.body() != null) {
                     dto = response.body();
@@ -184,7 +185,8 @@ public class TrackRideFragment extends Fragment {
     }
 
     private void loadVehicle(Long driverId) {
-        if (driverId == null) return;
+        if (driverId == null)
+            return;
 
         activeVehicleRepository.getDriversVehicle(driverId,
                 new Callback<ActiveVehicleDTO>() {
@@ -193,7 +195,8 @@ public class TrackRideFragment extends Fragment {
                             @NonNull Call<ActiveVehicleDTO> call,
                             @NonNull Response<ActiveVehicleDTO> response) {
 
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
 
                         if (response.isSuccessful() && response.body() != null) {
                             updateVehicleMarker(response.body());
@@ -213,8 +216,7 @@ public class TrackRideFragment extends Fragment {
     private void updateVehicleMarker(ActiveVehicleDTO vehicle) {
         GeoPoint point = new GeoPoint(
                 vehicle.getLatitude(),
-                vehicle.getLongitude()
-        );
+                vehicle.getLongitude());
 
         if (vehicleMarker == null) {
             vehicleMarker = new Marker(mapView);
@@ -227,9 +229,8 @@ public class TrackRideFragment extends Fragment {
         mapView.invalidate();
     }
 
-
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "PASSENGER"; // current logged in user role
+        String userRole = "DRIVER"; // current logged in user role
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -287,7 +288,8 @@ public class TrackRideFragment extends Fragment {
     }
 
     private void startAutoRefresh() {
-        if (refreshRunnable != null) return;
+        if (refreshRunnable != null)
+            return;
         refreshRunnable = new Runnable() {
             @Override
             public void run() {
@@ -333,6 +335,7 @@ public class TrackRideFragment extends Fragment {
                         showToast("Error while finishing the ride");
                 }
             }
+
             @Override
             public void onFailure(
                     @NonNull Call<Void> call,

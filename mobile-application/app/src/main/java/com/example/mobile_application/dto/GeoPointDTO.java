@@ -14,6 +14,12 @@ public class GeoPointDTO implements Serializable {
 
     public GeoPointDTO() {}
 
+    public GeoPointDTO(double latitude, double longitude, String location) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.location = location;
+    }
+
     public double getLatitude() {
         return latitude;
     }
