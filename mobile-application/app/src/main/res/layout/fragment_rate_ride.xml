@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="?attr/colorSurface">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rate_ride"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"
+        style="@style/TextHeading"/>
+
+    <TextView
+        android:id="@+id/tvDriver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        style="@style/TextParagraph"/>
+
+    <LinearLayout
+        android:id="@+id/llDriverRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/star1Driver"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star2Driver"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star3Driver"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star4Driver"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star5Driver"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvVehicle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        style="@style/TextParagraph"/>
+
+    <LinearLayout
+        android:id="@+id/llVehicleRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/star1Vehicle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star2Vehicle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star3Vehicle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star4Vehicle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+
+        <ImageView
+            android:id="@+id/star5Vehicle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/star_outline"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/comment"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp"
+        style="@style/TextSubHeading"/>
+
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="@string/comment_hint"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:background="@android:drawable/edit_text"
+        android:padding="10dp"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:layout_marginEnd="12dp"
+            style="@style/Widget.SecondaryButton"/>
+
+        <Button
+            android:id="@+id/btnRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rate"
+            style="@style/Widget.PrimaryButton"/>
+    </LinearLayout>
+
+</LinearLayout>

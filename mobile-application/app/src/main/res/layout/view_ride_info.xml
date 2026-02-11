@@ -32,6 +32,7 @@
         style="@style/TextParagraph"/>
 
     <View
+        android:id="@+id/viewPassengers"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginVertical="8dp"

@@ -29,7 +29,6 @@ public class DriverStatusService {
         
         return driverRides.stream()
                 .anyMatch(ride -> ride.getStatus() == RideStatus.CREATED 
-                        || ride.getStatus() == RideStatus.ACCEPTED 
                         || ride.getStatus() == RideStatus.STARTED);
     }
 
@@ -39,7 +38,6 @@ public class DriverStatusService {
         
         return driverRides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.CREATED 
-                        || ride.getStatus() == RideStatus.ACCEPTED 
                         || ride.getStatus() == RideStatus.STARTED)
                 .findFirst()
                 .orElse(null);

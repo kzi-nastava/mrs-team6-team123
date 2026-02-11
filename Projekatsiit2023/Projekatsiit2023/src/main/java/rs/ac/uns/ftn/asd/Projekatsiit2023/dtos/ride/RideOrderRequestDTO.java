@@ -1,5 +1,6 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
@@ -18,7 +19,8 @@ public class RideOrderRequestDTO {
     private double startLongitude;
     private double endLatitude;
     private double endLongitude;
-    private LocalDateTime scheduledAt; // null for ASAP
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING)
+    private LocalDateTime scheduledAt; // null for ASAP, ISO format: YYYY-MM-DDTHH:mm:ss
     private boolean babySeat;
     private boolean petFriendly;
     private VehicleType vehicleType; // STANDARD | LUXURY | VAN
