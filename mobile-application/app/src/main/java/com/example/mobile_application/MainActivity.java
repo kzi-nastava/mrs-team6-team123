@@ -15,6 +15,7 @@ import com.example.mobile_application.repository.ChatRepository;
 import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
 import com.example.mobile_application.ui.chat.ChatFragment;
 import com.example.mobile_application.ui.chat.ChatListFragment;
+import com.example.mobile_application.ui.driver_home.DriverHomeFragment;
 import com.example.mobile_application.ui.map.MapFragment;
 import com.example.mobile_application.ui.registered_home.RegisteredHomeFragment;
 import com.example.mobile_application.ui.DriverRegistrationFragment;
@@ -40,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView drawerMenuView;
     private BottomNavigationView bottomNavigationView;
-    private boolean isLoggedIn = true;
+    private final boolean isLoggedIn = true;
     private ChatRepository chatRepository;
-    private Long testUserId = 2L; // TODO: Get from login authentication
-    private String userRole = "PASSENGER"; // "DRIVER" | "ADMIN"
+    private final Long testUserId = 3L; // TODO: Get from login authentication
+    private final String userRole = "DRIVER"; // "DRIVER" | "ADMIN"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(new AdminHomeFragment());
                 else if (userRole.equals(getString(R.string.role_passenger)))
                     loadFragment(new RegisteredHomeFragment());
+                else if (userRole.equals(getString(R.string.role_driver)))
+                    loadFragment(DriverHomeFragment.newInstance(testUserId));
                 else
                     loadFragment(new MapFragment());
             } else
@@ -111,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(new AdminHomeFragment());
                 else if (userRole.equals(getString(R.string.role_passenger)))
                     loadFragment(new RegisteredHomeFragment());
+                else if (userRole.equals(getString(R.string.role_driver)))
+                    loadFragment(DriverHomeFragment.newInstance(testUserId));
                 else
                     loadFragment(new MapFragment());
                 return true;
@@ -175,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(
                     @NonNull Call<ChatDTO> call,
                     @NonNull Throwable t) {
-                return;
             }
         });
     }
