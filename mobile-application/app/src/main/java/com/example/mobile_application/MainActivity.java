@@ -16,6 +16,7 @@ import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
 import com.example.mobile_application.ui.chat.ChatFragment;
 import com.example.mobile_application.ui.chat.ChatListFragment;
 import com.example.mobile_application.ui.map.MapFragment;
+import com.example.mobile_application.ui.registered_home.RegisteredHomeFragment;
 import com.example.mobile_application.ui.DriverRegistrationFragment;
 import com.example.mobile_application.ui.FavoriteRoutesFragment;
 import com.example.mobile_application.ui.LoginFragment;
@@ -41,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private boolean isLoggedIn = true;
     private ChatRepository chatRepository;
-    private Long testUserId = 1L; // TODO: Get from login authentication
-    private String userRole = "ADMIN"; // "DRIVER" | "ADMIN"
+    private Long testUserId = 2L; // TODO: Get from login authentication
+    private String userRole = "PASSENGER"; // "DRIVER" | "ADMIN"
 
     @Override
     protected void onCreate(Bundle saveInstanceState) {
@@ -81,10 +82,11 @@ public class MainActivity extends AppCompatActivity {
             if (isLoggedIn) {
                 if (userRole.equals(getString(R.string.role_admin)))
                     loadFragment(new AdminHomeFragment());
+                else if (userRole.equals(getString(R.string.role_passenger)))
+                    loadFragment(new RegisteredHomeFragment());
                 else
                     loadFragment(new MapFragment());
-            }
-            else
+            } else
                 loadFragment(new UnregisteredHomeFragment());
         }
     }
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_home) {
                 if (userRole.equals(getString(R.string.role_admin)))
                     loadFragment(new AdminHomeFragment());
+                else if (userRole.equals(getString(R.string.role_passenger)))
+                    loadFragment(new RegisteredHomeFragment());
                 else
                     loadFragment(new MapFragment());
                 return true;
