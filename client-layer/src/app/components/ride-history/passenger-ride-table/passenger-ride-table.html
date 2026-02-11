@@ -9,6 +9,7 @@
       <th>Price</th>
       <th>Driver</th>
       <th>Rating</th>
+      <th>Favorite</th>
       <th>Details</th>
     </tr>
   </thead>
@@ -16,10 +17,18 @@
     <tr *ngFor="let ride of rides">
       <td>{{ ride.date }}</td>
       <td class="location-cell" [title]="ride.startLocation">
-        {{ ride.startLocation.length > 30 ? (ride.startLocation | slice:0:30) + '...' : ride.startLocation }}
+        {{
+          ride.startLocation.length > 30
+            ? (ride.startLocation | slice: 0 : 30) + '...'
+            : ride.startLocation
+        }}
       </td>
       <td class="location-cell" [title]="ride.endLocation">
-        {{ ride.endLocation.length > 30 ? (ride.endLocation | slice:0:30) + '...' : ride.endLocation }}
+        {{
+          ride.endLocation.length > 30
+            ? (ride.endLocation | slice: 0 : 30) + '...'
+            : ride.endLocation
+        }}
       </td>
       <td>{{ ride.startedAt }}</td>
       <td>{{ ride.endedAt }}</td>
@@ -33,12 +42,18 @@
         </ng-container>
 
         <ng-template #rateRideBtn>
-          <button 
-            class="rate-btn"
-            (click)="openRateRideDialog(ride)">
-            Rate
-          </button>
+          <button class="rate-btn" (click)="openRateRideDialog(ride)">Rate</button>
         </ng-template>
+      </td>
+      <td>
+        <button
+          class="favorite-btn"
+          [class.favorited]="isFavorited(ride.routeId)"
+          (click)="toggleFavorite(ride, $event)"
+          title="Add to favorites"
+        >
+          {{ isFavorited(ride.routeId) ? '❤️' : '🤍' }}
+        </button>
       </td>
       <td>
         <button class="btn-view" (click)="showRoute(ride)">View</button>

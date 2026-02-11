@@ -9,6 +9,7 @@
     <app-route-card
       *ngFor="let route of favorites; let i = index"
       [data]="route"
+      (book)="bookFavoriteRoute(i)"
       (delete)="removeFavorite(i)"
     ></app-route-card>
   </div>

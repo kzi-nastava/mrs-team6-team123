@@ -27,6 +27,10 @@ export class FavoriteRoutesService {
     return this.http.get<FavoriteRoute[]>(`${this.apiUrl}/${passengerId}/favorite-routes`);
   }
 
+  addFavoriteRoute(passengerId: number, routeId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${passengerId}/favorite-routes?routeId=${routeId}`, {});
+  }
+
   removeFavoriteRoute(passengerId: number, favoriteRouteId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${passengerId}/favorite-routes/${favoriteRouteId}`);
   }
