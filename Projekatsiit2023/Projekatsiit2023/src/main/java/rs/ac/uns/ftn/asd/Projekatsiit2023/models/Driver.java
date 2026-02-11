@@ -13,7 +13,7 @@ import lombok.Setter;
 @Table(name = "drivers")
 public class Driver extends User {
     @Column(nullable = false)
-    private boolean active; 
+    private boolean active;
 
     @Column(nullable = false)
     private int activeMinutesLast24h;
