@@ -1,8 +1,8 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.IrregularityReport;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
@@ -28,7 +28,9 @@ public class IrregularityReportService {
     public void reportDriver(ReportDriverRequestDTO dto) {
         Ride ride = rideRepository.findById(dto.getRideId())
                 .orElseThrow(() -> new RuntimeException("Ride not found: " + dto.getRideId()));
-
+        if (ride.getStatus() != RideStatus.STARTED && ride.getStatus() != RideStatus.ARRIVED) {
+            throw new RuntimeException("Ride is not in progress: " + dto.getRideId());
+        }
         Passenger author = passengerRepository.findById(dto.getAuthorId())
                 .orElseThrow(() -> new RuntimeException("Passenger not found: " + dto.getAuthorId()));
 
