@@ -345,6 +345,7 @@ public class TrackRideFragment extends Fragment {
                     showToast("Failed finishing ride");
             }
         });
+        requireActivity().getSupportFragmentManager().popBackStack();
     }
 
     public void reportDriver() {
