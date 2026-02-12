@@ -17,6 +17,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.LinkedPassengersService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.StartRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriversRideValidation;
 
 import java.net.URI;
@@ -32,6 +33,7 @@ public class DriverController {
     private final RideRepository rideRepository;
     private final PassengerRepository passengerRepository;
     private final LinkedPassengersService linkedPassengersService;
+    private final StartRideService startRideService;
     private final DriversRideValidation assignRideValidation;
 
     public DriverController(
@@ -40,12 +42,14 @@ public class DriverController {
             RideRepository rideRepository,
             PassengerRepository passengerRepository,
             LinkedPassengersService linkedPassengersService,
+            StartRideService startRideService,
             DriversRideValidation assignRideValidation) {
         this.driverService = driverService;
         this.reportService = reportService;
         this.rideRepository = rideRepository;
         this.passengerRepository = passengerRepository;
         this.linkedPassengersService = linkedPassengersService;
+        this.startRideService = startRideService;
         this.assignRideValidation = assignRideValidation;
     }
 
@@ -127,7 +131,7 @@ public class DriverController {
             }
 
             rideRepository.save(ride);
-
+            startRideService.setActiveVehicle(rideId);
             return ResponseEntity.ok().body("Ride started successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
