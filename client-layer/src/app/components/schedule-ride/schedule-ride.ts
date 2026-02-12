@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectorRef, Output, EventEmitter, Input, OnInit, Inject, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RideService } from '../../services/ride.service';
 import { OrderRideService } from '../../services/order-ride.service';
 import { UserService } from '../../services/user.service';
@@ -36,7 +37,16 @@ import { ScheduleTimeComponent } from './schedule-time/schedule-time.component';
   templateUrl: './schedule-ride.html',
   styleUrl: './schedule-ride.css'
 })
-export class ScheduleRideComponent {
+export class ScheduleRideComponent implements OnInit {
+  @Input() prefilledRoute?: {
+    startLocation: string;
+    endLocation: string;
+    startLatitude: number;
+    startLongitude: number;
+    endLatitude: number;
+    endLongitude: number;
+  };
+
   startAddress = '';
   endAddress = '';
   hasPet = false;
@@ -78,8 +88,29 @@ export class ScheduleRideComponent {
     private userService: UserService,
     private passengerManagement: PassengerManagementService,
     private stopManagement: StopManagementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData?: any
   ) {}
+
+  ngOnInit(): void {
+    // Pre-fill from dialog data (favorite route) if provided
+    if (this.dialogData) {
+      this.startAddress = this.dialogData.startLocation;
+      this.endAddress = this.dialogData.endLocation;
+      this.startLat = this.dialogData.startLatitude;
+      this.startLng = this.dialogData.startLongitude;
+      this.endLat = this.dialogData.endLatitude;
+      this.endLng = this.dialogData.endLongitude;
+    } else if (this.prefilledRoute) {
+      // Fallback to @Input if not using dialog
+      this.startAddress = this.prefilledRoute.startLocation;
+      this.endAddress = this.prefilledRoute.endLocation;
+      this.startLat = this.prefilledRoute.startLatitude;
+      this.startLng = this.prefilledRoute.startLongitude;
+      this.endLat = this.prefilledRoute.endLatitude;
+      this.endLng = this.prefilledRoute.endLongitude;
+    }
+  }
 
 
   addPassenger() {
@@ -200,10 +231,21 @@ export class ScheduleRideComponent {
       return;
     }
 
-    if (!this.startLat || !this.startLng || !this.endLat || !this.endLng) {
+    // Check if coordinates are defined (not checking for falsy since 0 is a valid coordinate)
+    if (this.startLat === undefined || this.startLng === undefined || this.endLat === undefined || this.endLng === undefined) {
       alert('Please select valid locations from the suggestions');
       return;
     }
+
+    // Debug: Log coordinates to verify they are valid numbers
+    console.log('Booking ride with coordinates:', {
+      startLat: this.startLat,
+      startLng: this.startLng,
+      endLat: this.endLat,
+      endLng: this.endLng,
+      startAddress: this.startAddress,
+      endAddress: this.endAddress
+    });
 
     // Validate passenger count for vehicle type
     const maxPassengers = this.getMaxPassengersForVehicle(this.vehicleType);
@@ -220,6 +262,13 @@ export class ScheduleRideComponent {
       return;
     }
     const user = JSON.parse(userStr);
+
+    console.log('Current user:', user);
+
+    if (!user.userId || user.userId <= 0) {
+      alert('Invalid user ID. Please log in again.');
+      return;
+    }
 
     this.passengerManagement.resolvePassengerIds(user.userId)
       .then(passengerIds => {
@@ -260,16 +309,20 @@ export class ScheduleRideComponent {
       estimatedPrice: this.estimatedPrice ? parseFloat(this.estimatedPrice.split(' ')[0]) : 0
     };
 
+    console.log('Submitting ride order with request:', request);
+
     this.orderRideService.orderRide(request).subscribe({
       next: (response: RideResponse) => {
         console.log(`Ride booked successfully! Ride ID: ${response.rideId}`);
       },
       error: (err: HttpErrorResponse) => {
+        console.error('Error response:', err);
+        console.error('Error message:', err.error);
         if (err.status === 503) {
           console.log('No drivers available. Notification sent to passenger.');
           return;
         }
-        alert('Failed to book ride. Please try again.');
+        alert('Failed to book ride: ' + (err.error || 'Unknown error'));
       }
     });
   }
