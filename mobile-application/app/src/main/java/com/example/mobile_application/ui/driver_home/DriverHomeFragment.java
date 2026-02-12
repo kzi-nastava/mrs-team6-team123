@@ -23,6 +23,8 @@ import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.helper.DrawMarkerHelper;
 import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.DriverRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 
 import org.osmdroid.config.Configuration;
@@ -155,6 +157,11 @@ public class DriverHomeFragment extends Fragment implements AssignedRideAdapter.
         Bundle args = getArguments();
         if (args != null) {
             driverId = args.getLong("driver_id", 0);
+        }
+
+        if (driverId == null || driverId == 0) {
+            TokenManager tokenManager = ApiClient.getTokenManager();
+            driverId = tokenManager.getUserId();
         }
 
         if (driverId != null && driverId != 0) {
