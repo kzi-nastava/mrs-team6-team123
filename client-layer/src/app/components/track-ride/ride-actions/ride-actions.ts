@@ -1,5 +1,3 @@
-// ride-actions.ts
-
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, Input, Output } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
@@ -10,6 +8,7 @@ import { StopRideDialogComponent } from '../../stop-ride/stop-ride';
 import { PanicDialogComponent } from '../../panic-button/panic-dialog/panic-dialog';
 import { RideService } from '../../../services/ride.service';
 import { CancelRideDialogComponent } from '../../cancel-ride/cancel-ride';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ride-actions',
@@ -24,7 +23,8 @@ export class RideActionsComponent {
   constructor(
     public auth: AuthService,
     private dialog: MatDialog,
-    public rideService: RideService
+    public rideService: RideService,
+    private router: Router
   ) {}
 
   userType = computed(() => this.auth.getUserType());
@@ -180,7 +180,7 @@ export class RideActionsComponent {
       next: () => {
         console.log('✅ Ride finished successfully');
         window.alert('Ride finished successfully!');
-        this.finishClicked.emit();
+        this.router.navigate(['/driver/home']);
       },
       error: (err) => {
         console.error('❌ Error finishing ride:', err);
@@ -188,10 +188,5 @@ export class RideActionsComponent {
         window.alert(message);
       }
     });
-  }
-
-  get canFinishRide(): boolean {
-    console.log(this.ride.info.status);
-    return this.ride?.info?.status === 'ARRIVED';
   }
 }

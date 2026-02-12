@@ -301,7 +301,7 @@ public class DriverHomeFragment extends Fragment implements AssignedRideAdapter.
         Fragment fragment = TrackRideFragment.newInstance(rideId);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_container, fragment)
+                .add(R.id.main_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }

@@ -45,7 +45,7 @@ public class AdminHomeFragment extends Fragment {
             Fragment fragment = TrackRideFragment.newInstance(rideId);
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.main_container, fragment)
+                    .add(R.id.main_container, fragment)
                     .addToBackStack(null)
                     .commit();
         });
