@@ -77,7 +77,7 @@ export class LoginComponent {
     
     switch (role) {
       case 'DRIVER':
-        this.router.navigate(['/driver/driver-ride-history']);
+        this.router.navigate(['/driver/home']);
         break;
       case 'ADMIN':
         this.router.navigate(['/admin/home']);

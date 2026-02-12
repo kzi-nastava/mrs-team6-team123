@@ -10,7 +10,7 @@ import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
 import { DriverHomeComponent } from './pages/driver/driver-home/driver-home';
-import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard } from './guards/auth.guard';
+import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard, homeRedirectGuard } from './guards/auth.guard';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
 import { ActivateAccountComponent } from './pages/auth/activate-account/activate-account';
@@ -21,10 +21,11 @@ import { ReportsComponent } from './components/reports/reports';
 
 
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
+import { EmptyComponent } from './components/empty/empty';
 
 export const routes: Routes = [
   // Public routes
-  { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
+  { path: '', canActivate: [homeRedirectGuard], component: EmptyComponent },
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
   
   // Guest only
