@@ -12,8 +12,10 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ReportsService {
@@ -29,50 +31,37 @@ public class ReportsService {
         this.driverRepository = driverRepository;
     }
 
-    public StatisticsDTO getUserRideStatistics(Long userId, String userType, LocalDate startDate, LocalDate endDate) {
-        if ("DRIVER".equalsIgnoreCase(userType)) {
-            return getDriverRideStatistics(userId, startDate, endDate);
-        } else {
-            return getPassengerRideStatistics(userId, startDate, endDate);
+    /**
+     * Get statistics for a specific user's rides (passenger or driver)
+     */
+    public StatisticsDTO getUserRideStatistics(Long userId, String userType, LocalDate fromDate, LocalDate toDate) {
+        List<Ride> rides = new ArrayList<>();
+
+        if ("PASSENGER".equalsIgnoreCase(userType)) {
+            rides = rideRepository.findAll().stream()
+                    .filter(r -> r.getCreator().getId().equals(userId) && r.getStatus() == RideStatus.FINISHED)
+                    .filter(r -> !fromDate.isAfter(r.getDate()) && !toDate.isBefore(r.getDate()))
+                    .toList();
+        } else if ("DRIVER".equalsIgnoreCase(userType)) {
+            rides = rideRepository.findAll().stream()
+                    .filter(r -> r.getDriver().getId().equals(userId) && r.getStatus() == RideStatus.FINISHED)
+                    .filter(r -> !fromDate.isAfter(r.getDate()) && !toDate.isBefore(r.getDate()))
+                    .toList();
         }
+
+        return calculateStatistics(rides);
     }
 
-    public StatisticsDTO getPassengerRideStatistics(Long passengerId, LocalDate startDate, LocalDate endDate) {
-        // Verify passenger exists
-        passengerRepository.findById(passengerId)
-                .orElseThrow(() -> new RuntimeException("Passenger not found with id: " + passengerId));
-
-        // Get all finished rides for this passenger
-        List<Ride> finishedRides = rideRepository.findFinishedRidesByPassengerId(passengerId);
-
-        // Apply date filter if provided
-        finishedRides = filterByDateRange(finishedRides, startDate, endDate);
-
-        return buildStatistics(finishedRides, startDate, endDate);
+    public StatisticsDTO getUserRideStatisticsByIdAndType(Long userId, String userType, LocalDate fromDate,
+            LocalDate toDate) {
+        return getUserRideStatistics(userId, userType, fromDate, toDate);
     }
 
-    public StatisticsDTO getDriverRideStatistics(Long driverId, LocalDate startDate, LocalDate endDate) {
-        // Verify driver exists
-        driverRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + driverId));
-
-        // Get all finished rides for this driver
-        List<Ride> finishedRides = rideRepository.findFinishedRidesByDriverId(driverId);
-
-        // Apply date filter if provided
-        finishedRides = filterByDateRange(finishedRides, startDate, endDate);
-
-        return buildStatistics(finishedRides, startDate, endDate);
-    }
-
-    public StatisticsDTO getAllFinishedRidesStatistics(LocalDate startDate, LocalDate endDate) {
-        // Get all finished rides from database (for admin)
-        List<Ride> finishedRides = rideRepository.findAllFinishedRides();
-
-        // Apply date filter if provided
-        finishedRides = filterByDateRange(finishedRides, startDate, endDate);
-
-        return buildStatistics(finishedRides, startDate, endDate);
+    public StatisticsDTO getAllFinishedRidesStatistics(LocalDate fromDate, LocalDate toDate) {
+        List<Ride> rides = rideRepository.findByStatus(RideStatus.FINISHED).stream()
+                .filter(r -> !fromDate.isAfter(r.getDate()) && !toDate.isBefore(r.getDate()))
+                .toList();
+        return calculateStatistics(rides);
     }
 
     private StatisticsDTO buildStatistics(List<Ride> finishedRides, LocalDate startDate, LocalDate endDate) {
@@ -103,60 +92,55 @@ public class ReportsService {
         return statistics;
     }
 
-    private double calculateAverageRidesPerDay(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
-        if (rides.isEmpty()) {
-            return 0.0;
-        }
-
-        // Count unique dates from rides
-        Set<LocalDate> uniqueDates = rides.stream()
-                .map(Ride::getDate)
-                .collect(Collectors.toSet());
-
-        if (uniqueDates.isEmpty()) {
-            return 0.0;
-        }
-
-        return (double) rides.size() / uniqueDates.size();
+    public List<UserBasicInfoDTO> getAllDrivers() {
+        return driverRepository.findAll().stream()
+                .map(d -> new UserBasicInfoDTO(
+                        d.getId(),
+                        d.getEmail(),
+                        d.getFirstName(),
+                        d.getLastName(),
+                        d.getUserRole()))
+                .toList();
     }
 
-    private double calculateAverageKmPerDay(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
-        if (rides.isEmpty()) {
-            return 0.0;
-        }
-
-        double totalKm = rides.stream()
-                .mapToDouble(Ride::getTotalDistance)
-                .sum();
-
-        // Count unique dates from rides
-        Set<LocalDate> uniqueDates = rides.stream()
-                .map(Ride::getDate)
-                .collect(Collectors.toSet());
-
-        if (uniqueDates.isEmpty()) {
-            return 0.0;
-        }
-
-        return totalKm / uniqueDates.size();
+    public List<UserBasicInfoDTO> getAllUsers() {
+        List<UserBasicInfoDTO> users = new ArrayList<>();
+        users.addAll(getAllPassengers());
+        users.addAll(getAllDrivers());
+        return users;
     }
 
-    private double calculateAverageAmountPerDay(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
+    public List<UserBasicInfoDTO> getAllActiveUsers(Long excludeUserId) {
+        return getAllUsers().stream()
+                .filter(u -> !u.getId().equals(excludeUserId))
+                .toList();
+    }
+
+    private StatisticsDTO calculateStatistics(List<Ride> rides) {
+        StatisticsDTO stats = new StatisticsDTO();
+
         if (rides.isEmpty()) {
-            return 0.0;
+            stats.setTotalRides(0L);
+            stats.setAvgRidesPerDay(0.0);
+            stats.setRidesData(new ArrayList<>());
+            stats.setTotalKmTraveled(0.0);
+            stats.setAvgKmPerDay(0.0);
+            stats.setKmData(new ArrayList<>());
+            stats.setTotalAmountSpent(0.0);
+            stats.setAvgAmountPerDay(0.0);
+            stats.setAmountData(new ArrayList<>());
+            return stats;
         }
 
-        double totalAmount = rides.stream()
-                .mapToDouble(Ride::getPrice)
-                .sum();
+        // Calculate totals
+        double totalKm = rides.stream().mapToDouble(Ride::getTotalDistance).sum();
+        double totalAmount = rides.stream().mapToDouble(Ride::getPrice).sum();
+        long totalRidesCount = rides.size();
 
-        // Count unique dates from rides
-        Set<LocalDate> uniqueDates = rides.stream()
-                .map(Ride::getDate)
-                .collect(Collectors.toSet());
-
-        if (uniqueDates.isEmpty()) {
-            return 0.0;
+        // Group by date
+        Map<LocalDate, List<Ride>> ridesByDate = new HashMap<>();
+        for (Ride ride : rides) {
+            ridesByDate.computeIfAbsent(ride.getDate(), k -> new ArrayList<>()).add(ride);
         }
 
         return totalAmount / uniqueDates.size();
@@ -227,41 +211,24 @@ public class ReportsService {
                 .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), UserRole.DRIVER))
                 .collect(Collectors.toList()));
 
-        // Sort by role (DRIVER first, then PASSENGER) and then by email
-        allUsers.sort(Comparator.comparing(UserBasicInfoDTO::getUserRole)
-                .thenComparing(UserBasicInfoDTO::getEmail));
+        // Sort by date
+        ridesData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
+        kmData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
+        amountData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
 
-        return allUsers;
-    }
+        // Set statistics
+        stats.setTotalRides(totalRidesCount);
+        stats.setAvgRidesPerDay(totalRidesCount / (double) ridesByDate.size());
+        stats.setRidesData(ridesData);
 
-    public StatisticsDTO getUserRideStatisticsByIdAndType(Long userId, String userType, LocalDate startDate,
-            LocalDate endDate) {
-        if ("DRIVER".equalsIgnoreCase(userType)) {
-            return getDriverRideStatistics(userId, startDate, endDate);
-        } else {
-            return getPassengerRideStatistics(userId, startDate, endDate);
-        }
-    }
+        stats.setTotalKmTraveled(totalKm);
+        stats.setAvgKmPerDay(totalKm / ridesByDate.size());
+        stats.setKmData(kmData);
 
-    /**
-     * Filter rides by date range
-     */
-    private List<Ride> filterByDateRange(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
-        if (startDate == null && endDate == null) {
-            return rides;
-        }
+        stats.setTotalAmountSpent(totalAmount);
+        stats.setAvgAmountPerDay(totalAmount / ridesByDate.size());
+        stats.setAmountData(amountData);
 
-        return rides.stream()
-                .filter(ride -> {
-                    LocalDate rideDate = ride.getDate();
-                    if (startDate != null && rideDate.isBefore(startDate)) {
-                        return false;
-                    }
-                    if (endDate != null && rideDate.isAfter(endDate)) {
-                        return false;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
+        return stats;
     }
 }

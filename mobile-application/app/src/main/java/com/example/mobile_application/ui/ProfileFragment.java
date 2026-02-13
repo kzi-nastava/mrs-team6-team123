@@ -33,7 +33,10 @@ public class ProfileFragment extends Fragment {
     private ProfileViewBinder viewBinder;
     private ProfileImageLoader imageLoader;
 
+    // Image picker for profile photo selection
     private ActivityResultLauncher<String> imagePickerLauncher;
+
+    // Repository and data
     private UserProfileRepository profileRepository;
     private UserProfileDTO currentProfile;
 
@@ -102,10 +105,12 @@ public class ProfileFragment extends Fragment {
         imageLoader = new ProfileImageLoader(API_BASE_URL);
         setupEventListeners();
 
+        // Configure UI based on user role
         isDriver = "driver".equalsIgnoreCase(mUserRole);
         updateRoleSpecificUI();
         viewBinder.setEditMode(false);
 
+        // Load profile from backend
         if (mUserId == null || mUserId < 0) {
             showToast("Please log in to view your profile");
             return view;
@@ -116,6 +121,9 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Sets up click listeners for all interactive UI elements.
+     */
     private void setupEventListeners() {
         viewBinder.getImageProfile().setOnClickListener(v -> launchImagePicker());
         viewBinder.getChangePhotoButton().setOnClickListener(v -> launchImagePicker());
@@ -143,6 +151,9 @@ public class ProfileFragment extends Fragment {
         viewBinder.setEditMode(enabled);
     }
 
+    /**
+     * Loads the user profile from the backend
+     */
     private void loadProfile() {
         profileRepository.getProfile(mUserId, new Callback<UserProfileDTO>() {
             @Override
@@ -152,6 +163,7 @@ public class ProfileFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     currentProfile = response.body();
+
                     mUserRole = currentProfile.getUserRole();
                     isDriver = "driver".equalsIgnoreCase(mUserRole);
                     updateRoleSpecificUI();
@@ -166,26 +178,35 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Populates the UI with the loaded profile data
+     */
     private void populateProfileUI() {
         if (currentProfile != null) {
             viewBinder.bindProfile(currentProfile, isDriver, this, imageLoader);
         }
     }
 
+    /**
+     * Saves the profile changes to the backend
+     */
     private void saveProfileChanges() {
         String fullName = viewBinder.getFullNameInput();
         String address = viewBinder.getAddressInput();
         String phone = viewBinder.getPhoneInput();
 
+        // Split full name into first and last name
         String[] nameParts = fullName.split(" ", 2);
         String firstName = nameParts.length > 0 ? nameParts[0] : "";
         String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
+        // Validate required fields
         if (firstName.isEmpty() || lastName.isEmpty()) {
             showToast("First and last name are required");
             return;
         }
 
+        // Create request DTO
         String email = currentProfile != null ? currentProfile.getEmail() : "";
         UserProfileRequestDTO request = new UserProfileRequestDTO(
                 firstName,
@@ -194,6 +215,7 @@ public class ProfileFragment extends Fragment {
                 phone,
                 address);
 
+        // Send update request
         profileRepository.updateProfile(mUserId, request, new Callback<UserProfileDTO>() {
             @Override
             public void onResponse(@NonNull Call<UserProfileDTO> call, @NonNull Response<UserProfileDTO> response) {
