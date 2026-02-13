@@ -21,6 +21,7 @@ import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.service.ApiClient;
 import com.example.mobile_application.ui.base.BaseRideBookingFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,11 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
             errorMessage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             emptyState.setVisibility(View.GONE);
-            scheduleRideCard.setVisibility(View.GONE);
+            // Hide the schedule ride card
+            View scheduleRideCard = view.findViewById(R.id.schedule_ride_card);
+            if (scheduleRideCard != null) {
+                scheduleRideCard.setVisibility(View.GONE);
+            }
             return;
         }
 
@@ -120,8 +125,10 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
 
     private void setupBottomSheet(View view) {
         MaterialCardView scheduleRideCard = view.findViewById(R.id.schedule_ride_card);
-        bottomSheetBehavior = BottomSheetBehavior.from(scheduleRideCard);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        if (scheduleRideCard != null) {
+            bottomSheetBehavior = BottomSheetBehavior.from(scheduleRideCard);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 
     @Override
@@ -179,8 +186,10 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
         // TODO: Parse coordinates from route if available
         // For now, leave coordinates empty - user can use autocomplete if needed
 
-        // Expand the bottom sheet
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        // Expand the bottom sheet if it exists
+        if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
 
         Toast.makeText(getContext(), "Route populated - review and book", Toast.LENGTH_SHORT).show();
     }

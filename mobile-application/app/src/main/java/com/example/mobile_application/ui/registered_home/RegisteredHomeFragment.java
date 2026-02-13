@@ -61,7 +61,9 @@ public class RegisteredHomeFragment extends BaseRideBookingFragment {
 
     private void setupBottomSheet(View view) {
         MaterialCardView scheduleRideCard = view.findViewById(R.id.schedule_ride_card);
-        bottomSheetBehavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(scheduleRideCard);
-        bottomSheetBehavior.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED);
+        if (scheduleRideCard != null) {
+            bottomSheetBehavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(scheduleRideCard);
+            bottomSheetBehavior.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 }
