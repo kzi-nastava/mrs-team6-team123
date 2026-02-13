@@ -130,6 +130,7 @@ public class ReportsFragment extends Fragment {
     }
 
     private void setupUserSpinner() {
+        // Only show user spinner for admin
         if ("ADMIN".equalsIgnoreCase(currentUserRole)) {
             spinnerUser.setVisibility(View.VISIBLE);
             loadUsers();
@@ -283,6 +284,7 @@ public class ReportsFragment extends Fragment {
         tvTotalAmount.setText(String.format("%.2f €", stats.getTotalAmountSpent()));
         tvAvgAmountPerDay.setText(String.format("%.2f €", stats.getAvgAmountPerDay()));
 
+        // Display bar charts
         displayBarChart(chartContainerRides, stats.getRidesData(), "Rides", 0xFF4CAF50);
         displayBarChart(chartContainerKm, stats.getKmData(), "Kilometers", 0xFF2196F3);
         displayBarChart(chartContainerAmount, stats.getAmountData(), "Amount (€)", 0xFFFF9800);
@@ -297,10 +299,14 @@ public class ReportsFragment extends Fragment {
         }
 
         container.setVisibility(View.VISIBLE);
+
+        // Find max value for scaling
         double maxValue = data.stream()
                 .mapToDouble(RideDataPointDTO::getValue)
                 .max()
                 .orElse(1.0);
+
+        // Create bars for each data point
         for (RideDataPointDTO point : data) {
             View barView = createBar(point, maxValue, color);
             container.addView(barView);
@@ -308,11 +314,13 @@ public class ReportsFragment extends Fragment {
     }
 
     private View createBar(RideDataPointDTO point, double maxValue, int color) {
+        // Outer wrapper for bar + label
         LinearLayout wrapper = new LinearLayout(requireContext());
         wrapper.setOrientation(LinearLayout.VERTICAL);
         wrapper.setLayoutParams(new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.WRAP_CONTENT));
         wrapper.setPadding(4, 0, 4, 0);
 
+        // Value label (on top)
         TextView valueLabel = new TextView(requireContext());
         valueLabel.setText(String.format("%.1f", point.getValue()));
         valueLabel.setTextSize(8);
@@ -322,6 +330,7 @@ public class ReportsFragment extends Fragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
 
+        // Bar (scales with value)
         View bar = new View(requireContext());
         double heightPercent = (point.getValue() / maxValue) * 100;
         int height = (int) (200 * heightPercent / 100);
@@ -333,10 +342,11 @@ public class ReportsFragment extends Fragment {
         bar.setBackgroundColor(color);
         bar.setContentDescription(String.format("%.0f on %s", point.getValue(), point.getDate()));
 
+        // Date label
         TextView label = new TextView(requireContext());
         String dateStr = point.getDate().toString();
         if (dateStr.contains("-")) {
-            // Format ISO date as MM/dd.
+            // Parse date like "2025-12-01" and format as "12/01"
             LocalDate date = LocalDate.parse(dateStr);
             label.setText(date.format(DateTimeFormatter.ofPattern("MM/dd")));
         } else {
