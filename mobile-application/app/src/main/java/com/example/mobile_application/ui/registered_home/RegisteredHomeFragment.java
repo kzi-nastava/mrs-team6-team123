@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -16,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_application.R;
+import com.example.mobile_application.dto.GeocodingResult;
+import com.example.mobile_application.ui.AddressAutocompleteAdapter;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -33,10 +37,18 @@ public class RegisteredHomeFragment extends Fragment {
     private MapView mapView;
     private BottomSheetBehavior<MaterialCardView> bottomSheetBehavior;
 
-    // Input fields
-    private TextInputEditText startingPointInput;
-    private TextInputEditText destinationInput;
+    // Input fields with autocomplete
+    private AutoCompleteTextView startingPointInput;
+    private AutoCompleteTextView destinationInput;
     private TextInputEditText additionalInstructionsInput;
+
+    // Coordinates storage
+    private String startCoordinates = "";
+    private String endCoordinates = "";
+
+    // Autocomplete adapters
+    private AddressAutocompleteAdapter startAdapter;
+    private AddressAutocompleteAdapter endAdapter;
 
     // Containers
     private LinearLayout stopsContainer;
@@ -89,10 +101,37 @@ public class RegisteredHomeFragment extends Fragment {
         // Map
         mapView = view.findViewById(R.id.map);
 
-        // Input fields
-        startingPointInput = view.findViewById(R.id.starting_point_input);
-        destinationInput = view.findViewById(R.id.destination_input);
+        // Input fields - cast to AutoCompleteTextView for autocomplete
+        startingPointInput = (AutoCompleteTextView) view.findViewById(R.id.starting_point_input);
+        destinationInput = (AutoCompleteTextView) view.findViewById(R.id.destination_input);
         additionalInstructionsInput = view.findViewById(R.id.additional_instructions_input);
+
+        // Setup autocomplete adapters
+        startAdapter = new AddressAutocompleteAdapter(requireContext());
+        endAdapter = new AddressAutocompleteAdapter(requireContext());
+
+        startingPointInput.setAdapter(startAdapter);
+        destinationInput.setAdapter(endAdapter);
+
+        startingPointInput.setThreshold(3);
+        destinationInput.setThreshold(3);
+
+        // Handle selection of autocomplete items
+        startingPointInput.setOnItemClickListener((parent, view1, position, id) -> {
+            GeocodingResult result = startAdapter.getItem(position);
+            if (result != null) {
+                startCoordinates = result.getLatitude() + ", " + result.getLongitude();
+                startingPointInput.setText(result.getDisplayName());
+            }
+        });
+
+        destinationInput.setOnItemClickListener((parent, view1, position, id) -> {
+            GeocodingResult result = endAdapter.getItem(position);
+            if (result != null) {
+                endCoordinates = result.getLatitude() + ", " + result.getLongitude();
+                destinationInput.setText(result.getDisplayName());
+            }
+        });
 
         // Containers
         stopsContainer = view.findViewById(R.id.stops_container);
