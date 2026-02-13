@@ -33,6 +33,7 @@ import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragm
 import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
 import com.example.mobile_application.ui.notifications.NotificationsFragment;
 import com.example.mobile_application.ui.pricing.PricingFragment;
+import com.example.mobile_application.ui.reports.ReportsFragment;
 import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -50,13 +51,13 @@ public class MainActivity extends AppCompatActivity
     private ChatRepository chatRepository;
     private AuthRepository authRepository;
     private TokenManager tokenManager;
+    private final boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize ApiClient and TokenManager first
         ApiClient.init(this);
         tokenManager = ApiClient.getTokenManager();
 
@@ -109,13 +110,13 @@ public class MainActivity extends AppCompatActivity
                 new Callback<LogoutResponseDTO>() {
                     @Override
                     public void onResponse(@NonNull Call<LogoutResponseDTO> call,
-                                           @NonNull Response<LogoutResponseDTO> resp) {
+                            @NonNull Response<LogoutResponseDTO> resp) {
                         clearSessionAndRedirect();
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<LogoutResponseDTO> call,
-                                          @NonNull Throwable t) {
+                            @NonNull Throwable t) {
                         // Clear locally even if server call fails
                         clearSessionAndRedirect();
                     }
@@ -250,6 +251,8 @@ public class MainActivity extends AppCompatActivity
                 fragment = new NotificationsFragment();
             } else if (id == R.id.pricing) {
                 fragment = new PricingFragment();
+            } else if (id == R.id.reports) {
+                fragment = new ReportsFragment();
             } else if (id == R.id.chat) {
                 String role = getUserRole();
                 if (role != null && role.equals(getString(R.string.role_admin))) {
@@ -276,7 +279,7 @@ public class MainActivity extends AppCompatActivity
         chatRepository.getMyChat(getUserId(), new Callback<ChatDTO>() {
             @Override
             public void onResponse(@NonNull Call<ChatDTO> call,
-                                   @NonNull Response<ChatDTO> response) {
+                    @NonNull Response<ChatDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     loadFragment(ChatFragment.newInstance(response.body()));
                 }
@@ -284,7 +287,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onFailure(@NonNull Call<ChatDTO> call,
-                                  @NonNull Throwable t) {
+                    @NonNull Throwable t) {
                 // Optionally show error
             }
         });

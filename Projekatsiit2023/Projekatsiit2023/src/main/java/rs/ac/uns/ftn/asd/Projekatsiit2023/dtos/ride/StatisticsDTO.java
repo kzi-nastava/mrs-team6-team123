@@ -12,18 +12,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatisticsDTO {
-    // Rides Statistics
-    private long totalRides;
-    private double avgRidesPerDay;
+    private Long totalRides;
+    private Double avgRidesPerDay;
     private List<RideDataPointDTO> ridesData;
-
-    // Kilometers Statistics
-    private double totalKmTraveled;
-    private double avgKmPerDay;
+    
+    private Double totalKmTraveled;
+    private Double avgKmPerDay;
     private List<RideDataPointDTO> kmData;
-
-    // Amount Spent Statistics
-    private double totalAmountSpent;
-    private double avgAmountPerDay;
+    
+    private Double totalAmountSpent;
+    private Double avgAmountPerDay;
     private List<RideDataPointDTO> amountData;
 }

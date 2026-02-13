@@ -13,5 +13,5 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class RideDataPointDTO {
     private LocalDate date;
-    private double value;
+    private Double value;
 }

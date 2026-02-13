@@ -15,15 +15,12 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.UserProfileDTO;
 import com.example.mobile_application.dto.UserProfileRequestDTO;
 import com.example.mobile_application.repository.UserProfileRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-/**
- * ProfileFragment manages the user profile display
- * Supports two modes: view mode (read-only) and edit mode
- */
 public class ProfileFragment extends Fragment {
 
     private static final String ARG_USER_ROLE = "userRole";
@@ -31,15 +28,12 @@ public class ProfileFragment extends Fragment {
     private static final String API_BASE_URL = "http://10.0.2.2:8080";
 
     private String mUserRole;
-    private Long mUserId = 3L; // Default user ID, should be passed from MainActivity
+    private Long mUserId;
 
     private ProfileViewBinder viewBinder;
     private ProfileImageLoader imageLoader;
 
-    // Image picker for profile photo selection
     private ActivityResultLauncher<String> imagePickerLauncher;
-
-    // Repository and data
     private UserProfileRepository profileRepository;
     private UserProfileDTO currentProfile;
 
@@ -90,6 +84,12 @@ public class ProfileFragment extends Fragment {
                 mUserId = getArguments().getLong(ARG_USER_ID);
             }
         }
+
+        if (mUserId == null || mUserId < 0 || mUserRole == null) {
+            TokenManager tokenManager = ApiClient.getTokenManager();
+            mUserId = tokenManager.getUserId();
+            mUserRole = tokenManager.getRole();
+        }
     }
 
     @Override
@@ -102,20 +102,20 @@ public class ProfileFragment extends Fragment {
         imageLoader = new ProfileImageLoader(API_BASE_URL);
         setupEventListeners();
 
-        // Configure UI based on user role
         isDriver = "driver".equalsIgnoreCase(mUserRole);
         updateRoleSpecificUI();
         viewBinder.setEditMode(false);
 
-        // Load profile from backend
+        if (mUserId == null || mUserId < 0) {
+            showToast("Please log in to view your profile");
+            return view;
+        }
+
         loadProfile();
 
         return view;
     }
 
-    /**
-     * Sets up click listeners for all interactive UI elements.
-     */
     private void setupEventListeners() {
         viewBinder.getImageProfile().setOnClickListener(v -> launchImagePicker());
         viewBinder.getChangePhotoButton().setOnClickListener(v -> launchImagePicker());
@@ -143,9 +143,6 @@ public class ProfileFragment extends Fragment {
         viewBinder.setEditMode(enabled);
     }
 
-    /**
-     * Loads the user profile from the backend
-     */
     private void loadProfile() {
         profileRepository.getProfile(mUserId, new Callback<UserProfileDTO>() {
             @Override
@@ -155,57 +152,40 @@ public class ProfileFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     currentProfile = response.body();
-
-                    // Always update user role from backend (backend is source of truth)
                     mUserRole = currentProfile.getUserRole();
                     isDriver = "driver".equalsIgnoreCase(mUserRole);
                     updateRoleSpecificUI();
 
                     populateProfileUI();
-                    showToast("Profile loaded");
-                } else {
-                    showToast("Failed to load profile");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    showToast("Error: " + t.getMessage());
-                }
             }
         });
     }
 
-    /**
-     * Populates the UI with the loaded profile data
-     */
     private void populateProfileUI() {
         if (currentProfile != null) {
             viewBinder.bindProfile(currentProfile, isDriver, this, imageLoader);
         }
     }
 
-    /**
-     * Saves the profile changes to the backend
-     */
     private void saveProfileChanges() {
         String fullName = viewBinder.getFullNameInput();
         String address = viewBinder.getAddressInput();
         String phone = viewBinder.getPhoneInput();
 
-        // Split full name into first and last name
         String[] nameParts = fullName.split(" ", 2);
         String firstName = nameParts.length > 0 ? nameParts[0] : "";
         String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
-        // Validate required fields
         if (firstName.isEmpty() || lastName.isEmpty()) {
             showToast("First and last name are required");
             return;
         }
 
-        // Create request DTO
         String email = currentProfile != null ? currentProfile.getEmail() : "";
         UserProfileRequestDTO request = new UserProfileRequestDTO(
                 firstName,
@@ -214,7 +194,6 @@ public class ProfileFragment extends Fragment {
                 phone,
                 address);
 
-        // Send update request
         profileRepository.updateProfile(mUserId, request, new Callback<UserProfileDTO>() {
             @Override
             public void onResponse(@NonNull Call<UserProfileDTO> call, @NonNull Response<UserProfileDTO> response) {
@@ -223,24 +202,14 @@ public class ProfileFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     currentProfile = response.body();
-                    showToast("Profile updated successfully");
-                } else {
-                    showToast("Failed to update profile");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    showToast("Error updating profile: " + t.getMessage());
-                }
             }
         });
     }
-
-    /**
-     * Displays a toast message
-     */
     private void showToast(String message) {
         if (isAdded()) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();

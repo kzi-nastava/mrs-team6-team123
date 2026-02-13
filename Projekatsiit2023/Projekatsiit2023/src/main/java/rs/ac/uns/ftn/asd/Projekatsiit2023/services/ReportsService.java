@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideDataPointDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.StatisticsDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserBasicInfoDTO;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;

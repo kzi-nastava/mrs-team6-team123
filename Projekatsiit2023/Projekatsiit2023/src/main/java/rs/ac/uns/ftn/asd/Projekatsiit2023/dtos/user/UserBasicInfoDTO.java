@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 
 @Getter
 @Setter
@@ -14,5 +15,5 @@ public class UserBasicInfoDTO {
     private String email;
     private String firstName;
     private String lastName;
-    private String userRole; // "PASSENGER" or "DRIVER"
+    private UserRole userRole;
 }
