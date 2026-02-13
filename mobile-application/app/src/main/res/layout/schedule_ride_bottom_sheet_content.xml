@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Handle Bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@color/gray_darker"
+        android:alpha="0.5" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Schedule a ride"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Reusable Form -->
+    <include layout="@layout/schedule_ride_form" />
+
+    <!-- Book Ride Button -->
+    <Button
+        android:id="@+id/btn_book_ride"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Book Ride"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/green"
+        android:textColor="@color/white"
+        app:cornerRadius="28dp" />
+
+</LinearLayout>
