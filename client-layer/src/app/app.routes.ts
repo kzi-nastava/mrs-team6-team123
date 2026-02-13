@@ -42,6 +42,7 @@ export const routes: Routes = [
   { path: 'track-ride-page', component: TrackRidePageComponent, canActivate: [authGuard] },
   { path: 'history', component: PassengerRideHistoryComponent, canActivate: [authGuard] },
   { path: 'rate-ride', component: RateRidePageComponent, canActivate: [authGuard] },
+  { path: 'reports', component: ReportsComponent, canActivate: [passengerGuard] },
 
   // Driver only
   { path: 'driver/home', component: DriverHomeComponent, canActivate: [driverGuard] },

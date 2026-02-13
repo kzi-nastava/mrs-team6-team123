@@ -8,6 +8,39 @@
     </mat-card-header>
 
     <mat-card-content>
+      <!-- User Selector for Admin -->
+      <div *ngIf="authService.currentUser()?.role === 'ADMIN'" class="user-selector-wrapper">
+        <mat-form-field appearance="outline" class="user-selector">
+          <mat-label>Select User</mat-label>
+          <mat-select [(ngModel)]="selectedUserId" (selectionChange)="onUserSelected($event.value)">
+            <mat-select-trigger>
+              <span *ngIf="selectedUserId === null">All Rides</span>
+              <span *ngIf="selectedUserId !== null && getSelectedUser()">
+                <span class="user-name"
+                  >{{ getSelectedUser()?.firstName }} {{ getSelectedUser()?.lastName }}</span
+                >
+                <span
+                  class="role-badge"
+                  [ngClass]="
+                    getSelectedUser()?.userRole === 'DRIVER' ? 'badge-driver' : 'badge-passenger'
+                  "
+                  >{{ getSelectedUser()?.userRole }}</span
+                >
+              </span>
+            </mat-select-trigger>
+            <mat-option [value]="null">All Rides</mat-option>
+            <mat-option *ngFor="let user of users" [value]="user.id" class="user-option">
+              <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+              <span
+                class="role-badge"
+                [ngClass]="user.userRole === 'DRIVER' ? 'badge-driver' : 'badge-passenger'"
+                >{{ user.userRole }}</span
+              >
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       <app-ride-history-filter
         (filterApplied)="onFilterApplied($event)"
         (filterCleared)="onFilterCleared()"
@@ -54,13 +87,13 @@
     >
     </app-stat-card>
 
-    <!-- Amount Spent Statistics -->
+    <!-- Amount Statistics -->
     <app-stat-card
       icon="attach_money"
-      title="Amount Spent"
-      totalLabel="Total spent"
+      [title]="amountLabel"
+      [totalLabel]="'Total ' + (amountLabel === 'Money Made' ? 'made' : 'spent')"
       [totalValue]="formatCurrency(statistics.totalAmountSpent)"
-      avgLabel="Avg spent per day"
+      [avgLabel]="'Avg ' + (amountLabel === 'Money Made' ? 'made' : 'spent') + ' per day'"
       [avgValue]="formatCurrency(statistics.avgAmountPerDay)"
       [chartData]="statistics.amountData"
       dataKey="spent"
