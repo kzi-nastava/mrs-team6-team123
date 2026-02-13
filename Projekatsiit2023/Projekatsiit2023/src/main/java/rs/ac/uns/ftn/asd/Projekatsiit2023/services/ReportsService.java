@@ -5,6 +5,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.RideDataPointDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.StatisticsDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserBasicInfoDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
@@ -79,7 +80,7 @@ public class ReportsService {
         StatisticsDTO statistics = new StatisticsDTO();
 
         // Rides Statistics
-        statistics.setTotalRides(finishedRides.size());
+        statistics.setTotalRides((long )finishedRides.size());
         statistics.setAvgRidesPerDay(calculateAverageRidesPerDay(finishedRides, startDate, endDate));
         statistics.setRidesData(groupRidesByDate(finishedRides, startDate, endDate));
 
@@ -200,14 +201,14 @@ public class ReportsService {
     public List<UserBasicInfoDTO> getAllPassengers() {
         return passengerRepository.findAll().stream()
                 .filter(p -> p.isAccountActivated()) // Only activated accounts
-                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), "PASSENGER"))
+                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), UserRole.PASSENGER))
                 .collect(Collectors.toList());
     }
 
     public List<UserBasicInfoDTO> getAllDrivers() {
         return driverRepository.findAll().stream()
                 .filter(d -> d.isAccountActivated()) // Only activated accounts
-                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), "DRIVER"))
+                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), UserRole.DRIVER))
                 .collect(Collectors.toList());
     }
 
@@ -217,13 +218,13 @@ public class ReportsService {
         // Add all active passengers
         allUsers.addAll(passengerRepository.findAll().stream()
                 .filter(p -> p.isAccountActivated() && !p.getId().equals(excludeUserId))
-                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), "PASSENGER"))
+                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), UserRole.PASSENGER))
                 .collect(Collectors.toList()));
 
         // Add all active drivers
         allUsers.addAll(driverRepository.findAll().stream()
                 .filter(d -> d.isAccountActivated() && !d.getId().equals(excludeUserId))
-                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), "DRIVER"))
+                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), UserRole.DRIVER))
                 .collect(Collectors.toList()));
 
         // Sort by role (DRIVER first, then PASSENGER) and then by email
