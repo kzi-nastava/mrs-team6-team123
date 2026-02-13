@@ -12,10 +12,13 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportsService {
@@ -49,28 +52,67 @@ public class ReportsService {
                     .toList();
         }
 
-        return calculateStatistics(rides);
+        return buildStatistics(rides, fromDate, toDate);
     }
 
+    /**
+     * Alternative method name for getting user statistics
+     */
     public StatisticsDTO getUserRideStatisticsByIdAndType(Long userId, String userType, LocalDate fromDate,
             LocalDate toDate) {
         return getUserRideStatistics(userId, userType, fromDate, toDate);
     }
 
+    /**
+     * Get statistics for a passenger (used by old endpoint)
+     */
+    public StatisticsDTO getPassengerRideStatistics(Long passengerId, LocalDate fromDate, LocalDate toDate) {
+        // Use current date range if not provided
+        if (fromDate == null) {
+            fromDate = LocalDate.now().minusMonths(1);
+        }
+        if (toDate == null) {
+            toDate = LocalDate.now();
+        }
+        return getUserRideStatistics(passengerId, "PASSENGER", fromDate, toDate);
+    }
+
+    /**
+     * Get all finished rides statistics (for admin)
+     */
     public StatisticsDTO getAllFinishedRidesStatistics(LocalDate fromDate, LocalDate toDate) {
         List<Ride> rides = rideRepository.findByStatus(RideStatus.FINISHED).stream()
                 .filter(r -> !fromDate.isAfter(r.getDate()) && !toDate.isBefore(r.getDate()))
                 .toList();
-        return calculateStatistics(rides);
+        return buildStatistics(rides, fromDate, toDate);
     }
 
+    /**
+     * Build statistics from a list of rides
+     */
     private StatisticsDTO buildStatistics(List<Ride> finishedRides, LocalDate startDate, LocalDate endDate) {
-        // Calculate statistics
         StatisticsDTO statistics = new StatisticsDTO();
 
+        // Handle empty case
+        if (finishedRides.isEmpty()) {
+            statistics.setTotalRides(0L);
+            statistics.setAvgRidesPerDay(0.0);
+            statistics.setRidesData(new ArrayList<>());
+            statistics.setTotalKmTraveled(0.0);
+            statistics.setAvgKmPerDay(0.0);
+            statistics.setKmData(new ArrayList<>());
+            statistics.setTotalAmountSpent(0.0);
+            statistics.setAvgAmountPerDay(0.0);
+            statistics.setAmountData(new ArrayList<>());
+            return statistics;
+        }
+
+        // Calculate total days in range
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
         // Rides Statistics
-        statistics.setTotalRides((long )finishedRides.size());
-        statistics.setAvgRidesPerDay(calculateAverageRidesPerDay(finishedRides, startDate, endDate));
+        statistics.setTotalRides((long) finishedRides.size());
+        statistics.setAvgRidesPerDay(finishedRides.size() / (double) daysBetween);
         statistics.setRidesData(groupRidesByDate(finishedRides, startDate, endDate));
 
         // Kilometers Statistics
@@ -78,7 +120,7 @@ public class ReportsService {
                 .mapToDouble(Ride::getTotalDistance)
                 .sum();
         statistics.setTotalKmTraveled(totalKm);
-        statistics.setAvgKmPerDay(calculateAverageKmPerDay(finishedRides, startDate, endDate));
+        statistics.setAvgKmPerDay(totalKm / daysBetween);
         statistics.setKmData(groupKmByDate(finishedRides, startDate, endDate));
 
         // Amount Spent Statistics
@@ -86,66 +128,15 @@ public class ReportsService {
                 .mapToDouble(Ride::getPrice)
                 .sum();
         statistics.setTotalAmountSpent(totalAmount);
-        statistics.setAvgAmountPerDay(calculateAverageAmountPerDay(finishedRides, startDate, endDate));
+        statistics.setAvgAmountPerDay(totalAmount / daysBetween);
         statistics.setAmountData(groupAmountByDate(finishedRides, startDate, endDate));
 
         return statistics;
     }
 
-    public List<UserBasicInfoDTO> getAllDrivers() {
-        return driverRepository.findAll().stream()
-                .map(d -> new UserBasicInfoDTO(
-                        d.getId(),
-                        d.getEmail(),
-                        d.getFirstName(),
-                        d.getLastName(),
-                        d.getUserRole()))
-                .toList();
-    }
-
-    public List<UserBasicInfoDTO> getAllUsers() {
-        List<UserBasicInfoDTO> users = new ArrayList<>();
-        users.addAll(getAllPassengers());
-        users.addAll(getAllDrivers());
-        return users;
-    }
-
-    public List<UserBasicInfoDTO> getAllActiveUsers(Long excludeUserId) {
-        return getAllUsers().stream()
-                .filter(u -> !u.getId().equals(excludeUserId))
-                .toList();
-    }
-
-    private StatisticsDTO calculateStatistics(List<Ride> rides) {
-        StatisticsDTO stats = new StatisticsDTO();
-
-        if (rides.isEmpty()) {
-            stats.setTotalRides(0L);
-            stats.setAvgRidesPerDay(0.0);
-            stats.setRidesData(new ArrayList<>());
-            stats.setTotalKmTraveled(0.0);
-            stats.setAvgKmPerDay(0.0);
-            stats.setKmData(new ArrayList<>());
-            stats.setTotalAmountSpent(0.0);
-            stats.setAvgAmountPerDay(0.0);
-            stats.setAmountData(new ArrayList<>());
-            return stats;
-        }
-
-        // Calculate totals
-        double totalKm = rides.stream().mapToDouble(Ride::getTotalDistance).sum();
-        double totalAmount = rides.stream().mapToDouble(Ride::getPrice).sum();
-        long totalRidesCount = rides.size();
-
-        // Group by date
-        Map<LocalDate, List<Ride>> ridesByDate = new HashMap<>();
-        for (Ride ride : rides) {
-            ridesByDate.computeIfAbsent(ride.getDate(), k -> new ArrayList<>()).add(ride);
-        }
-
-        return totalAmount / uniqueDates.size();
-    }
-
+    /**
+     * Group rides by date for chart display
+     */
     private List<RideDataPointDTO> groupRidesByDate(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
         Map<LocalDate, Long> ridesByDate = rides.stream()
                 .collect(Collectors.groupingBy(
@@ -155,6 +146,9 @@ public class ReportsService {
         return sortDataByDate(ridesByDate, startDate, endDate);
     }
 
+    /**
+     * Group kilometers by date for chart display
+     */
     private List<RideDataPointDTO> groupKmByDate(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
         Map<LocalDate, Double> kmByDate = rides.stream()
                 .collect(Collectors.groupingBy(
@@ -164,6 +158,9 @@ public class ReportsService {
         return sortDataByDate(kmByDate, startDate, endDate);
     }
 
+    /**
+     * Group amounts by date for chart display
+     */
     private List<RideDataPointDTO> groupAmountByDate(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
         Map<LocalDate, Double> amountByDate = rides.stream()
                 .collect(Collectors.groupingBy(
@@ -173,62 +170,60 @@ public class ReportsService {
         return sortDataByDate(amountByDate, startDate, endDate);
     }
 
+    /**
+     * Sort data by date (only includes dates with actual data)
+     */
     private List<RideDataPointDTO> sortDataByDate(Map<LocalDate, ? extends Number> dataByDate, LocalDate startDate,
             LocalDate endDate) {
-        // Return data sorted by date
+        // Only include dates that have actual data (no zero values)
         return dataByDate.entrySet().stream()
                 .map(entry -> new RideDataPointDTO(entry.getKey(), entry.getValue().doubleValue()))
                 .sorted(Comparator.comparing(RideDataPointDTO::getDate))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get all active passengers
+     */
     public List<UserBasicInfoDTO> getAllPassengers() {
         return passengerRepository.findAll().stream()
-                .filter(p -> p.isAccountActivated()) // Only activated accounts
-                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), UserRole.PASSENGER))
+                .filter(p -> p.isAccountActivated())
+                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(),
+                        UserRole.PASSENGER))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get all active drivers
+     */
     public List<UserBasicInfoDTO> getAllDrivers() {
         return driverRepository.findAll().stream()
-                .filter(d -> d.isAccountActivated()) // Only activated accounts
-                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), UserRole.DRIVER))
+                .filter(d -> d.isAccountActivated())
+                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(),
+                        UserRole.DRIVER))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get all active users (both passengers and drivers), excluding one user
+     */
     public List<UserBasicInfoDTO> getAllActiveUsers(Long excludeUserId) {
         List<UserBasicInfoDTO> allUsers = new ArrayList<>();
 
-        // Add all active passengers
+        // Add all active passengers except the excluded one
         allUsers.addAll(passengerRepository.findAll().stream()
                 .filter(p -> p.isAccountActivated() && !p.getId().equals(excludeUserId))
-                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(), UserRole.PASSENGER))
+                .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(),
+                        UserRole.PASSENGER))
                 .collect(Collectors.toList()));
 
-        // Add all active drivers
+        // Add all active drivers except the excluded one
         allUsers.addAll(driverRepository.findAll().stream()
                 .filter(d -> d.isAccountActivated() && !d.getId().equals(excludeUserId))
-                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(), UserRole.DRIVER))
+                .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(),
+                        UserRole.DRIVER))
                 .collect(Collectors.toList()));
 
-        // Sort by date
-        ridesData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
-        kmData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
-        amountData.sort((a, b) -> a.getDate().compareTo(b.getDate()));
-
-        // Set statistics
-        stats.setTotalRides(totalRidesCount);
-        stats.setAvgRidesPerDay(totalRidesCount / (double) ridesByDate.size());
-        stats.setRidesData(ridesData);
-
-        stats.setTotalKmTraveled(totalKm);
-        stats.setAvgKmPerDay(totalKm / ridesByDate.size());
-        stats.setKmData(kmData);
-
-        stats.setTotalAmountSpent(totalAmount);
-        stats.setAvgAmountPerDay(totalAmount / ridesByDate.size());
-        stats.setAmountData(amountData);
-
-        return stats;
+        return allUsers;
     }
 }
