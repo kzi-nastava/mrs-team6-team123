@@ -43,6 +43,7 @@ export class NavbarComponent implements OnInit {
     { route: '/registered-home', icon: 'home.png', type: 'home' },
     { route: '/history', icon: 'history.png', type: 'history' },
     { route: '/favorites', icon: 'favorites.png', type: 'favorites' },
+    { route: '/reports', icon: 'report.png', type: 'reports' },
     { route: '', icon: 'notification.png', type: 'notifications' },
     { route: '/profile', icon: 'user.png', type: 'profile' }
   ];
@@ -50,7 +51,6 @@ export class NavbarComponent implements OnInit {
   driverLinks = [
     { route: '/driver/home', icon: 'home.png', type: 'home' },
     { route: '/driver/driver-ride-history', icon: 'history.png', type: 'history' },
-    { route: '/driver/favorites', icon: 'favorites.png', type: 'favorites' },
     { route: '', icon: 'notification.png', type: 'notifications' },
     { route: '/driver/reports', icon: 'report.png', type: 'reports' },
     { route: '/profile', icon: 'user.png', type: 'profile' }
