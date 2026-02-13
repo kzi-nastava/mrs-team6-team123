@@ -18,6 +18,8 @@ import android.widget.Toast;
 import com.example.mobile_application.R;
 import com.example.mobile_application.dto.ActiveVehicleDTO;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
+import com.example.mobile_application.ui.RideEstimationFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -54,6 +56,17 @@ public class UnregisteredHomeFragment extends Fragment {
         Bitmap smallBitmap = Bitmap.createScaledBitmap(originalBitmap, newSize, newSize, true);
         taxiIcon = new BitmapDrawable(getResources(), smallBitmap);
         mapSetup();
+
+        FloatingActionButton fabEstimate = view.findViewById(R.id.fabEstimateRide);
+        fabEstimate.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main_container, new RideEstimationFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+
 
         return view;
     }

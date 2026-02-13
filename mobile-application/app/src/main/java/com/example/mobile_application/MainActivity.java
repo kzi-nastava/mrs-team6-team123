@@ -24,10 +24,12 @@ import com.example.mobile_application.ui.ProfileFragment;
 import com.example.mobile_application.ui.DriverRegistrationFragment;
 import com.example.mobile_application.ui.FavoriteRoutesFragment;
 import com.example.mobile_application.ui.admin_home.AdminHomeFragment;
+import com.example.mobile_application.ui.admin_ride_history.AdminRideHistoryFragment;
 import com.example.mobile_application.ui.chat.ChatFragment;
 import com.example.mobile_application.ui.chat.ChatListFragment;
 import com.example.mobile_application.ui.driver_home.DriverHomeFragment;
 import com.example.mobile_application.ui.map.MapFragment;
+import com.example.mobile_application.ui.passenger_ride_history.PassengerRideHistoryFragment;
 import com.example.mobile_application.ui.registered_home.RegisteredHomeFragment;
 import com.example.mobile_application.ui.unregistered_home.UnregisteredHomeFragment;
 import com.example.mobile_application.ui.driver_ride_history.RideHistoryFragment;
@@ -242,7 +244,14 @@ public class MainActivity extends AppCompatActivity
             Fragment fragment = null;
 
             if (id == R.id.history) {
-                fragment = new RideHistoryFragment();
+                String role = getUserRole();
+                if (role != null && role.equals("ADMIN")) {
+                    fragment = new AdminRideHistoryFragment();
+                } else if (role != null && role.equals("PASSENGER")) {
+                    fragment = new PassengerRideHistoryFragment();
+                } else {
+                    fragment = new RideHistoryFragment(); // existing driver one
+                }
             } else if (id == R.id.favorites) {
                 fragment = new FavoriteRoutesFragment();
             } else if (id == R.id.drivers) {
