@@ -73,7 +73,7 @@
                 android:fontFamily="@font/nobile"/>
         </LinearLayout>
 
-        <!-- Rating and details row -->
+        <!-- Rating, favorite and details row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -88,6 +88,15 @@
                 android:textSize="13sp"
                 android:fontFamily="@font/nobile_regular"/>
 
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="centerInside"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="8dp"/>
+
             <Button
                 android:id="@+id/btnDetails"
                 android:layout_width="wrap_content"
@@ -101,4 +110,3 @@
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
-
