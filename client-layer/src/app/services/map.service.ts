@@ -21,6 +21,7 @@ export class MapService {
   private simulationInterval?: any;
   private currentRouteIndex = 0;
   private routingControl?: any;
+  private estimateRoutingControl?: any;
 
   private vehicleMarkers = new Map<number, L.Marker>();
 
@@ -105,6 +106,48 @@ export class MapService {
     }).addTo(this.map);
 
     return this.routingControl;
+  }
+
+   drawEstimateRoute(waypointStrings: string[]): void {
+    this.clearEstimateRoute();
+
+    const waypoints = waypointStrings.map(coord => {
+      const [lat, lng] = coord.split(',').map(v => parseFloat(v.trim()));
+      return L.latLng(lat, lng);
+    });
+
+    this.estimateRoutingControl = L.Routing.control({
+      waypoints,
+      addWaypoints: false,
+      draggableWaypoints: false,
+      fitSelectedRoutes: true,
+      show: false,                         
+      lineOptions: {
+        styles: [{ color: '#1a6aff', weight: 5, opacity: 0.8 }]
+      },
+      createMarker: (i: number, wp: any, n: number) => {
+        if (i === 0) {
+          return L.marker(wp.latLng, {
+            icon: L.icon({ iconUrl: 'start-icon.png', iconSize: [32, 32], iconAnchor: [16, 32] })
+          }).bindPopup('Polazna tačka');
+        }
+        if (i === n - 1) {
+          return L.marker(wp.latLng, {
+            icon: L.icon({ iconUrl: 'end-icon.png', iconSize: [32, 32], iconAnchor: [16, 32] })
+          }).bindPopup('Odredište');
+        }
+        return L.marker(wp.latLng, {
+          icon: L.icon({ iconUrl: 'end-icon.png', iconSize: [24, 24], iconAnchor: [12, 24] })
+        }).bindPopup(`Stanica ${i}`);
+      }
+    }).addTo(this.map);
+  }
+
+  clearEstimateRoute(): void {
+    if (this.estimateRoutingControl) {
+      this.map.removeControl(this.estimateRoutingControl);
+      this.estimateRoutingControl = undefined;
+    }
   }
 
   clearRoute() {

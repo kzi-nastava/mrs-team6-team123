@@ -19,6 +19,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() ride?: { startLat?: number; startLng?: number; endLat?: number; endLng?: number; };
   @Input() rideHistory?: DriverRideHistory;
   @Input() track?: TrackRideResponse;
+  @Input() estimateRoute?: string[];
 
   private availableIcon = L.icon({
     iconUrl: 'vehicle-available.png',
@@ -115,6 +116,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     } else if (this.mode === 'HISTORY' && this.rideHistory) {
       this.loadRideHistoryRoute();
     }
+
+     if (this.estimateRoute?.length) {
+      this.mapService.drawEstimateRoute(this.estimateRoute);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -144,6 +149,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.mapService.trackRide(this.track, this.cdr);
     }
     this.cdr.detectChanges();
+
+    if (changes['estimateRoute']) {
+      if (this.estimateRoute?.length) {
+        this.mapService.drawEstimateRoute(this.estimateRoute);
+      } else {
+        this.mapService.clearEstimateRoute();
+      }
+    }
   }
 
 
@@ -151,5 +164,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (this.refreshIntervalId) {
       clearInterval(this.refreshIntervalId);
     }
+    this.mapService.clearEstimateRoute();
   }
 }
