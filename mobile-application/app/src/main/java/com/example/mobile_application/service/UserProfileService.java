@@ -16,6 +16,9 @@ public interface UserProfileService {
     @GET("api/users/{userId}")
     Call<UserProfileDTO> getProfile(@Path("userId") Long userId);
 
+    @GET("api/users/email/{email}")
+    Call<UserProfileDTO> getUserByEmail(@Path("email") String email);
+
     @PUT("api/users/{userId}")
     Call<UserProfileDTO> updateProfile(@Path("userId") Long userId, @Body UserProfileRequestDTO request);
 

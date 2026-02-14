@@ -4,10 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
@@ -21,12 +23,19 @@ import androidx.fragment.app.Fragment;
 import com.example.mobile_application.R;
 import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.dto.GeocodingResult;
+import com.example.mobile_application.dto.RideEstimationRequestDTO;
+import com.example.mobile_application.dto.RideEstimationResponseDTO;
 import com.example.mobile_application.dto.RideOrderRequestDTO;
 import com.example.mobile_application.dto.RideResponseDTO;
+import com.example.mobile_application.dto.UserProfileDTO;
+import com.example.mobile_application.helper.ApiResponseHandler;
 import com.example.mobile_application.helper.DrawMarkerHelper;
+import com.example.mobile_application.helper.LocationCoordinateParser;
 import com.example.mobile_application.helper.MapRouteHelper;
+import com.example.mobile_application.helper.RideBookingFormHelper;
+import com.example.mobile_application.helper.RideBookingService;
+import com.example.mobile_application.enums.VehicleType;
 import com.example.mobile_application.service.ApiClient;
-import com.example.mobile_application.service.RideOrderService;
 import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.AddressAutocompleteAdapter;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -103,6 +112,12 @@ public abstract class BaseRideBookingFragment extends Fragment {
     protected String[] availableHours;
     protected String[] availableMinutes;
 
+    // Passenger and user management
+    protected List<String> passengerEmails = new ArrayList<>();
+    protected RideBookingFormHelper formHelper;
+    protected RideBookingService bookingService;
+    protected com.example.mobile_application.service.RideEstimationService estimationService;
+
     protected abstract String getLogTag();
 
     protected void initializeMarkerIcon() {
@@ -138,11 +153,14 @@ public abstract class BaseRideBookingFragment extends Fragment {
 
         startingPointInput.setAdapter(startAdapter);
         destinationInput.setAdapter(endAdapter);
-
         startingPointInput.setThreshold(3);
         destinationInput.setThreshold(3);
 
-        // Handle selection of autocomplete items
+        setupStartLocationListener();
+        setupEndLocationListener();
+    }
+
+    private void setupStartLocationListener() {
         startingPointInput.setOnItemClickListener((parent, view, position, id) -> {
             GeocodingResult result = startAdapter.getItem(position);
             if (result != null) {
@@ -151,7 +169,9 @@ public abstract class BaseRideBookingFragment extends Fragment {
                 drawRouteIfBothLocationsSet();
             }
         });
+    }
 
+    private void setupEndLocationListener() {
         destinationInput.setOnItemClickListener((parent, view, position, id) -> {
             GeocodingResult result = endAdapter.getItem(position);
             if (result != null) {
@@ -163,50 +183,45 @@ public abstract class BaseRideBookingFragment extends Fragment {
     }
 
     protected void setupSpinners() {
-        // Vehicle Type Spinner
-        ArrayAdapter<CharSequence> vehicleAdapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.vehicle_types,
-                android.R.layout.simple_spinner_item);
-        vehicleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        vehicleTypeSpinner.setAdapter(vehicleAdapter);
+        setupSpinnerAdapter(vehicleTypeSpinner, R.array.vehicle_types);
+        setupSpinnerAdapter(scheduleTypeSpinner, R.array.schedule_types);
+    }
 
-        // Schedule Type Spinner
-        ArrayAdapter<CharSequence> scheduleAdapter = ArrayAdapter.createFromResource(
+    private void setupSpinnerAdapter(Spinner spinner, int arrayResource) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
-                R.array.schedule_types,
+                arrayResource,
                 android.R.layout.simple_spinner_item);
-        scheduleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        scheduleTypeSpinner.setAdapter(scheduleAdapter);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
     protected void setupNumberPickers() {
-        // Get current time
         Calendar now = Calendar.getInstance();
         currentHour = now.get(Calendar.HOUR_OF_DAY);
         currentMinute = now.get(Calendar.MINUTE);
 
-        // Generate available hours (current hour + next 5 hours = 6 hours total)
-        availableHours = new String[6];
+        availableHours = generateHours();
+        setupHourPicker();
+        updateAvailableMinutes(0);
+        hourPicker.setOnValueChangedListener((picker, oldVal, newVal) -> updateAvailableMinutes(newVal));
+    }
+
+    private String[] generateHours() {
+        String[] hours = new String[6];
         for (int i = 0; i < 6; i++) {
             int hour = (currentHour + i) % 24;
-            availableHours[i] = String.format("%02d", hour);
+            hours[i] = String.format("%02d", hour);
         }
+        return hours;
+    }
 
-        // Set up hour picker
+    private void setupHourPicker() {
         hourPicker.setMinValue(0);
         hourPicker.setMaxValue(availableHours.length - 1);
         hourPicker.setDisplayedValues(availableHours);
         hourPicker.setValue(0);
         hourPicker.setWrapSelectorWheel(false);
-
-        // Set up minute picker for current hour
-        updateAvailableMinutes(0);
-
-        // Add listener to hour picker to update minutes
-        hourPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            updateAvailableMinutes(newVal);
-        });
     }
 
     protected void updateAvailableMinutes(int selectedHourIndex) {
@@ -236,25 +251,17 @@ public abstract class BaseRideBookingFragment extends Fragment {
     }
 
     protected void setupListeners() {
-        // Add Stop button
         btnAddStop.setOnClickListener(v -> addStopField());
-
-        // Add Passenger button
         btnAddPassenger.setOnClickListener(v -> addPassengerField());
-
-        // Book Ride button
         btnBookRide.setOnClickListener(v -> bookRide());
+        setupScheduleTypeListener();
+    }
 
-        // Schedule type spinner listener
+    private void setupScheduleTypeListener() {
         scheduleTypeSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                // Show/hide time picker based on selection
-                if (position == 1) { // "schedule for later"
-                    timePickerContainer.setVisibility(View.VISIBLE);
-                } else { // "now"
-                    timePickerContainer.setVisibility(View.GONE);
-                }
+                timePickerContainer.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -274,10 +281,41 @@ public abstract class BaseRideBookingFragment extends Fragment {
 
     protected void addPassengerField() {
         View passengerView = getLayoutInflater().inflate(R.layout.item_passenger, passengersContainer, false);
+        EditText passengerInput = passengerView.findViewById(R.id.passenger_input);
         Button removeButton = passengerView.findViewById(R.id.btn_remove_passenger);
-        removeButton.setOnClickListener(v -> passengersContainer.removeView(passengerView));
+
+        removeButton.setOnClickListener(v -> {
+            int index = passengersContainer.indexOfChild(passengerView);
+            if (index >= 0 && index < passengerEmails.size()) {
+                passengerEmails.remove(index);
+            }
+            passengersContainer.removeView(passengerView);
+            if (passengersContainer.getChildCount() == 0) {
+                passengersContainer.setVisibility(View.GONE);
+            }
+        });
+
         passengersContainer.addView(passengerView);
         passengersContainer.setVisibility(View.VISIBLE);
+        passengerEmails.add("");
+
+        final int myIndex = passengerEmails.size() - 1;
+        passengerInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (myIndex < passengerEmails.size()) {
+                    passengerEmails.set(myIndex, s.toString().trim());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
     }
 
     protected void drawRouteIfBothLocationsSet() {
@@ -317,107 +355,198 @@ public abstract class BaseRideBookingFragment extends Fragment {
     }
 
     protected void bookRide() {
-        Log.d(getLogTag(), "bookRide() called");
-
-        // Validate inputs
-        String startLocation = startingPointInput.getText().toString().trim();
-        String endLocation = destinationInput.getText().toString().trim();
-
-        Log.d(getLogTag(), "StartLocation: " + startLocation);
-        Log.d(getLogTag(), "EndLocation: " + endLocation);
-        Log.d(getLogTag(), "StartCoordinates: " + startCoordinates);
-        Log.d(getLogTag(), "EndCoordinates: " + endCoordinates);
-
-        if (startLocation.isEmpty()) {
-            Toast.makeText(requireContext(), "Please enter starting point", Toast.LENGTH_SHORT).show();
+        if (!validateBookingInputs()) {
             return;
         }
 
-        if (endLocation.isEmpty()) {
-            Toast.makeText(requireContext(), "Please enter destination", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (startCoordinates.isEmpty() || endCoordinates.isEmpty()) {
-            Toast.makeText(requireContext(), "Please select locations from suggestions", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Get user ID
-        TokenManager tokenManager = ApiClient.getTokenManager();
-        Long userId = tokenManager.getUserId();
-
-        Log.d(getLogTag(), "UserId: " + userId);
-
+        Long userId = ApiClient.getTokenManager().getUserId();
         if (userId == null || userId <= 0) {
             Toast.makeText(requireContext(), "Please log in first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Parse coordinates
-        String[] startCoord = startCoordinates.split(",\\s*");
-        String[] endCoord = endCoordinates.split(",\\s*");
+        List<Long> passengerIds = new ArrayList<>();
+        passengerIds.add(userId);
+        List<String> validPassengerEmails = collectPassengerEmails();
 
-        if (startCoord.length < 2 || endCoord.length < 2) {
-            Toast.makeText(requireContext(), "Invalid location coordinates", Toast.LENGTH_SHORT).show();
-            return;
+        if (bookingService == null) {
+            bookingService = new RideBookingService();
         }
 
-        Double startLatitude = Double.parseDouble(startCoord[0].trim());
-        Double startLongitude = Double.parseDouble(startCoord[1].trim());
-        Double endLatitude = Double.parseDouble(endCoord[0].trim());
-        Double endLongitude = Double.parseDouble(endCoord[1].trim());
+        if (!validPassengerEmails.isEmpty()) {
+            bookingService.resolvePassengerEmails(
+                    validPassengerEmails,
+                    passengerIds,
+                    () -> submitRideOrderWithPassengers(userId, passengerIds),
+                    () -> Toast.makeText(requireContext(),
+                            "One or more passenger emails not found. Please check and try again.", Toast.LENGTH_SHORT)
+                            .show());
+        } else {
+            submitRideOrderWithPassengers(userId, passengerIds);
+        }
+    }
 
-        Log.d(getLogTag(), "Parsed coordinates - Start: " + startLatitude + "," + startLongitude +
-                " End: " + endLatitude + "," + endLongitude);
+    private boolean validateBookingInputs() {
+        String startLocation = startingPointInput.getText().toString().trim();
+        String endLocation = destinationInput.getText().toString().trim();
 
-        // Get vehicle type
-        String vehicleTypeDisplay = (String) vehicleTypeSpinner.getSelectedItem();
-        String vehicleType = vehicleTypeDisplay.toUpperCase();
+        if (startLocation.isEmpty()) {
+            Toast.makeText(requireContext(), "Please enter starting point", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
-        Log.d(getLogTag(), "VehicleType: " + vehicleType);
+        if (endLocation.isEmpty()) {
+            Toast.makeText(requireContext(), "Please enter destination", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
-        // Get schedule info
-        String scheduleType = (String) scheduleTypeSpinner.getSelectedItem();
-        String scheduledAt = buildScheduledAtString(scheduleType);
+        if (startCoordinates.isEmpty() || endCoordinates.isEmpty()) {
+            Toast.makeText(requireContext(), "Please select locations from suggestions", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
-        Log.d(getLogTag(), "ScheduledAt: " + scheduledAt);
+        return true;
+    }
 
-        // Get preferences
-        Boolean petFriendly = switchPets.isChecked();
-        Boolean babySeat = switchBabies.isChecked();
+    private List<String> collectPassengerEmails() {
+        List<String> validEmails = new ArrayList<>();
+        for (String email : passengerEmails) {
+            if (email != null && !email.isEmpty()) {
+                validEmails.add(email);
+            }
+        }
+        return validEmails;
+    }
 
-        // Get additional instructions
-        String additionalInstructions = additionalInstructionsInput.getText().toString().trim();
+    private void submitRideOrderWithPassengers(Long userId, List<Long> passengerIds) {
+        // First estimate the price, then submit ride
+        estimateRidePrice(userId, passengerIds);
+    }
 
-        // Build passenger IDs list (empty - only creator)
-        List<Long> passengerIds = new ArrayList<>();
+    private void estimateRidePrice(Long userId, List<Long> passengerIds) {
+        if (estimationService == null) {
+            estimationService = new com.example.mobile_application.service.RideEstimationService();
+        }
 
-        // Build waypoints from stops
-        List<String> waypoints = new ArrayList<>();
+        String vehicleType = ((String) vehicleTypeSpinner.getSelectedItem()).toUpperCase();
+        RideEstimationRequestDTO estimationRequest = new RideEstimationRequestDTO();
+        estimationRequest.setStartLocation(startCoordinates);
+        estimationRequest.setEndLocation(endCoordinates);
+        estimationRequest.setVehicleType(VehicleType.valueOf(vehicleType));
 
-        // Build the request
+        estimationService.estimateRide(
+                estimationRequest,
+                new Callback<RideEstimationResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideEstimationResponseDTO> call,
+                            Response<RideEstimationResponseDTO> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            RideOrderRequestDTO request = buildRideOrderRequest(userId, passengerIds);
+                            request.setEstimatedPrice(response.body().getEstimatedPrice());
+                            submitRideOrder(request);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideEstimationResponseDTO> call, Throwable t) {
+                        // Handled by error callback
+                    }
+                },
+                new Callback<RideEstimationResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideEstimationResponseDTO> call,
+                            Response<RideEstimationResponseDTO> response) {
+                        Toast.makeText(requireContext(), "Failed to estimate price", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideEstimationResponseDTO> call, Throwable t) {
+                        Toast.makeText(requireContext(), "Price estimation error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void submitRideOrder(RideOrderRequestDTO request) {
+        if (bookingService == null) {
+            bookingService = new RideBookingService();
+        }
+
+        bookingService.submitRideOrder(
+                request,
+                new Callback<RideResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
+                        handleRideBookingSuccess(call, response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideResponseDTO> call, Throwable t) {
+                        handleRideBookingFailure(call, t);
+                    }
+                },
+                new Callback<RideResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
+                        handleRideBookingError(call, response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideResponseDTO> call, Throwable t) {
+                        // Error callback doesn't need failure handler
+                    }
+                },
+                new Callback<RideResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
+                        // Failure callback doesn't need response handler
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideResponseDTO> call, Throwable t) {
+                        handleRideBookingFailure(call, t);
+                    }
+                });
+    }
+
+    private RideOrderRequestDTO buildRideOrderRequest(Long userId, List<Long> passengerIds) {
         RideOrderRequestDTO request = new RideOrderRequestDTO();
+
         request.setCreatorId(userId);
         request.setPassengerIds(passengerIds);
-        request.setStartLocation(startLocation);
-        request.setEndLocation(endLocation);
-        request.setStartLatitude(startLatitude);
-        request.setStartLongitude(startLongitude);
-        request.setEndLatitude(endLatitude);
-        request.setEndLongitude(endLongitude);
-        request.setWaypoints(waypoints);
-        request.setScheduledAt(scheduledAt);
-        request.setBabySeat(babySeat);
-        request.setPetFriendly(petFriendly);
-        request.setVehicleType(vehicleType);
-        request.setAdditionalInstructions(additionalInstructions);
-        request.setEstimatedPrice(0.0);
+        request.setStartLocation(startingPointInput.getText().toString());
+        request.setEndLocation(destinationInput.getText().toString());
 
-        Log.d(getLogTag(), "Request built, calling submitRideOrder...");
+        // Parse and set coordinates
+        double[] startCoord = parseCoordinates(startCoordinates);
+        double[] endCoord = parseCoordinates(endCoordinates);
+        request.setStartLatitude(startCoord[0]);
+        request.setStartLongitude(startCoord[1]);
+        request.setEndLatitude(endCoord[0]);
+        request.setEndLongitude(endCoord[1]);
 
-        // Call the API
-        submitRideOrder(request);
+        // Set waypoints
+        request.setWaypoints(new ArrayList<>());
+
+        // Set schedule
+        String scheduleType = (String) scheduleTypeSpinner.getSelectedItem();
+        request.setScheduledAt(buildScheduledAtString(scheduleType));
+
+        // Set preferences
+        request.setBabySeat(switchBabies.isChecked());
+        request.setPetFriendly(switchPets.isChecked());
+
+        // Set vehicle and instructions
+        String vehicleTypeDisplay = (String) vehicleTypeSpinner.getSelectedItem();
+        request.setVehicleType(vehicleTypeDisplay.toUpperCase());
+        request.setAdditionalInstructions(additionalInstructionsInput.getText().toString().trim());
+        request.setEstimatedPrice(0.0); // Will be overridden by estimation call
+
+        return request;
+    }
+
+    private double[] parseCoordinates(String coordinateString) {
+        return LocationCoordinateParser.parseCoordinates(coordinateString);
     }
 
     protected String buildScheduledAtString(String scheduleType) {
@@ -442,88 +571,47 @@ public abstract class BaseRideBookingFragment extends Fragment {
         }
     }
 
-    protected void submitRideOrder(RideOrderRequestDTO request) {
-        Log.d(getLogTag(), "submitRideOrder() called");
+    private void handleRideBookingSuccess(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
+        RideResponseDTO rideResponse = response.body();
+        String message = "Ride booked successfully!\n" +
+                "Driver: " + rideResponse.getDriverName() + "\n" +
+                "Vehicle: " + rideResponse.getVehicleLicense();
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+        clearForm();
+        if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
+    }
 
-        RideOrderService service = ApiClient.getInstance().create(RideOrderService.class);
-        Call<RideResponseDTO> call = service.orderRide(request);
+    private void handleRideBookingError(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
+        String errorMessage = ApiResponseHandler.extractErrorMessage(response, "Failed to book ride", getLogTag());
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+    }
 
-        call.enqueue(new Callback<RideResponseDTO>() {
-            @Override
-            public void onResponse(@NonNull Call<RideResponseDTO> call, @NonNull Response<RideResponseDTO> response) {
-                Log.d(getLogTag(), "onResponse called, code: " + response.code());
-
-                if (response.isSuccessful() && response.body() != null) {
-                    RideResponseDTO rideResponse = response.body();
-                    String message = "Ride booked successfully!\n" +
-                            "Driver: " + rideResponse.getDriverName() + "\n" +
-                            "Vehicle: " + rideResponse.getVehicleLicense();
-                    Log.d(getLogTag(), "Ride booked successfully");
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-
-                    // Clear form
-                    clearForm();
-
-                    // Collapse bottom sheet if it exists
-                    if (bottomSheetBehavior != null) {
-                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    }
-                } else {
-                    Log.d(getLogTag(), "Response not successful. Code: " + response.code());
-
-                    String errorMessage = "Failed to book ride (Error " + response.code() + ")";
-
-                    try {
-                        if (response.errorBody() != null) {
-                            String errorBody = response.errorBody().string();
-                            Log.d(getLogTag(), "Error body: " + errorBody);
-                            if (errorBody != null && !errorBody.trim().isEmpty()) {
-                                errorMessage = errorBody;
-                            } else {
-                                errorMessage = "Server error (Code " + response.code() + ") - " + response.message();
-                            }
-                        } else {
-                            errorMessage = "Server error (Code " + response.code() + ") - " + response.message();
-                        }
-                    } catch (Exception e) {
-                        Log.e(getLogTag(), "Error parsing error body", e);
-                        errorMessage = "Error: " + response.code() + " - " + response.message();
-                    }
-
-                    Log.d(getLogTag(), "Showing error toast: " + errorMessage);
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<RideResponseDTO> call, @NonNull Throwable t) {
-                String errorMsg = "Connection error: " + t.getMessage();
-                Log.e(getLogTag(), "onFailure called", t);
-                Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
-            }
-        });
+    private void handleRideBookingFailure(Call<RideResponseDTO> call, Throwable t) {
+        Toast.makeText(requireContext(), "Connection error: " + t.getMessage(), Toast.LENGTH_LONG).show();
     }
 
     protected void clearForm() {
-        startingPointInput.setText("");
-        destinationInput.setText("");
-        additionalInstructionsInput.setText("");
-        switchPets.setChecked(false);
-        switchBabies.setChecked(false);
-        vehicleTypeSpinner.setSelection(0);
-        scheduleTypeSpinner.setSelection(0);
-        stopsContainer.removeAllViews();
-        passengersContainer.removeAllViews();
-        stopsContainer.setVisibility(View.GONE);
-        passengersContainer.setVisibility(View.GONE);
+        if (formHelper != null) {
+            formHelper.clearForm();
+        }
         startCoordinates = "";
         endCoordinates = "";
+    }
 
-        // Clear map overlays
-        if (mapView != null) {
-            mapView.getOverlays().clear();
-            mapView.invalidate();
-        }
+    protected void initializeFormHelper() {
+        formHelper = new RideBookingFormHelper(
+                startingPointInput,
+                destinationInput,
+                additionalInstructionsInput,
+                switchPets,
+                switchBabies,
+                vehicleTypeSpinner,
+                scheduleTypeSpinner,
+                stopsContainer,
+                passengersContainer,
+                mapView);
     }
 
     @Override
