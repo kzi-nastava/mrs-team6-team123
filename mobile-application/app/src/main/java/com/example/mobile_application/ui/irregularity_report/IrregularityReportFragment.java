@@ -18,6 +18,8 @@ import com.example.mobile_application.dto.DriverRideHistoryDTO;
 import com.example.mobile_application.dto.IrregularityReportDTO;
 import com.example.mobile_application.dto.TrackRideDTO;
 import com.example.mobile_application.repository.IrregularityReportRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import java.io.Serializable;
 
@@ -82,7 +84,13 @@ public class IrregularityReportFragment extends Fragment {
 
         IrregularityReportDTO dto = new IrregularityReportDTO();
         dto.setRideId(ride.getRideId());
-        dto.setAuthorId(2L); // TODO: current logged in user id
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        dto.setAuthorId(userId);
         dto.setComment(comment);
         btnReport.setEnabled(false);
 
