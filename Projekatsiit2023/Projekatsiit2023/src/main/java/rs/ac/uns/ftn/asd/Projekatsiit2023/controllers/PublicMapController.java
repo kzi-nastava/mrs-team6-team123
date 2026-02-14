@@ -31,7 +31,7 @@ public class PublicMapController {
             return ResponseEntity.ok(service.getVehicles());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while fetching active vehicles.");
+                    .body("An error occurred while fetching active vehicles." + e.getMessage());
         }
     }
 

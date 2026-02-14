@@ -104,10 +104,14 @@ public class PublicMapService {
             );
 
             int index = v.getRouteIndex();
-            if (index >= route.size() && v.getCurrentRide() == null) {
-                assignNewRandomTarget(v);
-                routeService.calculateAndSaveRoute(v);
-                v.setRouteIndex(0);
+            if (index >= route.size()) {
+                if (v.getCurrentRide() != null) {
+                    freezeAtCurrentLocation(v);
+                } else {
+                    assignNewRandomTarget(v);
+                    routeService.calculateAndSaveRoute(v);
+                    v.setRouteIndex(0);
+                }
                 return;
             }
 

@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ public class ActiveVehicle {
     @Id
     private Long id;
 
+    @JsonIgnore
     @OneToOne
     @MapsId
     @JoinColumn(name = "vehicle_id")
