@@ -2,6 +2,7 @@ package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers.ride;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
@@ -75,6 +76,17 @@ public class RideController {
         this.finishRideService = finishRideService;
         this.rateRideService = rateRideService;
         this.orderRideValidation = orderRideValidation;
+    }
+
+    @PreAuthorize("permitAll()")
+    @PostMapping("/estimate")
+    public ResponseEntity<?> estimateRide(@RequestBody RideEstimationRequestDTO request) {
+        try {
+            RideEstimationResponseDTO estimation = estimationService.estimate(request);
+            return ResponseEntity.ok(estimation);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // 2.4.1 Poručivanje vožnje

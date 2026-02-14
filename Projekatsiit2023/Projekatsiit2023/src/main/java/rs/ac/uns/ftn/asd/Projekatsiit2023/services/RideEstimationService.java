@@ -50,34 +50,30 @@ public class RideEstimationService {
         coords.append(";").append(endCoords[1]).append(",").append(endCoords[0]);
 
         String url = OSRM_URL + coords.toString() + "?overview=full&geometries=geojson";
-        
+
         double distanceKm;
         int estimatedTimeMin;
         String routeGeometry = "";
 
         try {
-            System.out.println("Calling OSRM: " + url);
-            
             Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-            
+
             if (response != null && "Ok".equals(response.get("code"))) {
                 List<Map<String, Object>> routes = (List<Map<String, Object>>) response.get("routes");
-                
+
                 if (routes != null && !routes.isEmpty()) {
                     Map<String, Object> route = routes.get(0);
-                    
+
                     double distanceMeters = ((Number) route.get("distance")).doubleValue();
                     distanceKm = distanceMeters / 1000.0;
-                    
+
                     double durationSeconds = ((Number) route.get("duration")).doubleValue();
                     estimatedTimeMin = (int) Math.ceil(durationSeconds / 60.0);
-                    
+
                     Map<String, Object> geometry = (Map<String, Object>) route.get("geometry");
                     if (geometry != null) {
                         routeGeometry = geometry.toString();
                     }
-                    
-                    System.out.println("OSRM Response: " + distanceKm + " km, " + estimatedTimeMin + " min");
                 } else {
                     throw new RuntimeException("No route found");
                 }
@@ -115,19 +111,19 @@ public class RideEstimationService {
         try {
             String cleaned = location.replaceAll("[NSEW]", "").trim();
             String[] parts = cleaned.split(",");
-            
+
             if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid location format: " + location);
             }
-            
+
             double lat = Double.parseDouble(parts[0].trim());
             double lon = Double.parseDouble(parts[1].trim());
-            
+
             if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
                 throw new IllegalArgumentException("Coordinates out of range");
             }
-            
-            return new double[]{lat, lon};
+
+            return new double[] { lat, lon };
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid coordinate format: " + location);
         }
@@ -135,16 +131,16 @@ public class RideEstimationService {
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371;
-        
+
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
-        
+
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        
+
         return R * c;
     }
 }

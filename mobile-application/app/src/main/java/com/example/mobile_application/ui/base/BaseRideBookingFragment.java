@@ -23,6 +23,8 @@ import androidx.fragment.app.Fragment;
 import com.example.mobile_application.R;
 import com.example.mobile_application.dto.GeoPointDTO;
 import com.example.mobile_application.dto.GeocodingResult;
+import com.example.mobile_application.dto.RideEstimationRequestDTO;
+import com.example.mobile_application.dto.RideEstimationResponseDTO;
 import com.example.mobile_application.dto.RideOrderRequestDTO;
 import com.example.mobile_application.dto.RideResponseDTO;
 import com.example.mobile_application.dto.UserProfileDTO;
@@ -32,6 +34,7 @@ import com.example.mobile_application.helper.LocationCoordinateParser;
 import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.helper.RideBookingFormHelper;
 import com.example.mobile_application.helper.RideBookingService;
+import com.example.mobile_application.enums.VehicleType;
 import com.example.mobile_application.service.ApiClient;
 import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.AddressAutocompleteAdapter;
@@ -113,6 +116,7 @@ public abstract class BaseRideBookingFragment extends Fragment {
     protected List<String> passengerEmails = new ArrayList<>();
     protected RideBookingFormHelper formHelper;
     protected RideBookingService bookingService;
+    protected com.example.mobile_application.service.RideEstimationService estimationService;
 
     protected abstract String getLogTag();
 
@@ -415,8 +419,55 @@ public abstract class BaseRideBookingFragment extends Fragment {
     }
 
     private void submitRideOrderWithPassengers(Long userId, List<Long> passengerIds) {
-        RideOrderRequestDTO request = buildRideOrderRequest(userId, passengerIds);
+        // First estimate the price, then submit ride
+        estimateRidePrice(userId, passengerIds);
+    }
 
+    private void estimateRidePrice(Long userId, List<Long> passengerIds) {
+        if (estimationService == null) {
+            estimationService = new com.example.mobile_application.service.RideEstimationService();
+        }
+
+        String vehicleType = ((String) vehicleTypeSpinner.getSelectedItem()).toUpperCase();
+        RideEstimationRequestDTO estimationRequest = new RideEstimationRequestDTO();
+        estimationRequest.setStartLocation(startCoordinates);
+        estimationRequest.setEndLocation(endCoordinates);
+        estimationRequest.setVehicleType(VehicleType.valueOf(vehicleType));
+
+        estimationService.estimateRide(
+                estimationRequest,
+                new Callback<RideEstimationResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideEstimationResponseDTO> call,
+                            Response<RideEstimationResponseDTO> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            RideOrderRequestDTO request = buildRideOrderRequest(userId, passengerIds);
+                            request.setEstimatedPrice(response.body().getEstimatedPrice());
+                            submitRideOrder(request);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideEstimationResponseDTO> call, Throwable t) {
+                        // Handled by error callback
+                    }
+                },
+                new Callback<RideEstimationResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<RideEstimationResponseDTO> call,
+                            Response<RideEstimationResponseDTO> response) {
+                        Toast.makeText(requireContext(), "Failed to estimate price", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<RideEstimationResponseDTO> call, Throwable t) {
+                        Toast.makeText(requireContext(), "Price estimation error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void submitRideOrder(RideOrderRequestDTO request) {
         if (bookingService == null) {
             bookingService = new RideBookingService();
         }
@@ -489,7 +540,7 @@ public abstract class BaseRideBookingFragment extends Fragment {
         String vehicleTypeDisplay = (String) vehicleTypeSpinner.getSelectedItem();
         request.setVehicleType(vehicleTypeDisplay.toUpperCase());
         request.setAdditionalInstructions(additionalInstructionsInput.getText().toString().trim());
-        request.setEstimatedPrice(0.0);
+        request.setEstimatedPrice(0.0); // Will be overridden by estimation call
 
         return request;
     }

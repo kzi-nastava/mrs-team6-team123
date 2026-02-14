@@ -83,11 +83,12 @@ public class RideEstimationFragment extends Fragment {
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable startSearchRunnable, destSearchRunnable;
 
-    public RideEstimationFragment() {}
+    public RideEstimationFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ride_estimation, container, false);
     }
 
@@ -141,11 +142,15 @@ public class RideEstimationFragment extends Fragment {
 
     private void setupVehicleTypeChips() {
         chipGroupVehicleType.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) return;
+            if (checkedIds.isEmpty())
+                return;
             int id = checkedIds.get(0);
-            if (id == R.id.chipStandard) selectedVehicleType = VehicleType.STANDARD;
-            else if (id == R.id.chipLuxury) selectedVehicleType = VehicleType.LUXURY;
-            else if (id == R.id.chipVan) selectedVehicleType = VehicleType.VAN;
+            if (id == R.id.chipStandard)
+                selectedVehicleType = VehicleType.STANDARD;
+            else if (id == R.id.chipLuxury)
+                selectedVehicleType = VehicleType.LUXURY;
+            else if (id == R.id.chipVan)
+                selectedVehicleType = VehicleType.VAN;
         });
     }
 
@@ -159,20 +164,24 @@ public class RideEstimationFragment extends Fragment {
             @Override
             void onDebouncedTextChanged(String text) {
                 // If text matches what was selected from dropdown, skip
-                if (text.equals(acceptedStartText) && !startCoords.isEmpty()) return;
+                if (text.equals(acceptedStartText) && !startCoords.isEmpty())
+                    return;
                 startCoords = "";
                 acceptedStartText = "";
-                if (text.length() >= 3) fetchSuggestions(text, true);
+                if (text.length() >= 3)
+                    fetchSuggestions(text, true);
             }
         });
 
         etDestination.addTextChangedListener(new DebouncedTextWatcher() {
             @Override
             void onDebouncedTextChanged(String text) {
-                if (text.equals(acceptedDestText) && !destCoords.isEmpty()) return;
+                if (text.equals(acceptedDestText) && !destCoords.isEmpty())
+                    return;
                 destCoords = "";
                 acceptedDestText = "";
-                if (text.length() >= 3) fetchSuggestions(text, false);
+                if (text.length() >= 3)
+                    fetchSuggestions(text, false);
             }
         });
 
@@ -201,8 +210,9 @@ public class RideEstimationFragment extends Fragment {
         nominatimRepo.searchSuggestions(query, new Callback<List<NominatimResultDTO>>() {
             @Override
             public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                                   @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded() || resp.body() == null) return;
+                    @NonNull Response<List<NominatimResultDTO>> resp) {
+                if (!isAdded() || resp.body() == null)
+                    return;
 
                 List<NominatimResultDTO> results = resp.body();
                 List<String> names = new ArrayList<>();
@@ -229,7 +239,7 @@ public class RideEstimationFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                                  @NonNull Throwable t) {
+                    @NonNull Throwable t) {
                 // silently ignore
             }
         });
@@ -253,7 +263,8 @@ public class RideEstimationFragment extends Fragment {
             @Override
             void onDebouncedTextChanged(String text) {
                 entry.coordinates = "";
-                if (text.length() >= 3) fetchStopSuggestions(text, entry);
+                if (text.length() >= 3)
+                    fetchStopSuggestions(text, entry);
             }
         });
 
@@ -279,8 +290,9 @@ public class RideEstimationFragment extends Fragment {
         nominatimRepo.searchSuggestions(query, new Callback<List<NominatimResultDTO>>() {
             @Override
             public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                                   @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded() || resp.body() == null) return;
+                    @NonNull Response<List<NominatimResultDTO>> resp) {
+                if (!isAdded() || resp.body() == null)
+                    return;
 
                 entry.suggestions = resp.body();
                 List<String> names = new ArrayList<>();
@@ -297,7 +309,8 @@ public class RideEstimationFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                                  @NonNull Throwable t) {}
+                    @NonNull Throwable t) {
+            }
         });
     }
 
@@ -306,8 +319,7 @@ public class RideEstimationFragment extends Fragment {
     private void setupListeners() {
         btnAddStop.setOnClickListener(v -> addStopView());
         btnEstimate.setOnClickListener(v -> performEstimation());
-        btnBack.setOnClickListener(v ->
-                requireActivity().getSupportFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
     }
 
     // ── Estimation logic ─────────────────────────────────────────
@@ -317,9 +329,11 @@ public class RideEstimationFragment extends Fragment {
         resultContainer.setVisibility(View.GONE);
 
         String startText = etStart.getText() != null
-                ? etStart.getText().toString().trim() : "";
+                ? etStart.getText().toString().trim()
+                : "";
         String destText = etDestination.getText() != null
-                ? etDestination.getText().toString().trim() : "";
+                ? etDestination.getText().toString().trim()
+                : "";
 
         if (startText.isEmpty()) {
             showError("Please enter starting location");
@@ -346,8 +360,9 @@ public class RideEstimationFragment extends Fragment {
         nominatimRepo.geocode(address, new Callback<List<NominatimResultDTO>>() {
             @Override
             public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                                   @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded()) return;
+                    @NonNull Response<List<NominatimResultDTO>> resp) {
+                if (!isAdded())
+                    return;
                 if (resp.body() != null && !resp.body().isEmpty()) {
                     NominatimResultDTO r = resp.body().get(0);
                     if (isStart) {
@@ -355,7 +370,8 @@ public class RideEstimationFragment extends Fragment {
                         // Now check destination
                         if (destCoords.isEmpty()) {
                             String destText = etDestination.getText() != null
-                                    ? etDestination.getText().toString().trim() : "";
+                                    ? etDestination.getText().toString().trim()
+                                    : "";
                             geocodeAndContinue(destText, false);
                         } else {
                             geocodeStopsAndSend();
@@ -374,8 +390,9 @@ public class RideEstimationFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
+                    @NonNull Throwable t) {
+                if (!isAdded())
+                    return;
                 setLoading(false);
                 showError("Geocoding failed. Please try again.");
             }
@@ -392,7 +409,8 @@ public class RideEstimationFragment extends Fragment {
         while (index < stopEntries.size()) {
             StopEntry entry = stopEntries.get(index);
             String text = entry.editText.getText() != null
-                    ? entry.editText.getText().toString().trim() : "";
+                    ? entry.editText.getText().toString().trim()
+                    : "";
             if (text.isEmpty()) {
                 index++;
                 continue;
@@ -407,8 +425,9 @@ public class RideEstimationFragment extends Fragment {
             nominatimRepo.geocode(text, new Callback<List<NominatimResultDTO>>() {
                 @Override
                 public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                                       @NonNull Response<List<NominatimResultDTO>> resp) {
-                    if (!isAdded()) return;
+                        @NonNull Response<List<NominatimResultDTO>> resp) {
+                    if (!isAdded())
+                        return;
                     if (resp.body() != null && !resp.body().isEmpty()) {
                         String coords = resp.body().get(0).toCoordinateString();
                         stopEntries.get(nextIdx).coordinates = coords;
@@ -419,8 +438,9 @@ public class RideEstimationFragment extends Fragment {
 
                 @Override
                 public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                                      @NonNull Throwable t) {
-                    if (!isAdded()) return;
+                        @NonNull Throwable t) {
+                    if (!isAdded())
+                        return;
                     geocodeNextStop(nextIdx + 1, resolvedStops);
                 }
             });
@@ -436,14 +456,14 @@ public class RideEstimationFragment extends Fragment {
                 startCoords,
                 destCoords,
                 intermediateStops.isEmpty() ? null : intermediateStops,
-                selectedVehicleType.name()
-        );
+                selectedVehicleType);
 
         estimationRepo.estimateRide(request, new Callback<RideEstimationResponseDTO>() {
             @Override
             public void onResponse(@NonNull Call<RideEstimationResponseDTO> call,
-                                   @NonNull Response<RideEstimationResponseDTO> resp) {
-                if (!isAdded()) return;
+                    @NonNull Response<RideEstimationResponseDTO> resp) {
+                if (!isAdded())
+                    return;
                 setLoading(false);
 
                 if (resp.isSuccessful() && resp.body() != null) {
@@ -455,8 +475,9 @@ public class RideEstimationFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<RideEstimationResponseDTO> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
+                    @NonNull Throwable t) {
+                if (!isAdded())
+                    return;
                 setLoading(false);
                 showError("Network error. Please try again.");
             }
@@ -514,7 +535,8 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private void zoomToFitPoints(List<GeoPointDTO> points) {
-        if (points.isEmpty()) return;
+        if (points.isEmpty())
+            return;
 
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
@@ -545,7 +567,8 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private String shortenAddress(String address) {
-        if (address == null) return "";
+        if (address == null)
+            return "";
         return address.length() <= 60 ? address : address.substring(0, 60) + "...";
     }
 
@@ -567,14 +590,17 @@ public class RideEstimationFragment extends Fragment {
         abstract void onDebouncedTextChanged(String text);
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {
-            if (runnable != null) handler.removeCallbacks(runnable);
+            if (runnable != null)
+                handler.removeCallbacks(runnable);
             runnable = () -> onDebouncedTextChanged(s.toString());
             handler.postDelayed(runnable, 350);
         }
