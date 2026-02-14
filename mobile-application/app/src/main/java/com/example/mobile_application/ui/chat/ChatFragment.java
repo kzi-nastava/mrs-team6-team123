@@ -20,6 +20,8 @@ import com.example.mobile_application.dto.ChatDTO;
 import com.example.mobile_application.dto.MessageRequestDTO;
 import com.example.mobile_application.dto.MessageResponseDTO;
 import com.example.mobile_application.repository.MessageRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import java.util.List;
 
@@ -70,8 +72,13 @@ public class ChatFragment extends Fragment {
     }
 
     public void loadMessages() {
-        // TODO: user id from authentication
-        repository.getChatMessages(chat.getChatId(), 2L,
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        repository.getChatMessages(chat.getChatId(), userId,
                 new Callback<List<MessageResponseDTO>>() {
             @Override
             public void onResponse(
@@ -107,7 +114,13 @@ public class ChatFragment extends Fragment {
         }
         MessageRequestDTO dto = new MessageRequestDTO();
         dto.setChatId(chat.getChatId());
-        dto.setSenderId(2L); // TODO: user authentication
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        dto.setSenderId(userId);
         dto.setContent(message);
         repository.sendMessage(dto, new Callback<Void>() {
             @Override

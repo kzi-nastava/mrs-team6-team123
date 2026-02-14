@@ -19,6 +19,8 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.adapter.DriverRideHistoryAdapter;
 import com.example.mobile_application.dto.DriverRideHistoryDTO;
 import com.example.mobile_application.repository.DriverRideHistoryRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.time.LocalDate;
@@ -103,7 +105,13 @@ public class RideHistoryFragment extends Fragment {
     }
 
     private void loadRides(@Nullable LocalDate from, @Nullable LocalDate to) {
-        repository.getDriverRideHistory(3L, from, to, new Callback<List<DriverRideHistoryDTO>>() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        repository.getDriverRideHistory(userId, from, to, new Callback<List<DriverRideHistoryDTO>>() {
             @Override
             public void onResponse(@NonNull Call<List<DriverRideHistoryDTO>> call,
                                    @NonNull Response<List<DriverRideHistoryDTO>> response) {

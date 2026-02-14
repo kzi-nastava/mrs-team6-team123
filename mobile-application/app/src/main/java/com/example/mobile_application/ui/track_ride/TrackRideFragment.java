@@ -27,6 +27,8 @@ import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.RideRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.irregularity_report.IrregularityReportFragment;
 
 import org.osmdroid.config.Configuration;
@@ -230,7 +232,8 @@ public class TrackRideFragment extends Fragment {
     }
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "DRIVER"; // current logged in user role
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        String userRole = tokenManager.getRole();
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));

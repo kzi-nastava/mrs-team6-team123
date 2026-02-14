@@ -17,6 +17,8 @@ import com.example.mobile_application.adapter.ChatListAdapter;
 import com.example.mobile_application.dto.ChatDTO;
 import com.example.mobile_application.dto.ChatListDTO;
 import com.example.mobile_application.repository.ChatRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import java.util.List;
 
@@ -56,8 +58,13 @@ public class ChatListFragment extends Fragment {
     }
 
     public void loadChats() {
-        // TODO: get id from authentication
-        repository.getAdminChats(1L, new Callback<List<ChatListDTO>>() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        repository.getAdminChats(userId, new Callback<List<ChatListDTO>>() {
             @Override
             public void onResponse(
                     @NonNull Call<List<ChatListDTO>> call,

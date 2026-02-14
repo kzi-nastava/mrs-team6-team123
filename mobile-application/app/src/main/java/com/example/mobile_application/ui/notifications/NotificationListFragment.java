@@ -18,6 +18,8 @@ import com.example.mobile_application.dto.NotificationDTO;
 import com.example.mobile_application.dto.RateRideRequestDTO;
 import com.example.mobile_application.repository.NotificationRepository;
 import com.example.mobile_application.repository.RateRideRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.rate_ride.RateRideFragment;
 import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 
@@ -66,7 +68,13 @@ public class NotificationListFragment extends Fragment {
     }
 
     private void loadUnread() {
-        repository.getUnreadNotifications(2L, new Callback<List<NotificationDTO>>() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        repository.getUnreadNotifications(userId, new Callback<List<NotificationDTO>>() {
             @Override
             public void onResponse(
                     @NonNull Call<List<NotificationDTO>> call,
@@ -98,7 +106,13 @@ public class NotificationListFragment extends Fragment {
     }
 
     private void loadRead() {
-        repository.getReadNotifications(2L, new Callback<List<NotificationDTO>>() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        repository.getReadNotifications(userId, new Callback<List<NotificationDTO>>() {
             @Override
             public void onResponse(
                     @NonNull Call<List<NotificationDTO>> call,
