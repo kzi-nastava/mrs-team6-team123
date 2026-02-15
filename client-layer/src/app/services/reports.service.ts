@@ -42,23 +42,23 @@ export class ReportsService {
     let params = new HttpParams()
       .set('userId', userId.toString())
       .set('userType', userType);
-    
+
     if (filteredUserId) {
       params = params.set('filteredUserId', filteredUserId.toString());
     }
-    
+
     if (filteredUserType) {
       params = params.set('filteredUserType', filteredUserType);
     }
-    
-    if (fromDate) {
-      params = params.set('fromDate', fromDate);
-    }
-    
-    if (toDate) {
-      params = params.set('toDate', toDate);
-    }
-    
+
+    // Always send fromDate and toDate, defaulting to last 12 months if not provided
+    const today = new Date();
+    const defaultToDate = today.toISOString().slice(0, 10);
+    const defaultFromDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate()).toISOString().slice(0, 10);
+
+    params = params.set('fromDate', fromDate || defaultFromDate);
+    params = params.set('toDate', toDate || defaultToDate);
+
     return this.http.get<Statistics>(`${this.apiUrl}/statistics`, { params });
   }
 
