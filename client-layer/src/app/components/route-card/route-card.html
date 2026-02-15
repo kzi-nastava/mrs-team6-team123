@@ -1,7 +1,7 @@
-<div class="route-card">
+<div class="route-card" [attr.data-route-id]="data.routeId">
   <div class="route-info">
     <div class="route-locations">
-      <ng-container *ngFor="let city of data.title.split(',')">
+      <ng-container *ngFor="let city of data.title.split('→')">
         <p class="route-line route-title">{{ city.trim() }}</p>
       </ng-container>
     </div>
@@ -10,14 +10,13 @@
 
   <div class="route-actions">
     <button class="btn-book" (click)="bookFavorite()">{{ data.bookText }}</button>
-
     <button
       class="btn-delete"
       type="button"
       aria-label="Remove favorite"
       (click)="deleteFavorite()"
     >
-      <span class="sr-only">Remove</span>
+      <span class="sr-only">{{ data.deleteText }}</span>
     </button>
   </div>
 </div>
