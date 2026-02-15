@@ -58,7 +58,6 @@ public class DriverService {
         driver.setAccountBlocked(false);
 
         // Driver defaults
-        driver.setStatus(DriverStatus.PENDING_APPROVAL);
         driver.setActive(false);
         driver.setActiveMinutesLast24h(0);
         driver.setTotalRides(0);
@@ -99,7 +98,6 @@ public class DriverService {
             dto.setVehicleModel(driver.getVehicle().getVehicleModel());
             dto.setLicensePlate(driver.getVehicle().getLicensePlate());
         }
-        dto.setStatus(driver.getStatus());
         return dto;
     }
 }

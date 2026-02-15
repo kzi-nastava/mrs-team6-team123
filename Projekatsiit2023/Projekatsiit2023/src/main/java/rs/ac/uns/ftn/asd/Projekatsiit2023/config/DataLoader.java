@@ -94,7 +94,6 @@ public class DataLoader {
                 driver1.setUserRole(UserRole.DRIVER);
                 driver1.setAccountActivated(true);
                 driver1.setAccountBlocked(false);
-                driver1.setStatus(DriverStatus.ACTIVE);
                 driver1.setActive(true);
                 driver1.setActiveMinutesLast24h(0);
                 driver1.setTotalRides(0);
@@ -123,7 +122,6 @@ public class DataLoader {
                 driver2.setUserRole(UserRole.DRIVER);
                 driver2.setAccountActivated(true);
                 driver2.setAccountBlocked(false);
-                driver2.setStatus(DriverStatus.ACTIVE);
                 driver2.setActive(true);
                 driver2.setActiveMinutesLast24h(0);
                 driver2.setTotalRides(0);

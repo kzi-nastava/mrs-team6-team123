@@ -13,10 +13,6 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 @Entity
 @Table(name = "drivers")
 public class Driver extends User {
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DriverStatus status;
-
     @Column(nullable = false)
     private boolean active; 
 

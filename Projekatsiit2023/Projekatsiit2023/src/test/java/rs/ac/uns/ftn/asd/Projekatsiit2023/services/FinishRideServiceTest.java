@@ -29,9 +29,10 @@ public class FinishRideServiceTest {
     NotificationRepository notificationRepository = mock(NotificationRepository.class);
     @Mock
     UserRepository userRepository = mock(UserRepository.class);
-
-    EmailService emailService = new EmailService(new JavaMailSenderImpl());
-    NotificationService notificationService = new NotificationService(notificationRepository, userRepository);
+    @Mock
+    EmailService emailService = mock(EmailService.class);
+    @Mock
+    NotificationService notificationService = mock(NotificationService.class);
 
     FinishRideService finishRideService = new FinishRideService(
             rideRepository,
@@ -129,10 +130,11 @@ public class FinishRideServiceTest {
         when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
         when(rideRepository.save(any(Ride.class))).thenReturn(ride);
 
-        /*
-        doNothing().when(finishRideService).sendNotification(any(), any());
-        doNothing().when(finishRideService).sendEmail(any(), any());
-        */
+        doNothing().when(emailService)
+                .sendRideFinishedEmail(anyString(), anyString(), anyString());
+
+        doNothing().when(notificationService)
+                .sendNotification(anyLong(), anyString(), anyString(), anyString());
 
         // Act
         finishRideService.finishRide(VALID_RIDE_ID);
