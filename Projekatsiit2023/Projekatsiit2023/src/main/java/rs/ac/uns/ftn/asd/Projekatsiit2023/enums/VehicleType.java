@@ -7,5 +7,5 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.utils.VehicleTypeDeserializer;
 public enum VehicleType {
     STANDARD,
     VAN,
-    LUXURY
+    LUXURY;
 }

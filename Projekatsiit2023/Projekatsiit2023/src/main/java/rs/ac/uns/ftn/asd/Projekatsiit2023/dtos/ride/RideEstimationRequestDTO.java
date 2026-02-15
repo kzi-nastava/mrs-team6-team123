@@ -7,8 +7,8 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
 
 import java.util.List;
 
-@Setter
 @Getter
+@Setter
 public class RideEstimationRequestDTO {
     @JsonProperty("startLocation")
     private String startLocation;

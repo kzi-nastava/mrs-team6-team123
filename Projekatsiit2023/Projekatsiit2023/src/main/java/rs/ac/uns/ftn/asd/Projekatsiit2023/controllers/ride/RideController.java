@@ -192,21 +192,14 @@ public class RideController {
             String notificationMessage = "Your ride has been booked. Driver: " + response.getDriverName()
                     + " | Vehicle: " + response.getVehicleLicense();
 
-            notificationService.sendNotification(
-                    creator.getId(),
-                    "Ride Booked Successfully",
-                    notificationMessage,
-                    null);
-
             // Send notification to all passengers (skip creator to avoid duplicate)
             for (Passenger passenger : savedRide.getPassengers()) {
-                if (!passenger.getId().equals(creator.getId())) {
-                    notificationService.sendNotification(
-                            passenger.getId(),
-                            "Ride Booked Successfully",
-                            notificationMessage,
-                            null);
-                }
+                notificationService.sendNotification(
+                        passenger.getId(),
+                        "Ride Booked Successfully",
+                        notificationMessage,
+                        null);
+
             }
 
             return ResponseEntity.ok(response);
