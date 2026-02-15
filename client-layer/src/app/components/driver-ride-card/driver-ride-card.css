@@ -7,12 +7,6 @@
   transition: all 0.3s ease;
 }
 
-.driver-ride-card.accepted {
-  background-color: #c8ddc7;
-  border-left: 4px solid #5d7c5b;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
 .driver-ride-card.started {
   background-color: #b8d4b8;
   border-left: 4px solid #3a5a3a;
@@ -49,7 +43,6 @@
   flex-wrap: wrap;
 }
 
-.btn-accept,
 .btn-start,
 .btn-route {
   padding: 10px 20px;
@@ -59,17 +52,6 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-}
-
-.btn-accept {
-  background-color: #618762;
-  color: white;
-  flex: 1;
-  min-width: 120px;
-}
-
-.btn-accept:hover {
-  background-color: #436744;
 }
 
 .btn-start {
@@ -82,6 +64,12 @@
 
 .btn-start:hover {
   background-color: #374e36;
+}
+
+.btn-start:disabled {
+  background-color: #9aa79a;
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 .btn-route {
@@ -99,7 +87,6 @@
     flex-direction: column;
   }
   
-  .btn-accept,
   .btn-start,
   .btn-route {
     width: 100%;

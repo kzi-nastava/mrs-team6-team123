@@ -15,26 +15,12 @@
           <p>No rides assigned at the moment.</p>
         </div>
 
-        <!-- Accepted Ride (shown at top) -->
-        <div *ngIf="acceptedRide" class="accepted-section">
-          <h3>Current Accepted Ride</h3>
+        <div *ngIf="rides.length > 0" class="pending-section">
           <app-driver-ride-card
-            [ride]="acceptedRide"
-            [hasAcceptedRide]="true"
-            (start)="handleStartRide($event)"
-            (seeRoute)="handleSeeRoute($event)"
-          >
-          </app-driver-ride-card>
-        </div>
-
-        <!-- Pending Rides -->
-        <div *ngIf="pendingRides.length > 0" class="pending-section">
-          <h3 *ngIf="acceptedRide">Other Assigned Rides</h3>
-          <app-driver-ride-card
-            *ngFor="let ride of pendingRides"
+            *ngFor="let ride of rides; let i = index"
             [ride]="ride"
-            [hasAcceptedRide]="!!acceptedRide"
-            (accept)="handleAcceptRide($event)"
+            [canStart]="i === 0"
+            (start)="handleStartRide($event)"
             (seeRoute)="handleSeeRoute($event)"
           >
           </app-driver-ride-card>

@@ -61,3 +61,26 @@ export const passengerGuard: CanActivateFn = (route, state) => {
   router.navigate(['/login']);
   return false;
 };
+
+export const homeRedirectGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    return router.parseUrl('/unregistered-home');
+  }
+
+  if (authService.isAdmin()) {
+    return router.parseUrl('/admin/home');
+  }
+
+  if (authService.isDriver()) {
+    return router.parseUrl('/driver/home');
+  }
+
+  if (authService.isPassenger()) {
+    return router.parseUrl('/registered-home');
+  }
+
+  return router.parseUrl('/login');
+};

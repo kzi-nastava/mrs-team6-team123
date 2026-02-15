@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 
 @Setter
 @Getter
@@ -14,7 +13,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 @Table(name = "drivers")
 public class Driver extends User {
     @Column(nullable = false)
-    private boolean active; 
+    private boolean active;
 
     @Column(nullable = false)
     private int activeMinutesLast24h;

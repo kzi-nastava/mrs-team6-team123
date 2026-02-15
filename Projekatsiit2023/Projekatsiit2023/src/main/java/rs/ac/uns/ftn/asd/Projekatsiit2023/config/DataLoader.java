@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
@@ -21,41 +20,41 @@ public class DataLoader {
 
     @Bean
     @Transactional
-    CommandLineRunner initData(PricingRepository pricingRepository, 
-                               UserRepository userRepository,
-                               PasswordEncoder passwordEncoder,
-                               EntityManager entityManager) {
+    CommandLineRunner initData(PricingRepository pricingRepository,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            EntityManager entityManager) {
         return args -> {
-            
+
             if (userRepository.count() > 0) {
                 System.out.println("ℹ️ Data already exists, skipping initialization.");
                 return;
             }
-            
+
             if (pricingRepository.count() == 0) {
-            if (pricingRepository.count() == 0) {
-                Pricing standard = new Pricing();
-                standard.setVehicleType(VehicleType.STANDARD);
-                standard.setPrice(300.0);
-                pricingRepository.save(standard);
+                if (pricingRepository.count() == 0) {
+                    Pricing standard = new Pricing();
+                    standard.setVehicleType(VehicleType.STANDARD);
+                    standard.setPrice(300.0);
+                    pricingRepository.save(standard);
 
-                Pricing luxury = new Pricing();
-                luxury.setVehicleType(VehicleType.LUXURY);
-                luxury.setPrice(500.0);
-                pricingRepository.save(luxury);
+                    Pricing luxury = new Pricing();
+                    luxury.setVehicleType(VehicleType.LUXURY);
+                    luxury.setPrice(500.0);
+                    pricingRepository.save(luxury);
 
-                Pricing van = new Pricing();
-                van.setVehicleType(VehicleType.VAN);
-                van.setPrice(400.0);
-                pricingRepository.save(van);
+                    Pricing van = new Pricing();
+                    van.setVehicleType(VehicleType.VAN);
+                    van.setPrice(400.0);
+                    pricingRepository.save(van);
 
-                System.out.println("✅ Pricing data loaded!");
-            }
-            
-            // 2. TEST USERS
-            System.out.println("📦 Loading test users...");
-            
-            // Passenger 1 - Lana
+                    System.out.println("✅ Pricing data loaded!");
+                }
+
+                // 2. TEST USERS
+                System.out.println("📦 Loading test users...");
+
+                // Passenger 1 - Lana
                 Passenger user1 = new Passenger();
                 user1.setEmail("user1@example.com");
                 user1.setPassword(passwordEncoder.encode("user123")); // ENKRIPTOVANO!
@@ -98,7 +97,7 @@ public class DataLoader {
                 driver1.setActiveMinutesLast24h(0);
                 driver1.setTotalRides(0);
                 driver1.setRating(0.0);
-                
+
                 // Vehicle za driver1
                 Vehicle vehicle1 = new Vehicle();
                 vehicle1.setVehicleModel("Toyota Corolla");
@@ -108,7 +107,7 @@ public class DataLoader {
                 vehicle1.setBabyTransport(true);
                 vehicle1.setPetTransport(false);
                 driver1.setVehicle(vehicle1);
-                
+
                 userRepository.save(driver1);
 
                 // Driver 2
@@ -126,7 +125,7 @@ public class DataLoader {
                 driver2.setActiveMinutesLast24h(0);
                 driver2.setTotalRides(0);
                 driver2.setRating(0.0);
-                
+
                 Vehicle vehicle2 = new Vehicle();
                 vehicle2.setVehicleModel("Mercedes E-Class");
                 vehicle2.setVehicleType(VehicleType.LUXURY);
@@ -135,13 +134,14 @@ public class DataLoader {
                 vehicle2.setBabyTransport(false);
                 vehicle2.setPetTransport(true);
                 driver2.setVehicle(vehicle2);
-                
-            userRepository.save(driver2);
 
-            System.out.println("✅ Test users loaded!");
-            System.out.println("📊 Total users in DB: " + userRepository.count());
+                userRepository.save(driver2);
+
+                System.out.println("✅ Test users loaded!");
+                System.out.println("📊 Total users in DB: " + userRepository.count());
+            }
+            ;
         };
-    };
-}
+    }
 
 }

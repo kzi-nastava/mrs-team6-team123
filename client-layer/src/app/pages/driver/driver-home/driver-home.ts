@@ -5,7 +5,6 @@ import { MapComponent } from '../../../components/map/map';
 import { DriverRideCardComponent } from '../../../components/driver-ride-card/driver-ride-card';
 import { DriverService, DriverAssignedRide } from '../../../services/driver.service';
 import { AuthService } from '../../../services/auth.service';
-import { RideService } from '../../../services/ride.service';
 import { MapMode } from '../../../models/enums';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../services/notification.service';
@@ -20,13 +19,12 @@ import { SoundService } from '../../../services/sound.service';
 })
 export class DriverHomeComponent implements OnInit, OnDestroy {
   rides: DriverAssignedRide[] = [];
-  acceptedRide?: DriverAssignedRide;
-  pendingRides: DriverAssignedRide[] = [];
   loading = true;
   driverId: number = 0;
   playedOnce = false;
   private notifSub?: Subscription;
   
+  // Map defaults to showing a static route for the current ride.
   mapMode: MapMode = 'STATIC_ROUTE';
   
   rideForMap?: {
@@ -36,12 +34,12 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     endLng?: number;
   };
 
+  // Periodic refresh handle for assigned rides polling.
   private refreshInterval: any;
 
   constructor(
     private driverService: DriverService,
     private authService: AuthService,
-    private rideService: RideService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
@@ -49,6 +47,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Initialize notification sound for unread items.
     const userId = this.authService.getCurrentUserId();
     if (userId) {
       this.notificationService.loadUnread(userId);
@@ -70,7 +69,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Start periodic refresh of rides every 10 seconds
+  // Start periodic refresh of rides every 10 seconds.
   private startRefreshInterval() {
     if (!this.refreshInterval) {
       this.refreshInterval = setInterval(() => this.loadRides(), 10000);
@@ -81,9 +80,11 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    this.notifSub?.unsubscribe();
   }
 
   loadRides() {
+    // Skip request until we know the driver id.
     if (!this.driverId) {
       this.loading = false;
       return;
@@ -92,7 +93,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     this.driverService.getAssignedRides(this.driverId).subscribe({
       next: (rides) => {
         this.rides = rides;
-        this.organizeRides();
+        this.updateRideState();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -104,45 +105,31 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  organizeRides() {
-    //  STARTED ride - redirect to track page
+  private updateRideState() {
+    // If a ride is already started, go straight to tracking.
     const startedRide = this.rides.find(r => r.status === 'STARTED');
     if (startedRide) {
       this.router.navigate(['/track-ride-page'], { queryParams: { rideId: startedRide.rideId } });
       return;
     }
 
-    const accepted = this.rides.find(r => r.status === 'ACCEPTED');
-    this.acceptedRide = accepted;
-    
-    // If there's an accepted ride, show route on map
-    if (this.acceptedRide) {
+    // Rides are ordered by soonest; use the first to populate the map.
+    const nextRide = this.rides[0];
+    if (nextRide) {
       this.mapMode = 'STATIC_ROUTE';
       this.rideForMap = {
-        startLat: this.acceptedRide.startLatitude,
-        startLng: this.acceptedRide.startLongitude,
-        endLat: this.acceptedRide.endLatitude,
-        endLng: this.acceptedRide.endLongitude
+        startLat: nextRide.startLatitude,
+        startLng: nextRide.startLongitude,
+        endLat: nextRide.endLatitude,
+        endLng: nextRide.endLongitude
       };
+    } else {
+      this.rideForMap = undefined;
     }
-    
-    this.pendingRides = this.rides.filter(r => r.status === 'CREATED');
-  }
-
-  handleAcceptRide(rideId: number) {
-    this.driverService.acceptRide(this.driverId, rideId).subscribe({
-      next: () => {
-        console.log('Ride accepted successfully');
-        this.loadRides(); // Reload to update the view
-      },
-      error: (error) => {
-        console.error('Error accepting ride:', error);
-        alert('Failed to accept ride. Please try again.');
-      }
-    });
   }
 
   handleStartRide(rideId: number) {
+    // Backend validates whether this ride is allowed to start.
     this.driverService.startRide(this.driverId, rideId).subscribe({
       next: () => {
         this.router.navigate(['/track-ride-page'], { queryParams: { rideId: rideId } });
@@ -155,6 +142,7 @@ export class DriverHomeComponent implements OnInit, OnDestroy {
   }
 
   handleSeeRoute(ride: DriverAssignedRide) {
+    // Preview a ride route on the map without starting it.
     this.rideForMap = {
       startLat: ride.startLatitude,
       startLng: ride.startLongitude,

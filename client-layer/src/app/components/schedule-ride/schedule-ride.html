@@ -88,9 +88,11 @@
       </select>
 
       <!-- Time -->
-      <div *ngIf="scheduleType === 'later'" class="schedule-time">
-        <input type="time" [(ngModel)]="scheduledTime" class="time-input" />
-      </div>
+      <app-schedule-time
+        *ngIf="scheduleType === 'later'"
+        [(selectedHour)]="scheduledHour"
+        [(selectedMinute)]="scheduledMinute"
+      ></app-schedule-time>
 
       <!-- Estimated Price -->
       <div class="ride-details" *ngIf="estimatedPrice">

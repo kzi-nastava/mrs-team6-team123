@@ -42,11 +42,11 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
             )
             and not exists (
                 select 1 from Ride r2
-                where r2.driver = d and r2.status = :accepted
+                where r2.driver = d and r2.status = :created
             )
             """)
-    List<Driver> findAllWithStartedButNoAccepted(@Param("started") RideStatus started,
-            @Param("accepted") RideStatus accepted);
+    List<Driver> findAllWithStartedButNoCreated(@Param("started") RideStatus started,
+            @Param("created") RideStatus created);
 
     @Query("""
             select d

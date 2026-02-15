@@ -18,6 +18,8 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.RateRideRequestDTO;
 import com.example.mobile_application.dto.RateRideResponseDTO;
 import com.example.mobile_application.repository.RateRideRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -111,7 +113,13 @@ public class RateRideFragment extends Fragment {
             comment = "";
         RateRideResponseDTO dto = new RateRideResponseDTO();
         dto.setRideId(ride.getRideId());
-        dto.setAuthorId(2L); // TODO: current user id
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        Long userId = tokenManager.getUserId();
+        if (userId == -1L) {
+            showToast("User must be logged in");
+            return;
+        }
+        dto.setAuthorId(userId);
         dto.setDriverId(ride.getDriverId());
         dto.setVehicleId(ride.getVehicleId());
         dto.setDriverRating(driverRating);

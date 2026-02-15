@@ -53,3 +53,20 @@
 .btn-view:hover, .rate-btn:hover {
   background: #4a6249;
 }
+
+.favorite-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+.favorite-btn.favorited {
+  color: #e74c3c;
+}

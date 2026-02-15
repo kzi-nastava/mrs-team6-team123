@@ -9,7 +9,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 public class DrawMarkerHelper {
-    private MapView mapView;
+    private final MapView mapView;
 
     public DrawMarkerHelper(MapView mapView) {
         this.mapView = mapView;
