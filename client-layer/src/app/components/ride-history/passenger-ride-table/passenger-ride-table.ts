@@ -172,11 +172,21 @@ export class PassengerRideTableComponent implements OnInit {
   }
 
   openRateRideDialog(ride: PassengerRideHistoryDTO) {
-    this.dialog.open(RateRideComponent, {
+    const dialogRef = this.dialog.open(RateRideComponent, {
       width: '400px',
       disableClose: true,
       data: {
         rideId: ride.rideId
+      }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.rating) {
+        const rideToUpdate = this._rides.find(r => r.rideId === ride.rideId);
+        if (rideToUpdate) {
+          rideToUpdate.rideDriverRating = result.rating;
+          this._rides = [...this._rides];
+          this.cdr.markForCheck();
+        }
       }
     });
   }
