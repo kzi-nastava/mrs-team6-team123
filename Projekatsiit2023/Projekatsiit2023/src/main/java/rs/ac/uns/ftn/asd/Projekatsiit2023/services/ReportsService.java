@@ -189,7 +189,7 @@ public class ReportsService {
         return passengerRepository.findAll().stream()
                 .filter(p -> p.isAccountActivated())
                 .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(),
-                        UserRole.PASSENGER))
+                        UserRole.PASSENGER, p.isAccountBlocked()))
                 .collect(Collectors.toList());
     }
 
@@ -200,7 +200,7 @@ public class ReportsService {
         return driverRepository.findAll().stream()
                 .filter(d -> d.isAccountActivated())
                 .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(),
-                        UserRole.DRIVER))
+                        UserRole.DRIVER, d.isAccountBlocked()))
                 .collect(Collectors.toList());
     }
 
@@ -214,14 +214,14 @@ public class ReportsService {
         allUsers.addAll(passengerRepository.findAll().stream()
                 .filter(p -> p.isAccountActivated() && !p.getId().equals(excludeUserId))
                 .map(p -> new UserBasicInfoDTO(p.getId(), p.getEmail(), p.getFirstName(), p.getLastName(),
-                        UserRole.PASSENGER))
+                        UserRole.PASSENGER, p.isAccountBlocked()))
                 .collect(Collectors.toList()));
 
         // Add all active drivers except the excluded one
         allUsers.addAll(driverRepository.findAll().stream()
                 .filter(d -> d.isAccountActivated() && !d.getId().equals(excludeUserId))
                 .map(d -> new UserBasicInfoDTO(d.getId(), d.getEmail(), d.getFirstName(), d.getLastName(),
-                        UserRole.DRIVER))
+                        UserRole.DRIVER, d.isAccountBlocked()))
                 .collect(Collectors.toList()));
 
         return allUsers;

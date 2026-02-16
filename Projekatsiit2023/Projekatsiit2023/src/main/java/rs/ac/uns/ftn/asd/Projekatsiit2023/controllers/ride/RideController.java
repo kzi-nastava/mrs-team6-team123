@@ -95,6 +95,26 @@ public class RideController {
         try {
             orderRideValidation.validateOrderRideRequest(request);
 
+            // Check if creator is blocked
+            Passenger creator = passengerRepository.findById(request.getCreatorId())
+                    .orElseThrow(() -> new RuntimeException("Creator not found"));
+            if (creator.isAccountBlocked()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Your account is blocked. You cannot book a ride.");
+            }
+
+            // Check if any passenger is blocked
+            List<Passenger> passengers = new java.util.ArrayList<>();
+            if (request.getPassengerIds() != null && !request.getPassengerIds().isEmpty()) {
+                passengers = passengerRepository.findAllById(request.getPassengerIds());
+                for (Passenger p : passengers) {
+                    if (p.isAccountBlocked()) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body("One or more passengers are blocked and cannot book a ride.");
+                    }
+                }
+            }
+
             // Create and save Route with address strings and coordinates
             Route route = new Route();
             route.setStartLocation(request.getStartLocation());
@@ -137,8 +157,6 @@ public class RideController {
             ride.setRoute(savedRoute);
 
             // Set creator
-            Passenger creator = passengerRepository.findById(request.getCreatorId())
-                    .orElseThrow(() -> new RuntimeException("Creator not found"));
             ride.setCreator(creator);
 
             // Add all passengers (if any)
@@ -192,21 +210,14 @@ public class RideController {
             String notificationMessage = "Your ride has been booked. Driver: " + response.getDriverName()
                     + " | Vehicle: " + response.getVehicleLicense();
 
-            notificationService.sendNotification(
-                    creator.getId(),
-                    "Ride Booked Successfully",
-                    notificationMessage,
-                    null);
-
             // Send notification to all passengers (skip creator to avoid duplicate)
             for (Passenger passenger : savedRide.getPassengers()) {
-                if (!passenger.getId().equals(creator.getId())) {
-                    notificationService.sendNotification(
-                            passenger.getId(),
-                            "Ride Booked Successfully",
-                            notificationMessage,
-                            null);
-                }
+                notificationService.sendNotification(
+                        passenger.getId(),
+                        "Ride Booked Successfully",
+                        notificationMessage,
+                        null);
+
             }
 
             return ResponseEntity.ok(response);

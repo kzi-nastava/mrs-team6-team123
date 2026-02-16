@@ -1,0 +1,21 @@
+<div class="blocking-users-container">
+  <h2>Block Users</h2>
+  <input
+    type="text"
+    placeholder="Search users..."
+    [(ngModel)]="searchTerm"
+    (input)="searchUsers()"
+    class="search-input"
+  />
+  <div class="user-list">
+    <div class="user-row" *ngFor="let user of filteredUsers">
+      <span class="user-info">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</span>
+      <button
+        [ngClass]="user.accountBlocked ? 'unblock-btn' : 'block-btn'"
+        (click)="toggleBlockUser(user)"
+      >
+        {{ user.accountBlocked ? 'Unblock' : 'Block' }}
+      </button>
+    </div>
+  </div>
+</div>

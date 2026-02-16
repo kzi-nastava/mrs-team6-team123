@@ -63,7 +63,8 @@ export class NavbarComponent implements OnInit {
     { route: '/admin/reports', icon: 'report.png', type: 'reports' },
     { route: '/admin/pricing', icon: 'pricing.png', type: 'pricing' },
     { route: '', icon: 'notification.png', type: 'notifications' },
-    { route: '/profile', icon: 'user.png', type: 'profile' }
+    { route: '/profile', icon: 'user.png', type: 'profile' },
+    { route: '/admin/block-users', icon: 'blocked.png', type: 'block-users' }
   ]
 
   constructor(

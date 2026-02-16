@@ -55,14 +55,21 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
         return inflater.inflate(R.layout.fragment_favorite_routes, container, false);
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         initializeFavoritesViews(view);
         initializeScheduleRideViews(view);
-        setupMap();
-        setupAutocomplete();
+
+        // Only setup map if the layout actually has a map view
+        if (mapView != null) {
+            initializeMarkerIcon();
+            setupMap();
+            setupAutocomplete();
+        }
+
         setupBottomSheet(view);
         setupSpinners();
         setupNumberPickers();
@@ -77,7 +84,6 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
             errorMessage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             emptyState.setVisibility(View.GONE);
-            // Hide the schedule ride card
             View scheduleRideCard = view.findViewById(R.id.schedule_ride_card);
             if (scheduleRideCard != null) {
                 scheduleRideCard.setVisibility(View.GONE);
@@ -93,7 +99,6 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
 
         loadFavoriteRoutes();
     }
-
     private void initializeFavoritesViews(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_routes);
         progressBar = view.findViewById(R.id.progress_bar);

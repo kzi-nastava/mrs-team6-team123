@@ -38,6 +38,7 @@ import com.example.mobile_application.enums.VehicleType;
 import com.example.mobile_application.service.ApiClient;
 import com.example.mobile_application.service.TokenManager;
 import com.example.mobile_application.ui.AddressAutocompleteAdapter;
+import com.example.mobile_application.ui.track_ride.TrackRideFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -571,6 +572,7 @@ public abstract class BaseRideBookingFragment extends Fragment {
         }
     }
 
+    
     private void handleRideBookingSuccess(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {
         RideResponseDTO rideResponse = response.body();
         String message = "Ride booked successfully!\n" +
@@ -581,6 +583,20 @@ public abstract class BaseRideBookingFragment extends Fragment {
         if (bottomSheetBehavior != null) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
+
+        // Navigate to TrackRideFragment with the new ride ID
+        navigateToTrackRide(rideResponse.getRideId());
+    }
+
+    private void navigateToTrackRide(Long rideId) {
+        if (!isAdded() || rideId == null) return;
+
+        Fragment trackRideFragment = TrackRideFragment.newInstance(rideId);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, trackRideFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void handleRideBookingError(Call<RideResponseDTO> call, Response<RideResponseDTO> response) {

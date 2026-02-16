@@ -48,6 +48,8 @@
       <td>
         <button
           class="favorite-btn"
+          data-testid="favorite-toggle"
+          [attr.data-route-id]="ride.routeId"
           [class.favorited]="isFavorited(ride.routeId)"
           (click)="toggleFavorite(ride, $event)"
           title="Add to favorites"

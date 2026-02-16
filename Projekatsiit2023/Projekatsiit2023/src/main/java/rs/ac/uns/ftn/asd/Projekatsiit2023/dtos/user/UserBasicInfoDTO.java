@@ -16,4 +16,5 @@ public class UserBasicInfoDTO {
     private String firstName;
     private String lastName;
     private UserRole userRole;
+    private boolean accountBlocked;
 }
