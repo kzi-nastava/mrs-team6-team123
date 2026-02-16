@@ -86,15 +86,19 @@ public class AuthService {
             Optional<ActiveVehicle> existing =
                     activeVehicleRepository.findByVehicleId(driver.getVehicle().getId());
 
+            ActiveVehicle av;
             if (existing.isEmpty()) {
-                ActiveVehicle av = new ActiveVehicle();
-                av.setId(driver.getVehicle().getId());
+                av = new ActiveVehicle();
                 av.setVehicle(driver.getVehicle());
-                av.setCurrentLatitude(45.2576);
-                av.setCurrentLongitude(19.8442);
-                av.setAvailable(true);
-                activeVehicleRepository.save(av);
+            } else {
+                av = existing.get();
             }
+            av.setCurrentLatitude(45.2576);
+            av.setCurrentLongitude(19.8442);
+            av.setAvailable(true);
+            av.setRouteCoordinates("");
+            activeVehicleRepository.save(av);
+            publicMapService.getDriversVehicle(user.getId());
         }
 
         String token = jwtTokenProvider.generateToken(user);
@@ -155,6 +159,7 @@ public class AuthService {
         return response;
     }
 
+    @Transactional
     public LogoutResponseDTO logout(LogoutRequestDTO request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -178,8 +183,11 @@ public class AuthService {
 
             ActiveVehicle av = activeVehicleRepository.findByVehicleId(driver.getVehicle().getId())
                     .orElseThrow(() -> new RuntimeException("Active vehicle not found for driver"));
-            activeVehicleRepository.delete(av);
-            activeVehicleRepository.flush();
+            av.setCurrentRide(null);
+            av.setRouteIndex(0);
+            av.setRouteCoordinates(null);
+            av.setAvailable(false);
+            activeVehicleRepository.save(av);
         }
 
         response.setSuccess(true);

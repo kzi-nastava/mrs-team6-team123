@@ -15,6 +15,7 @@ import lombok.Setter;
 @Table(name = "active_vehicles")
 public class ActiveVehicle {
     @Id
+    @Column(name = "vehicle_id")
     private Long id;
 
     @JsonIgnore
@@ -30,10 +31,10 @@ public class ActiveVehicle {
     private double currentLongitude;
 
     @Column
-    private double targetLatitude;
+    private double targetLatitude = 0.0;
 
     @Column
-    private double targetLongitude;
+    private double targetLongitude = 0.0;
 
     @Column(nullable = false)
     private boolean available;
