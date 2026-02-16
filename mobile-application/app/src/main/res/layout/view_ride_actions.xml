@@ -37,4 +37,13 @@
         android:layout_marginBottom="8dp"
         style="@style/Widget.StopButton"/>
 
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel ride"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@android:color/holo_orange_dark"
+        style="@style/Widget.MaterialComponents.Button"/>
+
 </LinearLayout>
