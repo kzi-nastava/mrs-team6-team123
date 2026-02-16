@@ -9,6 +9,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.PassengerFavoriteRoute;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.*;
@@ -46,6 +47,7 @@ public class RideController {
     private final RouteRepository routeRepository;
     private final RideRepository rideRepository;
     private final OrderRideValidation orderRideValidation;
+    private final rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerFavoriteRouteRepository passengerFavoriteRouteRepository;
 
     public RideController(
             RideCancellationService cancellationService,
@@ -61,7 +63,8 @@ public class RideController {
             RideRepository rideRepository,
             FinishRideService finishRideService,
             RateRideService rateRideService,
-            OrderRideValidation orderRideValidation) {
+            OrderRideValidation orderRideValidation,
+            rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerFavoriteRouteRepository passengerFavoriteRouteRepository) {
         this.cancellationService = cancellationService;
         this.trackRideService = trackRideService;
         this.rideStopService = rideStopService;
@@ -76,6 +79,7 @@ public class RideController {
         this.finishRideService = finishRideService;
         this.rateRideService = rateRideService;
         this.orderRideValidation = orderRideValidation;
+        this.passengerFavoriteRouteRepository = passengerFavoriteRouteRepository;
     }
 
     @PreAuthorize("permitAll()")
@@ -173,6 +177,9 @@ public class RideController {
             ride.setDate(LocalDate.now());
             ride.setStatus(RideStatus.CREATED);
             ride.setPrice(request.getEstimatedPrice() != null ? request.getEstimatedPrice() : 0.0);
+            // Set lat/lng for start and end
+            ride.setEndLatitude(request.getEndLatitude());
+            ride.setEndLongitude(request.getEndLongitude());
 
             // Calculate actual distance using estimation service
             double distance = 0.0;
@@ -196,6 +203,12 @@ public class RideController {
             // Save ride to database
             Ride savedRide = rideService.create(ride);
 
+            // Associate ride with all passengers
+            for (Passenger passenger : savedRide.getPassengers()) {
+                passenger.getRides().add(savedRide);
+                passengerRepository.save(passenger);
+            }
+
             // Build response
             RideResponseDTO response = new RideResponseDTO();
             response.setRideId(savedRide.getId());
@@ -210,7 +223,6 @@ public class RideController {
             String notificationMessage = "Your ride has been booked. Driver: " + response.getDriverName()
                     + " | Vehicle: " + response.getVehicleLicense();
 
-            // Send notification to all passengers (skip creator to avoid duplicate)
             for (Passenger passenger : savedRide.getPassengers()) {
                 notificationService.sendNotification(
                         passenger.getId(),
@@ -229,15 +241,34 @@ public class RideController {
 
     // 2.4.3 Poručivanje vožnje iz omiljenih ruta
     @PostMapping("/favorites/{favoriteRouteId}")
-    public ResponseEntity<RideResponseDTO> orderRideFromFavorite(@PathVariable Long favoriteRouteId,
+    public ResponseEntity<?> orderRideFromFavorite(@PathVariable Long favoriteRouteId,
             @RequestParam(required = false) Boolean immediate) {
-        RideResponseDTO response = new RideResponseDTO();
-        response.setRideId(501L);
-        response.setDriverId(43L);
-        response.setStatus(RideStatus.CREATED);
-        response.setEstimatedTimeMinutes(7);
-        response.setEstimatedPrice(420.0);
-        return ResponseEntity.ok(response);
+        // Find the favorite route for the current user
+        try {
+            Optional<PassengerFavoriteRoute> favoriteRouteOpt = passengerFavoriteRouteRepository
+                    .findById(favoriteRouteId);
+            if (favoriteRouteOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite route not found");
+            }
+            PassengerFavoriteRoute favoriteRoute = favoriteRouteOpt.get();
+            Passenger creator = favoriteRoute.getPassenger();
+            Route route = favoriteRoute.getRoute();
+
+            RideOrderRequestDTO request = new RideOrderRequestDTO();
+            request.setCreatorId(creator.getId());
+            request.setPassengerIds(java.util.Collections.singletonList(creator.getId()));
+            request.setStartLocation(route.getStartLocation());
+            request.setEndLocation(route.getEndLocation());
+            request.setStartLatitude(route.getStartLatitude());
+            request.setStartLongitude(route.getStartLongitude());
+            request.setEndLatitude(route.getEndLatitude());
+            request.setEndLongitude(route.getEndLongitude());
+
+            // Delegate to orderRide for full logic
+            return orderRide(request);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to order ride from favorite: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{rideId}/tracking")
