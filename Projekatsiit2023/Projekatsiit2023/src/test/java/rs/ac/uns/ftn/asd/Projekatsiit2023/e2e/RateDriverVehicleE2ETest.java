@@ -51,7 +51,7 @@ public class RateDriverVehicleE2ETest {
         unregisteredHomePage.clickProfileButton();
 
         assertTrue(loginPage.isPageOpen(), "Login form should be present");
-        loginPage.login("user2@example.com", "password123");
+        loginPage.login("apapi@gmail.com", "password123");
 
         assertTrue(passengerHomePage.isPageOpen(), "Passenger home page should be open after login");
         passengerHomePage.openRideHistory();

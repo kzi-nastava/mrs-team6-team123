@@ -1,6 +1,7 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.e2e.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -24,7 +25,11 @@ public class PassengerRideHistoryPage {
 
     public boolean openRateForm() {
         WebDriverWait waitLoad = new WebDriverWait(driver, Duration.ofSeconds(10));
-        waitLoad.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".ride-table")));
+        try {
+            waitLoad.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".ride-table")));
+        } catch (TimeoutException e) {
+            return false;
+        }
         List<WebElement> rateButtons = driver.findElements(By.cssSelector(".ride-table .rate-btn"));
         if (rateButtons.isEmpty()) {
             return false;
