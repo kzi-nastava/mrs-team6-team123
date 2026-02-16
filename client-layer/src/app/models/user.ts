@@ -13,6 +13,7 @@ export interface UserProfile {
   rating?: number;
   vehicle?: Vehicle;
   profileImage?: string;
+  accountBlocked?: boolean;
 }
 
 export interface UpdateUserProfileRequest {

@@ -1,7 +1,6 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app/app.routes';
 import { authInterceptor } from './auth.interceptors';
 
@@ -11,6 +10,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),
-    provideAnimations()
+    // provideAnimations() // Removed to avoid @angular/animations dependency
   ]
 };

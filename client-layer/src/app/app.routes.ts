@@ -18,6 +18,8 @@ import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-pas
 import { PassengerRideHistoryComponent } from './pages/user/passenger-ride-history/passenger-ride-history';
 import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admin-ride-history';
 import { ReportsComponent } from './components/reports/reports';
+import { BlockingUsersComponent } from './pages/blocking-users/blocking-users'; 
+
 
 
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
@@ -55,6 +57,7 @@ export const routes: Routes = [
   { path: 'admin/pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
   { path: 'admin/ride-history', component: AdminRideHistoryComponent, canActivate: [adminGuard] },
   { path: 'admin/reports', component: ReportsComponent, canActivate: [adminGuard] },
+  { path: 'admin/block-users', component: BlockingUsersComponent, canActivate: [adminGuard] },
   
   // Fallback
   { path: '**', redirectTo: '/unregistered-home' }

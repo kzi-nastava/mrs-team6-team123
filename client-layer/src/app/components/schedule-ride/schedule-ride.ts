@@ -318,6 +318,11 @@ export class ScheduleRideComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         console.error('Error response:', err);
         console.error('Error message:', err.error);
+        if (err.status === 403) {
+          // Blocked user or passenger
+          alert(err.error || 'You or one of the passengers are blocked and cannot book a ride.');
+          return;
+        }
         if (err.status === 503) {
           console.log('No drivers available. Notification sent to passenger.');
           return;
