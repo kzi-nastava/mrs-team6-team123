@@ -30,4 +30,12 @@ export class RideHistoryTableComponent {
     console.log(this.rides);
     return ride[attr];
   }
+
+  isCanceled(ride: DriverRideHistory): boolean {
+    return ride.canceledBy !== '/';
+  }
+
+  isPanic(ride: DriverRideHistory): boolean {
+    return ride.panicTriggered === 'Yes';
+  }
 }

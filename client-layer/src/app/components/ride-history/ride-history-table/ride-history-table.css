@@ -1,79 +1,85 @@
+.table-container {
+  overflow-x: auto;
+}
+
 .ride-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.ride-table th, .ride-table td {
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  text-align: center;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  table-layout: fixed;
 }
 
 .ride-table th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+  background: #5d7c5b;
+  color: white;
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
-.btn-route {
-  padding: 8px 20px;
-  font-size: 14px;
+.ride-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.ride-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.ride-table tbody tr.panic-row {
+  background: #fff3e0;
+}
+
+.ride-table tbody tr.canceled-row {
+  background: #fce4ec;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-canceled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.badge-panic {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.btn-view {
+  padding: 6px 14px;
+  background: #5d7c5b;
+  color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 4px;
   cursor: pointer;
-  background-color: #618762;
-  color: #fff;
-  transition: background-color 0.2s;
+  font-size: 12px;
 }
 
-.btn-route:hover {
-  background-color: #436744;
+.btn-view:hover {
+  background: #4a6249;
 }
 
-@media (max-width: 768px) {
-  .ride-table,
-  .ride-table thead,
-  .ride-table tbody,
-  .ride-table th,
-  .ride-table td,
-  .ride-table tr {
-    display: block;
-    width: 90%;
-  }
-
-  .ride-table thead {
-    display: none;
-  }
-
-  .ride-table tr {
-    margin-bottom: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 8px;
-    background-color: #fff;
-  }
-
-  .ride-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-    border: none;
-    border-bottom: 1px solid #eee;
-    text-align: right;
-  }
-
-  .ride-table td:last-child {
-    border-bottom: none;
-  }
-
-  .ride-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    text-align: left;
-  }
-
-  .btn-route {
-    padding: 6px 15px;
-  }
+.location-cell {
+  max-width: 140px;
+  width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
