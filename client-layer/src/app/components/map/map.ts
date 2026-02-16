@@ -7,6 +7,7 @@ import { ActiveVehicle } from '../../models/active-vehicle.model';
 import { MapMode } from '../../models/enums';
 import { TrackRideResponse } from '../../models/track-ride.model';
 import { RideStop } from '../../models/route-stop.model';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -42,47 +43,70 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   private refreshIntervalId: any;
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private mapService: MapService,
     private cdr: ChangeDetectorRef
   ) {}
 
   private loadActiveVehicles(): void {
     this.http.get<ActiveVehicle[]>('http://localhost:8080/api/public-map/active')
+      .pipe(
+        catchError(err => {
+          console.error('Failed to load active vehicles', err);
+          return of([] as ActiveVehicle[]);
+        })
+      )
       .subscribe(vehicles => {
         vehicles.forEach(vehicle => {
           const icon = vehicle.available ? this.availableIcon : this.takenIcon;
           const popupText = vehicle.available ? 'Available' : 'Busy';
           this.mapService.addMarker(
-            vehicle.vehicleId, 
-            vehicle.latitude, 
-            vehicle.longitude, 
-            icon, 
-            popupText);
+            vehicle.vehicleId,
+            vehicle.latitude,
+            vehicle.longitude,
+            icon,
+            popupText
+          );
         });
       });
   }
 
   private loadDriversVehicle(driverId: number): void {
-    console.log('Loading driver vehicle for ride tracking...');
     this.http.get<ActiveVehicle>(`http://localhost:8080/api/public-map/active/${driverId}`)
-    .subscribe(vehicle => {
-      console.log(vehicle);
-      const icon = this.defaultTaxiIcon;
-      const poputText = 'Active Vehicle'
-      this.mapService.addMarker(
-        vehicle.vehicleId,
-        vehicle.latitude,
-        vehicle.longitude,
-        icon,
-        poputText
-      );
-      this.mapService.fitBoundsOnMarkers();
-    });
+      .pipe(
+        catchError(err => {
+          if (err.status === 500) {
+            console.warn(`Driver ${driverId} has no active vehicle. Stopping polling.`);
+            clearInterval(this.refreshIntervalId);
+            this.refreshIntervalId = null;
+          } else {
+            console.error('Failed to load driver active vehicle', err);
+          }
+          return of(null);
+        })
+      )
+      .subscribe(vehicle => {
+        if (!vehicle) return;
+
+        const icon = this.defaultTaxiIcon;
+        const popupText = 'Active Vehicle';
+        this.mapService.addMarker(
+          vehicle.vehicleId,
+          vehicle.latitude,
+          vehicle.longitude,
+          icon,
+          popupText
+        );
+        this.mapService.fitBoundsOnMarkers();
+      });
   }
 
   private loadRoute(): void {
-    if (this.ride && this.ride.startLat !== undefined && this.ride.startLng !== undefined && this.ride.endLat !== undefined && this.ride.endLng !== undefined) {
+    if (this.ride &&
+      this.ride.startLat !== undefined &&
+      this.ride.startLng !== undefined &&
+      this.ride.endLat !== undefined &&
+      this.ride.endLng !== undefined) {
       console.log(this.ride);
       this.mapService.addRoute(this.ride.startLat, this.ride.startLng, this.ride.endLat, this.ride.endLng);
       this.mapService.fitBoundsOnMarkers();
@@ -117,33 +141,24 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.loadRideHistoryRoute();
     }
 
-     if (this.estimateRoute?.length) {
+    if (this.estimateRoute?.length) {
       this.mapService.drawEstimateRoute(this.estimateRoute);
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes['ride'] &&
-      this.ride &&
-      this.mode === 'STATIC_ROUTE'
-    ) {
+    if (changes['ride'] && this.ride && this.mode === 'STATIC_ROUTE') {
       this.mapService.clearRoute();
       this.loadRoute();
     }
-    if (
-      changes['rideHistory'] &&
-      this.rideHistory &&
-      this.mode === 'HISTORY'
-    ) {
+    if (changes['rideHistory'] && this.rideHistory && this.mode === 'HISTORY') {
       this.mapService.clearRoute();
       this.loadRideHistoryRoute();
     }
-    if (
-      changes['track'] &&
-      this.track &&
-      this.mode === 'TRACK'
-    ) {
+    if (changes['track'] && this.track && this.mode === 'TRACK') {
+      if (this.refreshIntervalId) {
+        clearInterval(this.refreshIntervalId);
+      }
       this.loadDriversVehicle(this.track.driverId);
       this.refreshIntervalId = setInterval(() => this.loadDriversVehicle(this.track!.driverId), 1000);
       this.mapService.trackRide(this.track, this.cdr);
@@ -158,7 +173,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
     }
   }
-
 
   ngOnDestroy(): void {
     if (this.refreshIntervalId) {

@@ -1,6 +1,4 @@
-// panic-dialog.ts
-
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +19,7 @@ interface RideInfo {
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   templateUrl: './panic-dialog.html',
   styleUrls: ['./panic-dialog.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush  // <-- ključni fix
 })
 export class PanicDialogComponent implements OnInit {
   panicActivated = false;
@@ -34,7 +33,8 @@ export class PanicDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<PanicDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { rideInfo: RideInfo },
-    private panicService: PanicService
+    private panicService: PanicService,
+    private cdr: ChangeDetectorRef  // <-- dodato
   ) {
     this.rideInfo = data.rideInfo;
   }
@@ -47,13 +47,11 @@ export class PanicDialogComponent implements OnInit {
     const confirmed = confirm(
       'Are you sure you want to activate the PANIC alert? This will immediately notify all administrators.'
     );
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
 
     const request: PanicAlertRequest = {
       rideId: this.rideInfo.rideId,
@@ -66,44 +64,30 @@ export class PanicDialogComponent implements OnInit {
         console.log('✅ PANIC alert triggered successfully:', response);
         this.panicActivated = true;
         this.isLoading = false;
+        this.cdr.markForCheck();
 
-        // Simulacija sekvence UI animacija
-        setTimeout(() => {
-          this.alertSent = true;
-          this.playAlertSound();
-        }, 500);
-
-        setTimeout(() => {
-          this.locationShared = true;
-        }, 1500);
-
-        setTimeout(() => {
-          this.helpDispatched = true;
-        }, 2500);
+        setTimeout(() => { this.alertSent = true; this.playAlertSound(); this.cdr.markForCheck(); }, 500);
+        setTimeout(() => { this.locationShared = true; this.cdr.markForCheck(); }, 1500);
+        setTimeout(() => { this.helpDispatched = true; this.cdr.markForCheck(); }, 2500);
       },
       error: (error) => {
         console.error('❌ Failed to trigger PANIC alert:', error);
         this.errorMessage = error.error || 'Failed to send alert. Please try again or call emergency services directly.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   playAlertSound() {
     console.log('🚨 ALERT SOUND PLAYING 🚨');
-    // Opciono: dodaj pravi zvuk
-    // const audio = new Audio('assets/sounds/alert.mp3');
-    // audio.play();
   }
 
   cancelPanic() {
     const confirmed = confirm(
       'Are you sure you want to cancel this alert? Administrators have already been notified.'
     );
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     console.log('PANIC CANCELLED - False alarm');
     this.dialogRef.close({ activated: true, cancelled: true });
