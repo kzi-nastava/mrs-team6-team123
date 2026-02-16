@@ -1,14 +1,22 @@
+
 import { HttpInterceptorFn } from '@angular/common/http';
 
+// Domeni na koje NE treba slati Authorization header
+const PUBLIC_DOMAINS = [
+  'graphhopper.com',
+  'nominatim.openstreetmap.org',
+  'openstreetmap.org',
+  'tile.openstreetmap.org'
+];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  //Skip auth header for GraphHopper (CORS-safe)
-  if (req.url.includes('graphhopper.com')) {
+  // Preskoči dodavanje tokena za eksterne servise
+  const isPublic = PUBLIC_DOMAINS.some(domain => req.url.includes(domain));
+  if (isPublic) {
     return next(req);
   }
 
-  // Get token from localStorage
   const token = localStorage.getItem('auth_token');
-
   if (token) {
     const clonedRequest = req.clone({
       setHeaders: {
