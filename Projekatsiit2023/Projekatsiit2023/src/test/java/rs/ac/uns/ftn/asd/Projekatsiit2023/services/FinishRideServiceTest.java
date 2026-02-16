@@ -1,5 +1,8 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.services;
 
+import org.checkerframework.checker.signature.qual.DotSeparatedIdentifiers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -16,6 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@DisplayName("Finish Ride Service Tests")
 public class FinishRideServiceTest {
     @Mock
     RideRepository rideRepository = mock(RideRepository.class);
@@ -47,6 +51,7 @@ public class FinishRideServiceTest {
     private final Long VALID_RIDE_ID = 1L;
 
     @Test
+    @DisplayName("Test Ride Not Found")
     public void testRideNotFound() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () ->
@@ -57,55 +62,63 @@ public class FinishRideServiceTest {
         verifyNoInteractions(activeVehicleRepository);
     }
 
-    @Test
-    public void testRideStatusCreated() {
-        // Arrange
-        Ride ride = new Ride();
-        ride.setStatus(RideStatus.CREATED);
-        when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
+    @Nested
+    @DisplayName("Test Invalid Ride Status")
+    class InvalidRideStatusTests {
+        @Test
+        @DisplayName("Test Ride Status - CREATED")
+        public void testRideStatusCreated() {
+            // Arrange
+            Ride ride = new Ride();
+            ride.setStatus(RideStatus.CREATED);
+            when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
 
-        // Act & Assert
-        assertThrows(IllegalStateException.class, () ->
-                finishRideService.finishRide(VALID_RIDE_ID));
-        verify(rideRepository).findById(VALID_RIDE_ID);
-        verifyNoInteractions(passengerRepository);
-        verifyNoInteractions(driverRepository);
-        verifyNoInteractions(activeVehicleRepository);
+            // Act & Assert
+            assertThrows(IllegalStateException.class, () ->
+                    finishRideService.finishRide(VALID_RIDE_ID));
+            verify(rideRepository).findById(VALID_RIDE_ID);
+            verifyNoInteractions(passengerRepository);
+            verifyNoInteractions(driverRepository);
+            verifyNoInteractions(activeVehicleRepository);
+        }
+
+        @Test
+        @DisplayName("Test Ride Status - FINISHED")
+        public void testRideStatusFinished() {
+            // Arrange
+            Ride ride = new Ride();
+            ride.setStatus(RideStatus.FINISHED);
+            when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
+
+            // Act & Assert
+            assertThrows(IllegalStateException.class, () ->
+                    finishRideService.finishRide(VALID_RIDE_ID));
+            verify(rideRepository).findById(VALID_RIDE_ID);
+            verifyNoInteractions(passengerRepository);
+            verifyNoInteractions(driverRepository);
+            verifyNoInteractions(activeVehicleRepository);
+        }
+
+        @Test
+        @DisplayName("Test Ride Status - CANCELLED")
+        public void testRideStatusCancelled() {
+            // Arrange
+            Ride ride = new Ride();
+            ride.setStatus(RideStatus.CANCELLED);
+            when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
+
+            // Act & Assert
+            assertThrows(IllegalStateException.class, () ->
+                    finishRideService.finishRide(VALID_RIDE_ID));
+            verify(rideRepository).findById(VALID_RIDE_ID);
+            verifyNoInteractions(passengerRepository);
+            verifyNoInteractions(driverRepository);
+            verifyNoInteractions(activeVehicleRepository);
+        }
     }
 
     @Test
-    public void testRideStatusFinished() {
-        // Arrange
-        Ride ride = new Ride();
-        ride.setStatus(RideStatus.FINISHED);
-        when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
-
-        // Act & Assert
-        assertThrows(IllegalStateException.class, () ->
-                finishRideService.finishRide(VALID_RIDE_ID));
-        verify(rideRepository).findById(VALID_RIDE_ID);
-        verifyNoInteractions(passengerRepository);
-        verifyNoInteractions(driverRepository);
-        verifyNoInteractions(activeVehicleRepository);
-    }
-
-    @Test
-    public void testRideStatusCancelled() {
-        // Arrange
-        Ride ride = new Ride();
-        ride.setStatus(RideStatus.CANCELLED);
-        when(rideRepository.findById(VALID_RIDE_ID)).thenReturn(Optional.of(ride));
-
-        // Act & Assert
-        assertThrows(IllegalStateException.class, () ->
-                finishRideService.finishRide(VALID_RIDE_ID));
-        verify(rideRepository).findById(VALID_RIDE_ID);
-        verifyNoInteractions(passengerRepository);
-        verifyNoInteractions(driverRepository);
-        verifyNoInteractions(activeVehicleRepository);
-    }
-
-    @Test
+    @DisplayName("Test Successful Finish Ride")
     public void testSuccessfulFinishRide() {
         // Arrange
         Ride ride = new Ride();
