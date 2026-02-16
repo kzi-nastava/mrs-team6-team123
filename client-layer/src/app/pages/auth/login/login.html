@@ -3,6 +3,7 @@
 
   <form (ngSubmit)="login()" class="auth-form">
     <input
+      id="email-input"
       type="email"
       placeholder="Email"
       [(ngModel)]="email"
@@ -14,6 +15,7 @@
     />
 
     <input
+      id="password-input"
       type="password"
       placeholder="Password"
       [(ngModel)]="password"
@@ -28,7 +30,7 @@
       {{ errorMessage }}
     </div>
 
-    <button type="submit" [disabled]="loading" [class.loading]="loading">
+    <button type="submit" [disabled]="loading" [class.loading]="loading" id="login-button">
       <span *ngIf="!loading">Login</span>
       <span *ngIf="loading" class="loading-content">
         <span class="spinner"></span>
