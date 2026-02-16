@@ -23,11 +23,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.FinishRideService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RateRideService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.TrackRideService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideCancellationService;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.services.RideStopService;
 
 @RestController
 @RequestMapping("/api/rides")
@@ -261,14 +256,33 @@ public class RideController {
     }
 
     // 2.6.1 Početak vožnje
-    @PostMapping("/{rideId}/start")
-    public ResponseEntity<RideResponseDTO> startRide(@PathVariable Long rideId) {
+    
+@PostMapping("/{rideId}/start")
+public ResponseEntity<?> startRide(@PathVariable Long rideId) {
+    try {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if (ride.getStatus() != RideStatus.CREATED) {
+            return ResponseEntity.badRequest()
+                    .body("Ride cannot be started — current status: " + ride.getStatus());
+        }
+
+        ride.setStartedAt(LocalDateTime.now());
+        ride.setStatus(RideStatus.STARTED);
+        rideRepository.save(ride);
+
         RideResponseDTO response = new RideResponseDTO();
-        response.setRideId(rideId);
-        response.setDriverId(42L);
+        response.setRideId(ride.getId());
+        response.setDriverId(ride.getDriver().getId());
         response.setStatus(RideStatus.STARTED);
+
         return ResponseEntity.ok(response);
+
+    } catch (RuntimeException e) {
+        return ResponseEntity.internalServerError().body(e.getMessage());
     }
+}
 
     @PostMapping("/{rideId}/rate")
     public ResponseEntity<?> rateRide(@RequestBody RideRatingResponseDTO response) {

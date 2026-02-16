@@ -22,22 +22,19 @@ import androidx.fragment.app.Fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-
 import androidx.core.content.ContextCompat;
 
 import com.example.mobile_application.R;
+import com.example.mobile_application.dto.GeocodingResult;
 import com.example.mobile_application.dto.GeoPointDTO;
-import com.example.mobile_application.dto.NominatimResultDTO;
 import com.example.mobile_application.dto.RideEstimationRequestDTO;
 import com.example.mobile_application.dto.RideEstimationResponseDTO;
 import com.example.mobile_application.enums.VehicleType;
 import com.example.mobile_application.helper.DrawMarkerHelper;
 import com.example.mobile_application.helper.MapRouteHelper;
-import com.example.mobile_application.repository.NominatimRepository;
 import com.example.mobile_application.repository.RideEstimationRepository;
-import com.google.android.material.chip.Chip;
+import com.example.mobile_application.service.GeocodingService;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.textfield.TextInputEditText;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -66,29 +63,30 @@ public class RideEstimationFragment extends Fragment {
     private DrawMarkerHelper drawMarkerHelper;
     private BitmapDrawable stopIcon;
 
-    private NominatimRepository nominatimRepo;
+    // ── Zamenjen NominatimRepository sa GeocodingService ────────
+    private GeocodingService geocodingService;
     private RideEstimationRepository estimationRepo;
 
-    private String startCoords = "";
-    private String destCoords = "";
+    // Koordinate kao double — direktno iz GeocodingResult
+    private double startLat = 0, startLng = 0;
+    private double destLat  = 0, destLng  = 0;
     private String acceptedStartText = "";
-    private String acceptedDestText = "";
+    private String acceptedDestText  = "";
+
     private VehicleType selectedVehicleType = VehicleType.STANDARD;
-
-    private List<NominatimResultDTO> startSuggestions = new ArrayList<>();
-    private List<NominatimResultDTO> destSuggestions = new ArrayList<>();
-
-    // intermediate stops
     private final List<StopEntry> stopEntries = new ArrayList<>();
-    private final Handler searchHandler = new Handler(Looper.getMainLooper());
-    private Runnable startSearchRunnable, destSearchRunnable;
 
-    public RideEstimationFragment() {
-    }
+    // Debounce handler
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+
+    // Anti-double-submit flag
+    private boolean isLoading = false;
+
+    public RideEstimationFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ride_estimation, container, false);
     }
 
@@ -96,8 +94,8 @@ public class RideEstimationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        nominatimRepo = new NominatimRepository();
-        estimationRepo = new RideEstimationRepository();
+        geocodingService = GeocodingService.getInstance();
+        estimationRepo   = new RideEstimationRepository();
 
         bindViews(view);
         setupMap();
@@ -106,22 +104,26 @@ public class RideEstimationFragment extends Fragment {
         setupListeners();
     }
 
+    // ── View binding ─────────────────────────────────────────────
+
     private void bindViews(View v) {
-        etStart = v.findViewById(R.id.etStartAddress);
-        etDestination = v.findViewById(R.id.etDestinationAddress);
+        etStart              = v.findViewById(R.id.etStartAddress);
+        etDestination        = v.findViewById(R.id.etDestinationAddress);
         chipGroupVehicleType = v.findViewById(R.id.chipGroupVehicleType);
-        btnEstimate = v.findViewById(R.id.btnEstimate);
-        btnAddStop = v.findViewById(R.id.btnAddStop);
-        btnBack = v.findViewById(R.id.btnBack);
-        stopsContainer = v.findViewById(R.id.stopsContainer);
-        resultContainer = v.findViewById(R.id.resultContainer);
-        tvDistance = v.findViewById(R.id.tvDistance);
-        tvTime = v.findViewById(R.id.tvTime);
-        tvPrice = v.findViewById(R.id.tvPrice);
-        tvError = v.findViewById(R.id.tvError);
-        progressBar = v.findViewById(R.id.progressBar);
-        mapResult = v.findViewById(R.id.mapResult);
+        btnEstimate          = v.findViewById(R.id.btnEstimate);
+        btnAddStop           = v.findViewById(R.id.btnAddStop);
+        btnBack              = v.findViewById(R.id.btnBack);
+        stopsContainer       = v.findViewById(R.id.stopsContainer);
+        resultContainer      = v.findViewById(R.id.resultContainer);
+        tvDistance           = v.findViewById(R.id.tvDistance);
+        tvTime               = v.findViewById(R.id.tvTime);
+        tvPrice              = v.findViewById(R.id.tvPrice);
+        tvError              = v.findViewById(R.id.tvError);
+        progressBar          = v.findViewById(R.id.progressBar);
+        mapResult            = v.findViewById(R.id.mapResult);
     }
+
+    // ── Map ───────────────────────────────────────────────────────
 
     private void setupMap() {
         Configuration.getInstance().setUserAgentValue(requireContext().getPackageName());
@@ -129,152 +131,128 @@ public class RideEstimationFragment extends Fragment {
         mapResult.setMultiTouchControls(true);
         mapResult.getController().setZoom(14.0);
         mapResult.getController().setCenter(new GeoPoint(45.2576, 19.8442));
-        mapRouteHelper = new MapRouteHelper(mapResult);
+        mapRouteHelper  = new MapRouteHelper(mapResult);
         drawMarkerHelper = new DrawMarkerHelper(mapResult);
 
-        Bitmap original = ((BitmapDrawable) ContextCompat.getDrawable(
+        Bitmap orig  = ((BitmapDrawable) ContextCompat.getDrawable(
                 requireContext(), R.drawable.location_icon)).getBitmap();
-        Bitmap small = Bitmap.createScaledBitmap(original, 36, 36, true);
+        Bitmap small = Bitmap.createScaledBitmap(orig, 36, 36, true);
         stopIcon = new BitmapDrawable(getResources(), small);
     }
 
-    // ── Vehicle type chips ───────────────────────────────────────
+    // ── Vehicle type chips ────────────────────────────────────────
 
     private void setupVehicleTypeChips() {
-        chipGroupVehicleType.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty())
-                return;
-            int id = checkedIds.get(0);
-            if (id == R.id.chipStandard)
-                selectedVehicleType = VehicleType.STANDARD;
-            else if (id == R.id.chipLuxury)
-                selectedVehicleType = VehicleType.LUXURY;
-            else if (id == R.id.chipVan)
-                selectedVehicleType = VehicleType.VAN;
+        chipGroupVehicleType.setOnCheckedStateChangeListener((group, ids) -> {
+            if (ids.isEmpty()) return;
+            int id = ids.get(0);
+            if      (id == R.id.chipStandard) selectedVehicleType = VehicleType.STANDARD;
+            else if (id == R.id.chipLuxury)   selectedVehicleType = VehicleType.LUXURY;
+            else if (id == R.id.chipVan)      selectedVehicleType = VehicleType.VAN;
         });
     }
 
-    // ── Autocomplete for start & destination ─────────────────────
+    // ── Autocomplete ──────────────────────────────────────────────
 
     private void setupAutocomplete() {
         etStart.setThreshold(3);
         etDestination.setThreshold(3);
 
         etStart.addTextChangedListener(new DebouncedTextWatcher() {
-            @Override
-            void onDebouncedTextChanged(String text) {
-                // If text matches what was selected from dropdown, skip
-                if (text.equals(acceptedStartText) && !startCoords.isEmpty())
-                    return;
-                startCoords = "";
-                acceptedStartText = "";
-                if (text.length() >= 3)
-                    fetchSuggestions(text, true);
+            @Override void onDebouncedTextChanged(String text) {
+                // Ako tekst odgovara poslednjem odabranom, koordinate su već sačuvane
+                if (text.equals(acceptedStartText) && startLat != 0) return;
+                clearStart();
+                if (text.length() >= 3) fetchSuggestions(text, true);
             }
         });
 
         etDestination.addTextChangedListener(new DebouncedTextWatcher() {
-            @Override
-            void onDebouncedTextChanged(String text) {
-                if (text.equals(acceptedDestText) && !destCoords.isEmpty())
-                    return;
-                destCoords = "";
-                acceptedDestText = "";
-                if (text.length() >= 3)
-                    fetchSuggestions(text, false);
+            @Override void onDebouncedTextChanged(String text) {
+                if (text.equals(acceptedDestText) && destLat != 0) return;
+                clearDest();
+                if (text.length() >= 3) fetchSuggestions(text, false);
             }
         });
 
-        etStart.setOnItemClickListener((parent, view, pos, id) -> {
-            if (pos < startSuggestions.size()) {
-                NominatimResultDTO r = startSuggestions.get(pos);
-                startCoords = r.toCoordinateString();
-                acceptedStartText = shortenAddress(r.getDisplayName());
-                etStart.setText(acceptedStartText, false);
-                etStart.dismissDropDown();
-            }
+        etStart.setOnItemClickListener((parent, v, pos, id) -> {
+            GeocodingResult r = (GeocodingResult) parent.getItemAtPosition(pos);
+            if (r == null) return;
+            startLat = r.getLatitudeDouble();
+            startLng = r.getLongitudeDouble();
+            acceptedStartText = r.getDisplayName();
+            etStart.setText(acceptedStartText, false);
+            etStart.dismissDropDown();
         });
 
-        etDestination.setOnItemClickListener((parent, view, pos, id) -> {
-            if (pos < destSuggestions.size()) {
-                NominatimResultDTO r = destSuggestions.get(pos);
-                destCoords = r.toCoordinateString();
-                acceptedDestText = shortenAddress(r.getDisplayName());
-                etDestination.setText(acceptedDestText, false);
-                etDestination.dismissDropDown();
-            }
+        etDestination.setOnItemClickListener((parent, v, pos, id) -> {
+            GeocodingResult r = (GeocodingResult) parent.getItemAtPosition(pos);
+            if (r == null) return;
+            destLat = r.getLatitudeDouble();
+            destLng = r.getLongitudeDouble();
+            acceptedDestText = r.getDisplayName();
+            etDestination.setText(acceptedDestText, false);
+            etDestination.dismissDropDown();
         });
     }
 
     private void fetchSuggestions(String query, boolean isStart) {
-        nominatimRepo.searchSuggestions(query, new Callback<List<NominatimResultDTO>>() {
+        geocodingService.searchAddress(query, new Callback<List<GeocodingResult>>() {
             @Override
-            public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded() || resp.body() == null)
-                    return;
+            public void onResponse(@NonNull Call<List<GeocodingResult>> call,
+                                   @NonNull Response<List<GeocodingResult>> resp) {
+                if (!isAdded() || resp.body() == null) return;
 
-                List<NominatimResultDTO> results = resp.body();
-                List<String> names = new ArrayList<>();
-                for (NominatimResultDTO r : results) {
-                    names.add(shortenAddress(r.getDisplayName()));
-                }
+                List<GeocodingResult> results = resp.body();
+                // GeocodingResult.toString() poziva getDisplayName() — formatiran string
+                ArrayAdapter<GeocodingResult> adapter = new ArrayAdapter<>(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        results);
 
                 if (isStart) {
-                    startSuggestions = results;
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            requireContext(),
-                            android.R.layout.simple_dropdown_item_1line, names);
                     etStart.setAdapter(adapter);
                     etStart.showDropDown();
                 } else {
-                    destSuggestions = results;
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            requireContext(),
-                            android.R.layout.simple_dropdown_item_1line, names);
                     etDestination.setAdapter(adapter);
                     etDestination.showDropDown();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Throwable t) {
-                // silently ignore
-            }
+            public void onFailure(@NonNull Call<List<GeocodingResult>> call,
+                                  @NonNull Throwable t) { /* tiho ignorisi */ }
         });
     }
 
-    // ── Intermediate stops ───────────────────────────────────────
+    // ── Intermediate stops ────────────────────────────────────────
 
     private void addStopView() {
         View stopView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_intermediate_stop, stopsContainer, false);
 
         AutoCompleteTextView etStop = stopView.findViewById(R.id.etStopAddress);
-        Button btnRemove = stopView.findViewById(R.id.btnRemoveStop);
+        Button btnRemove            = stopView.findViewById(R.id.btnRemoveStop);
 
         StopEntry entry = new StopEntry();
-        entry.view = stopView;
+        entry.view     = stopView;
         entry.editText = etStop;
 
         etStop.setThreshold(3);
         etStop.addTextChangedListener(new DebouncedTextWatcher() {
-            @Override
-            void onDebouncedTextChanged(String text) {
-                entry.coordinates = "";
-                if (text.length() >= 3)
-                    fetchStopSuggestions(text, entry);
+            @Override void onDebouncedTextChanged(String text) {
+                entry.lat = 0; entry.lng = 0;
+                if (text.length() >= 3) fetchStopSuggestions(text, entry);
             }
         });
 
-        etStop.setOnItemClickListener((parent, view, pos, id) -> {
-            if (pos < entry.suggestions.size()) {
-                NominatimResultDTO r = entry.suggestions.get(pos);
-                entry.coordinates = r.toCoordinateString();
-                etStop.setText(shortenAddress(r.getDisplayName()));
-                etStop.dismissDropDown();
-            }
+        etStop.setOnItemClickListener((parent, v, pos, id) -> {
+            GeocodingResult r = (GeocodingResult) parent.getItemAtPosition(pos);
+            if (r == null) return;
+            entry.lat = r.getLatitudeDouble();
+            entry.lng = r.getLongitudeDouble();
+            etStop.setText(r.getDisplayName(), false);
+            etStop.dismissDropDown();
         });
 
         btnRemove.setOnClickListener(v -> {
@@ -287,69 +265,56 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private void fetchStopSuggestions(String query, StopEntry entry) {
-        nominatimRepo.searchSuggestions(query, new Callback<List<NominatimResultDTO>>() {
+        geocodingService.searchAddress(query, new Callback<List<GeocodingResult>>() {
             @Override
-            public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded() || resp.body() == null)
-                    return;
-
-                entry.suggestions = resp.body();
-                List<String> names = new ArrayList<>();
-                for (NominatimResultDTO r : entry.suggestions) {
-                    names.add(shortenAddress(r.getDisplayName()));
-                }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            public void onResponse(@NonNull Call<List<GeocodingResult>> call,
+                                   @NonNull Response<List<GeocodingResult>> resp) {
+                if (!isAdded() || resp.body() == null) return;
+                ArrayAdapter<GeocodingResult> adapter = new ArrayAdapter<>(
                         requireContext(),
-                        android.R.layout.simple_dropdown_item_1line, names);
+                        android.R.layout.simple_dropdown_item_1line,
+                        resp.body());
                 entry.editText.setAdapter(adapter);
                 entry.editText.showDropDown();
             }
-
             @Override
-            public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Throwable t) {
-            }
+            public void onFailure(@NonNull Call<List<GeocodingResult>> call,
+                                  @NonNull Throwable t) {}
         });
     }
 
-    // ── Button listeners ─────────────────────────────────────────
+    // ── Listeners ─────────────────────────────────────────────────
 
     private void setupListeners() {
         btnAddStop.setOnClickListener(v -> addStopView());
         btnEstimate.setOnClickListener(v -> performEstimation());
-        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack());
     }
 
-    // ── Estimation logic ─────────────────────────────────────────
+    // ── Estimation ────────────────────────────────────────────────
 
     private void performEstimation() {
+        // Fix: sprečava dupli submit ako korisnik klikne dva puta brzo
+        if (isLoading) return;
+
         tvError.setVisibility(View.GONE);
         resultContainer.setVisibility(View.GONE);
 
         String startText = etStart.getText() != null
-                ? etStart.getText().toString().trim()
-                : "";
-        String destText = etDestination.getText() != null
-                ? etDestination.getText().toString().trim()
-                : "";
+                ? etStart.getText().toString().trim() : "";
+        String destText  = etDestination.getText() != null
+                ? etDestination.getText().toString().trim() : "";
 
-        if (startText.isEmpty()) {
-            showError("Please enter starting location");
-            return;
-        }
-        if (destText.isEmpty()) {
-            showError("Please enter destination");
-            return;
-        }
+        if (startText.isEmpty()) { showError("Please enter starting location"); return; }
+        if (destText.isEmpty())  { showError("Please enter destination"); return; }
 
         setLoading(true);
 
-        // If coordinates not resolved yet, geocode first
-        if (startCoords.isEmpty()) {
+        // Geocode samo ako koordinate nisu već sačuvane (korisnik nije kliknuo dropdown)
+        if (startLat == 0) {
             geocodeAndContinue(startText, true);
-        } else if (destCoords.isEmpty()) {
+        } else if (destLat == 0) {
             geocodeAndContinue(destText, false);
         } else {
             geocodeStopsAndSend();
@@ -357,27 +322,27 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private void geocodeAndContinue(String address, boolean isStart) {
-        nominatimRepo.geocode(address, new Callback<List<NominatimResultDTO>>() {
+        geocodingService.geocodeAddress(address, new Callback<List<GeocodingResult>>() {
             @Override
-            public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Response<List<NominatimResultDTO>> resp) {
-                if (!isAdded())
-                    return;
+            public void onResponse(@NonNull Call<List<GeocodingResult>> call,
+                                   @NonNull Response<List<GeocodingResult>> resp) {
+                if (!isAdded()) return;
                 if (resp.body() != null && !resp.body().isEmpty()) {
-                    NominatimResultDTO r = resp.body().get(0);
+                    GeocodingResult r = resp.body().get(0);
                     if (isStart) {
-                        startCoords = r.toCoordinateString();
-                        // Now check destination
-                        if (destCoords.isEmpty()) {
+                        startLat = r.getLatitudeDouble();
+                        startLng = r.getLongitudeDouble();
+                        // Ako i dest treba geocodirati, nastavi lanac
+                        if (destLat == 0) {
                             String destText = etDestination.getText() != null
-                                    ? etDestination.getText().toString().trim()
-                                    : "";
+                                    ? etDestination.getText().toString().trim() : "";
                             geocodeAndContinue(destText, false);
                         } else {
                             geocodeStopsAndSend();
                         }
                     } else {
-                        destCoords = r.toCoordinateString();
+                        destLat = r.getLatitudeDouble();
+                        destLng = r.getLongitudeDouble();
                         geocodeStopsAndSend();
                     }
                 } else {
@@ -389,10 +354,9 @@ public class RideEstimationFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                    @NonNull Throwable t) {
-                if (!isAdded())
-                    return;
+            public void onFailure(@NonNull Call<List<GeocodingResult>> call,
+                                  @NonNull Throwable t) {
+                if (!isAdded()) return;
                 setLoading(false);
                 showError("Geocoding failed. Please try again.");
             }
@@ -400,72 +364,62 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private void geocodeStopsAndSend() {
-        List<String> resolvedStops = new ArrayList<>();
-        geocodeNextStop(0, resolvedStops);
+        geocodeNextStop(0, new ArrayList<>());
     }
 
-    private void geocodeNextStop(int index, List<String> resolvedStops) {
-        // skip stops without text
-        while (index < stopEntries.size()) {
-            StopEntry entry = stopEntries.get(index);
-            String text = entry.editText.getText() != null
-                    ? entry.editText.getText().toString().trim()
-                    : "";
-            if (text.isEmpty()) {
-                index++;
+    private void geocodeNextStop(int idx, List<String> resolved) {
+        // Preskoči prazne/već rešene stopove
+        while (idx < stopEntries.size()) {
+            StopEntry e = stopEntries.get(idx);
+            String text = e.editText.getText() != null
+                    ? e.editText.getText().toString().trim() : "";
+            if (text.isEmpty()) { idx++; continue; }
+            if (e.lat != 0) {
+                resolved.add(buildCoordString(e.lat, e.lng));
+                idx++;
                 continue;
             }
-            if (!entry.coordinates.isEmpty()) {
-                resolvedStops.add(entry.coordinates);
-                index++;
-                continue;
-            }
-            // need to geocode this stop
-            int nextIdx = index;
-            nominatimRepo.geocode(text, new Callback<List<NominatimResultDTO>>() {
+            // Treba geocodirati ovaj stop
+            final int next = idx;
+            geocodingService.geocodeAddress(text, new Callback<List<GeocodingResult>>() {
                 @Override
-                public void onResponse(@NonNull Call<List<NominatimResultDTO>> call,
-                        @NonNull Response<List<NominatimResultDTO>> resp) {
-                    if (!isAdded())
-                        return;
+                public void onResponse(@NonNull Call<List<GeocodingResult>> call,
+                                       @NonNull Response<List<GeocodingResult>> resp) {
+                    if (!isAdded()) return;
                     if (resp.body() != null && !resp.body().isEmpty()) {
-                        String coords = resp.body().get(0).toCoordinateString();
-                        stopEntries.get(nextIdx).coordinates = coords;
-                        resolvedStops.add(coords);
+                        GeocodingResult r = resp.body().get(0);
+                        stopEntries.get(next).lat = r.getLatitudeDouble();
+                        stopEntries.get(next).lng = r.getLongitudeDouble();
+                        resolved.add(buildCoordString(r.getLatitudeDouble(),
+                                r.getLongitudeDouble()));
                     }
-                    geocodeNextStop(nextIdx + 1, resolvedStops);
+                    geocodeNextStop(next + 1, resolved);
                 }
-
                 @Override
-                public void onFailure(@NonNull Call<List<NominatimResultDTO>> call,
-                        @NonNull Throwable t) {
-                    if (!isAdded())
-                        return;
-                    geocodeNextStop(nextIdx + 1, resolvedStops);
+                public void onFailure(@NonNull Call<List<GeocodingResult>> call,
+                                      @NonNull Throwable t) {
+                    if (!isAdded()) return;
+                    geocodeNextStop(next + 1, resolved);
                 }
             });
-            return; // wait for callback
+            return;
         }
-
-        // all stops resolved — send request
-        sendEstimationRequest(resolvedStops);
+        sendEstimationRequest(resolved);
     }
 
     private void sendEstimationRequest(List<String> intermediateStops) {
-        RideEstimationRequestDTO request = new RideEstimationRequestDTO(
-                startCoords,
-                destCoords,
+        RideEstimationRequestDTO req = new RideEstimationRequestDTO(
+                buildCoordString(startLat, startLng),
+                buildCoordString(destLat, destLng),
                 intermediateStops.isEmpty() ? null : intermediateStops,
                 selectedVehicleType);
 
-        estimationRepo.estimateRide(request, new Callback<RideEstimationResponseDTO>() {
+        estimationRepo.estimateRide(req, new Callback<RideEstimationResponseDTO>() {
             @Override
             public void onResponse(@NonNull Call<RideEstimationResponseDTO> call,
-                    @NonNull Response<RideEstimationResponseDTO> resp) {
-                if (!isAdded())
-                    return;
+                                   @NonNull Response<RideEstimationResponseDTO> resp) {
+                if (!isAdded()) return;
                 setLoading(false);
-
                 if (resp.isSuccessful() && resp.body() != null) {
                     showResult(resp.body());
                 } else {
@@ -475,84 +429,55 @@ public class RideEstimationFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<RideEstimationResponseDTO> call,
-                    @NonNull Throwable t) {
-                if (!isAdded())
-                    return;
+                                  @NonNull Throwable t) {
+                if (!isAdded()) return;
                 setLoading(false);
                 showError("Network error. Please try again.");
             }
         });
     }
 
-    // ── UI helpers ───────────────────────────────────────────────
+    // ── UI helpers ────────────────────────────────────────────────
 
     private void showResult(RideEstimationResponseDTO resp) {
         resultContainer.setVisibility(View.VISIBLE);
-        tvDistance.setText(String.format("%.2f km", resp.getEstimatedDistance()));
-        tvTime.setText(String.format("%d min", resp.getEstimatedTime()));
-        tvPrice.setText(String.format("%.2f RSD", resp.getEstimatedPrice()));
-
+        tvDistance.setText(String.format("%.2f km",   resp.getEstimatedDistance()));
+        tvTime.setText(String.format("%d min",         resp.getEstimatedTime()));
+        tvPrice.setText(String.format("%.2f RSD",      resp.getEstimatedPrice()));
         drawRoute();
     }
 
     private void drawRoute() {
         mapResult.getOverlays().clear();
 
-        // Build list of all points: start -> stops -> destination
-        List<GeoPointDTO> allPoints = new ArrayList<>();
-        allPoints.add(parseToGeoPointDTO(startCoords));
-
-        for (StopEntry entry : stopEntries) {
-            if (!entry.coordinates.isEmpty()) {
-                allPoints.add(parseToGeoPointDTO(entry.coordinates));
-            }
+        List<GeoPointDTO> pts = new ArrayList<>();
+        pts.add(makePoint(startLat, startLng));
+        for (StopEntry e : stopEntries) {
+            if (e.lat != 0) pts.add(makePoint(e.lat, e.lng));
         }
+        pts.add(makePoint(destLat, destLng));
 
-        allPoints.add(parseToGeoPointDTO(destCoords));
+        for (int i = 0; i < pts.size() - 1; i++)
+            mapRouteHelper.fetchRoute(pts.get(i), pts.get(i + 1));
+        for (GeoPointDTO p : pts)
+            drawMarkerHelper.drawMarkers(p, stopIcon);
 
-        // Draw route segments
-        for (int i = 0; i < allPoints.size() - 1; i++) {
-            mapRouteHelper.fetchRoute(allPoints.get(i), allPoints.get(i + 1));
-        }
-
-        // Draw markers
-        for (GeoPointDTO point : allPoints) {
-            drawMarkerHelper.drawMarkers(point, stopIcon);
-        }
-
-        // Zoom to fit all points
-        zoomToFitPoints(allPoints);
+        zoomToFit(pts);
     }
 
-    private GeoPointDTO parseToGeoPointDTO(String coords) {
-        String[] parts = coords.split(",");
-        double lat = Double.parseDouble(parts[0].trim());
-        double lon = Double.parseDouble(parts[1].trim());
-        GeoPointDTO dto = new GeoPointDTO();
-        dto.setLatitude(lat);
-        dto.setLongitude(lon);
-        return dto;
-    }
-
-    private void zoomToFitPoints(List<GeoPointDTO> points) {
-        if (points.isEmpty())
-            return;
-
+    private void zoomToFit(List<GeoPointDTO> pts) {
+        if (pts.isEmpty()) return;
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
-        double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
-
-        for (GeoPointDTO p : points) {
+        double minLng = Double.MAX_VALUE, maxLng = -Double.MAX_VALUE;
+        for (GeoPointDTO p : pts) {
             minLat = Math.min(minLat, p.getLatitude());
             maxLat = Math.max(maxLat, p.getLatitude());
-            minLon = Math.min(minLon, p.getLongitude());
-            maxLon = Math.max(maxLon, p.getLongitude());
+            minLng = Math.min(minLng, p.getLongitude());
+            maxLng = Math.max(maxLng, p.getLongitude());
         }
-
-        double padding = 0.01;
-        BoundingBox box = new BoundingBox(
-                maxLat + padding, maxLon + padding,
-                minLat - padding, minLon - padding);
-
+        double pad = 0.01;
+        BoundingBox box = new BoundingBox(maxLat + pad, maxLng + pad,
+                minLat - pad, minLng - pad);
         mapResult.post(() -> mapResult.zoomToBoundingBox(box, true));
     }
 
@@ -562,47 +487,45 @@ public class RideEstimationFragment extends Fragment {
     }
 
     private void setLoading(boolean loading) {
+        isLoading = loading;
         progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
         btnEstimate.setEnabled(!loading);
     }
 
-    private String shortenAddress(String address) {
-        if (address == null)
-            return "";
-        return address.length() <= 60 ? address : address.substring(0, 60) + "...";
+    private void clearStart() { startLat = 0; startLng = 0; acceptedStartText = ""; }
+    private void clearDest()  { destLat  = 0; destLng  = 0; acceptedDestText  = ""; }
+
+    /** "lat, lng" format koji backend očekuje — Locale.US da bi tačka bila decimalni separator */
+    private String buildCoordString(double lat, double lng) {
+        return String.format(java.util.Locale.US, "%.6f, %.6f", lat, lng);
     }
 
-    // ── Inner helper class for stops ─────────────────────────────
+    private GeoPointDTO makePoint(double lat, double lng) {
+        GeoPointDTO p = new GeoPointDTO();
+        p.setLatitude(lat);
+        p.setLongitude(lng);
+        return p;
+    }
+
+    // ── Inner classes ─────────────────────────────────────────────
 
     private static class StopEntry {
         View view;
         AutoCompleteTextView editText;
-        String coordinates = "";
-        List<NominatimResultDTO> suggestions = new ArrayList<>();
+        double lat = 0, lng = 0;  // double umesto String koordinata
     }
 
-    // ── Debounced TextWatcher ────────────────────────────────────
-
     private abstract class DebouncedTextWatcher implements TextWatcher {
-        private final Handler handler = new Handler(Looper.getMainLooper());
-        private Runnable runnable;
-
+        private final Handler h = new Handler(Looper.getMainLooper());
+        private Runnable r;
         abstract void onDebouncedTextChanged(String text);
 
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (runnable != null)
-                handler.removeCallbacks(runnable);
-            runnable = () -> onDebouncedTextChanged(s.toString());
-            handler.postDelayed(runnable, 350);
+        @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+        @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+        @Override public void afterTextChanged(Editable s) {
+            if (r != null) h.removeCallbacks(r);
+            r = () -> onDebouncedTextChanged(s.toString());
+            h.postDelayed(r, 350);
         }
     }
 }
