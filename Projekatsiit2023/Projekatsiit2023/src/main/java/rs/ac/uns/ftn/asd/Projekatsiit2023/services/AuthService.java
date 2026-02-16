@@ -41,6 +41,7 @@ public class AuthService {
     private final DriverRepository driverRepository;
     private final ActiveVehicleRepository activeVehicleRepository;
     private final DriverStatusService driverStatusService;
+    private final PublicMapService publicMapService;
 
     public AuthService(UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -49,7 +50,7 @@ public class AuthService {
             ActivationTokenRepository activationTokenRepository,
             PasswordResetTokenRepository passwordResetTokenRepository,
             DriverRepository driverRepository, ActiveVehicleRepository activeVehicleRepository,
-            DriverStatusService driverStatusService) {
+            DriverStatusService driverStatusService, PublicMapService publicMapService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -59,6 +60,7 @@ public class AuthService {
         this.driverRepository = driverRepository;
         this.activeVehicleRepository = activeVehicleRepository;
         this.driverStatusService = driverStatusService;
+        this.publicMapService = publicMapService;
     }
 
     public LoginResponseDTO login(LoginRequestDTO request) {
@@ -78,7 +80,21 @@ public class AuthService {
         }
 
         if (user.getUserRole() == UserRole.DRIVER) {
+            Driver driver = driverRepository.findById(user.getId())
+                    .orElseThrow(() -> new RuntimeException("Driver not found"));
             driverStatusService.activateDriverOnLogin(user.getId());
+            Optional<ActiveVehicle> existing =
+                    activeVehicleRepository.findByVehicleId(driver.getVehicle().getId());
+
+            if (existing.isEmpty()) {
+                ActiveVehicle av = new ActiveVehicle();
+                av.setId(driver.getVehicle().getId());
+                av.setVehicle(driver.getVehicle());
+                av.setCurrentLatitude(45.2576);
+                av.setCurrentLongitude(19.8442);
+                av.setAvailable(true);
+                activeVehicleRepository.save(av);
+            }
         }
 
         String token = jwtTokenProvider.generateToken(user);
@@ -159,6 +175,11 @@ public class AuthService {
                 driver.setActiveMinutesLast24h(0);
             }
             driverRepository.save(driver);
+
+            ActiveVehicle av = activeVehicleRepository.findByVehicleId(driver.getVehicle().getId())
+                    .orElseThrow(() -> new RuntimeException("Active vehicle not found for driver"));
+            activeVehicleRepository.delete(av);
+            activeVehicleRepository.flush();
         }
 
         response.setSuccess(true);
