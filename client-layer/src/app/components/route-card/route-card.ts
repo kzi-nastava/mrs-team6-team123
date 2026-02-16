@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common';
 })
 export class RouteCardComponent {
   @Input() data!: {
+    id: number;
+    routeId: number;
     title: string;
     duration: string;
     bookText: string;
