@@ -1,10 +1,14 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  //Skip auth header for GraphHopper (CORS-safe)
+  if (req.url.includes('graphhopper.com')) {
+    return next(req);
+  }
+
   // Get token from localStorage
   const token = localStorage.getItem('auth_token');
 
-  // Clone request and add authorization header if token exists
   if (token) {
     const clonedRequest = req.clone({
       setHeaders: {

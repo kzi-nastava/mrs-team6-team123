@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,19 @@ import { LocationAutocompleteService } from '../../../services/schedule_ride/loc
   templateUrl: './location-input.component.html',
   styleUrl: './location-input.component.css'
 })
-export class LocationInputComponent implements OnDestroy {
+export class LocationInputComponent implements OnDestroy, OnChanges {
+    private lastSearched = '';
+    ngOnChanges(changes: SimpleChanges): void {
+      if (changes['address'] && typeof this.address === 'string') {
+        const query = this.address;
+        if (query.length >= 3 && query !== this.lastSearched) {
+          this.debouncedSearch.input$.next(query);
+          this.lastSearched = query;
+        } else if (query.length < 3) {
+          this.suggestions = [];
+        }
+      }
+    }
   @Input() label = 'Location';
   @Input() placeholder = 'Enter address';
   @Input() address = '';
@@ -39,13 +51,14 @@ export class LocationInputComponent implements OnDestroy {
     this.address = query;
     this.addressChange.emit(query);
     this.inputChanged.emit(query);
-
     if (query.length < 3) {
       this.suggestions = [];
       return;
     }
-
-    this.debouncedSearch.input$.next(query);
+    if (query !== this.lastSearched) {
+      this.debouncedSearch.input$.next(query);
+      this.lastSearched = query;
+    }
   }
 
   selectLocation(hit: GeocodeHit) {

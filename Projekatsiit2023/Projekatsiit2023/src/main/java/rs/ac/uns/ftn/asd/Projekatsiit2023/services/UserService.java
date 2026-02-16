@@ -271,8 +271,11 @@ public class UserService {
 
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         user.setAccountBlocked(true);
+        if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {
+            ((Driver) user).setActive(false);
+        }
         userRepository.save(user);
     }
 
