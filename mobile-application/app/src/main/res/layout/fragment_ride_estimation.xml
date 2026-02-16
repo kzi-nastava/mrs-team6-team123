@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:background="?attr/colorSurface">
 
     <LinearLayout
@@ -18,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="20dp">
 
             <Button
                 android:id="@+id/btnBack"
@@ -38,115 +39,144 @@
                 android:fontFamily="@font/nobile"/>
         </LinearLayout>
 
-        <!-- Start address -->
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Route card — grupise start/stops/destination zajedno -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Start location"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:contentPadding="16dp">
 
-            <AutoCompleteTextView
-                android:id="@+id/etStartAddress"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:fontFamily="@font/nobile_regular"
-                android:completionThreshold="3"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="12dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Route"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    android:fontFamily="@font/nobile"
+                    android:layout_marginBottom="12dp"/>
 
-        <!-- Destination address -->
-        <com.google.android.material.textfield.TextInputLayout
+                <!-- Start address -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Start location"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/etStartAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:fontFamily="@font/nobile_regular"
+                        android:completionThreshold="3"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Intermediate stops -->
+                <LinearLayout
+                    android:id="@+id/stopsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+                <!-- Add stop -->
+                <Button
+                    android:id="@+id/btnAddStop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+ Add Stop"
+                    android:fontFamily="@font/nobile_regular"
+                    android:layout_marginBottom="8dp"
+                    style="@style/Widget.Material3.Button.TextButton"/>
+
+                <!-- Destination address -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Destination"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/etDestinationAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:fontFamily="@font/nobile_regular"
+                        android:completionThreshold="3"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Vehicle type card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Destination"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:contentPadding="16dp">
 
-            <AutoCompleteTextView
-                android:id="@+id/etDestinationAddress"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:fontFamily="@font/nobile_regular"
-                android:completionThreshold="3"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vehicle Type"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    android:fontFamily="@font/nobile"
+                    android:layout_marginBottom="8dp"/>
 
-        <!-- Intermediate stops container -->
-        <LinearLayout
-            android:id="@+id/stopsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupVehicleType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
-        <!-- Add stop button -->
-        <Button
-            android:id="@+id/btnAddStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+ Add Stop"
-            android:layout_marginTop="4dp"
-            style="@style/Widget.Material3.Button.TextButton"/>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipStandard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🚗  Standard"
+                        android:checked="true"
+                        android:fontFamily="@font/nobile_regular"
+                        style="@style/Widget.Material3.Chip.Filter"/>
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="12dp"/>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLuxury"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨  Luxury"
+                        android:fontFamily="@font/nobile_regular"
+                        style="@style/Widget.Material3.Chip.Filter"/>
 
-        <!-- Vehicle type selection -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vehicle Type"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/nobile"
-            android:layout_marginBottom="8dp"/>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipVan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🚐  Van"
+                        android:fontFamily="@font/nobile_regular"
+                        style="@style/Widget.Material3.Chip.Filter"/>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupVehicleType"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipStandard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Standard"
-                android:checked="true"
-                android:fontFamily="@font/nobile_regular"
-                style="@style/Widget.Material3.Chip.Filter"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLuxury"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Luxury"
-                android:fontFamily="@font/nobile_regular"
-                style="@style/Widget.Material3.Chip.Filter"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipVan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Van"
-                android:fontFamily="@font/nobile_regular"
-                style="@style/Widget.Material3.Chip.Filter"/>
-
-        </com.google.android.material.chip.ChipGroup>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
-
-        <!-- Error message -->
+        <!-- Error -->
         <TextView
             android:id="@+id/tvError"
             android:layout_width="match_parent"
@@ -166,7 +196,7 @@
             android:fontFamily="@font/nobile"
             style="@style/Widget.Material3.Button"/>
 
-        <!-- Progress bar -->
+        <!-- Progress -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
@@ -197,95 +227,134 @@
                     android:text="Estimation Result"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
                     android:fontFamily="@font/nobile"
                     android:layout_marginBottom="12dp"/>
 
-                <!-- Route map -->
+                <!-- Map -->
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_marginBottom="12dp">
+                    android:layout_height="220dp"
+                    android:layout_marginBottom="16dp">
 
                     <org.osmdroid.views.MapView
                         android:id="@+id/mapResult"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"/>
                 </FrameLayout>
 
-                <!-- Distance -->
+                <!-- Stats grid — sve tri vrednosti u jednom redu -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center">
 
-                    <TextView
+                    <!-- Distance -->
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Distance:"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/nobile_regular"/>
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:background="?attr/colorSurfaceVariant"
+                        android:layout_marginEnd="6dp">
 
-                    <TextView
-                        android:id="@+id/tvDistance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/nobile"/>
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📍"
+                            android:textSize="18sp"/>
 
-                <!-- Time -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                        <TextView
+                            android:id="@+id/tvDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/nobile"/>
 
-                    <TextView
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Distance"
+                            android:textSize="11sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="@font/nobile_regular"/>
+                    </LinearLayout>
+
+                    <!-- Time -->
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Estimated time:"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/nobile_regular"/>
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:background="?attr/colorSurfaceVariant"
+                        android:layout_marginEnd="6dp">
 
-                    <TextView
-                        android:id="@+id/tvTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/nobile"/>
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⏱️"
+                            android:textSize="18sp"/>
 
-                <!-- Price -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/tvTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/nobile"/>
 
-                    <TextView
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Est. time"
+                            android:textSize="11sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="@font/nobile_regular"/>
+                    </LinearLayout>
+
+                    <!-- Price -->
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Estimated price:"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/nobile_regular"/>
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:background="?attr/colorSurfaceVariant">
 
-                    <TextView
-                        android:id="@+id/tvPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorPrimary"
-                        android:fontFamily="@font/nobile"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="💰"
+                            android:textSize="18sp"/>
+
+                        <TextView
+                            android:id="@+id/tvPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimary"
+                            android:fontFamily="@font/nobile"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Price"
+                            android:textSize="11sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="@font/nobile_regular"/>
+                    </LinearLayout>
+
                 </LinearLayout>
 
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

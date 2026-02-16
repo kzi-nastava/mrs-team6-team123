@@ -210,43 +210,64 @@ public class TrackRideFragment extends Fragment
 
     // ── Load ride data ───────────────────────────────────────────
 
+
     private void loadRide() {
+        // LOG 1 — da li rideId uopste ima vrednost
+        android.util.Log.d("TRACK_DEBUG", "loadRide() called, rideId=" + rideId);
+
         trackRideRepository.trackRide(rideId, new Callback<TrackRideDTO>() {
             @Override
             public void onResponse(@NonNull Call<TrackRideDTO> call,
                                    @NonNull Response<TrackRideDTO> response) {
                 if (!isAdded()) return;
 
+                // LOG 2 — status kod koji backend vraca
+                android.util.Log.d("TRACK_DEBUG", "onResponse code=" + response.code());
+
                 if (response.isSuccessful() && response.body() != null) {
                     dto = response.body();
+
+                    // LOG 3 — da li dto ima info
+                    android.util.Log.d("TRACK_DEBUG", "dto.info=" + dto.getInfo());
+                    if (dto.getInfo() != null) {
+                        android.util.Log.d("TRACK_DEBUG",
+                                "from="   + dto.getInfo().getFrom()
+                                        + " to="     + dto.getInfo().getTo()
+                                        + " driver=" + dto.getInfo().getDriver()
+                                        + " price="  + dto.getInfo().getPrice()
+                                        + " passengers=" + dto.getInfo().getPassengers());
+                    }
 
                     if (!rideInfoInitialized) {
                         updateRideStaticUI(dto);
                         showRoute(dto.getStops());
                     }
                     updateTimeLeft(dto);
-
                     driverId = dto.getDriverId();
                     loadVehicle(driverId);
+
                 } else {
-                    // Tracking failed (e.g. 500) — log but don't block UI
-                    android.util.Log.w("TrackRide",
-                            "Tracking endpoint returned " + response.code()
-                                    + " — buttons still work");
+                    // LOG 4 — error body ako postoji (4xx, 5xx)
+                    try {
+                        String errBody = response.errorBody() != null
+                                ? response.errorBody().string()
+                                : "no error body";
+                        android.util.Log.e("TRACK_DEBUG",
+                                "Error response: code=" + response.code()
+                                        + " body=" + errBody);
+                    } catch (Exception e) {
+                        android.util.Log.e("TRACK_DEBUG", "Could not read error body", e);
+                    }
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<TrackRideDTO> call,
-                                  @NonNull Throwable t) {
-                if (isAdded()) {
-                    android.util.Log.w("TrackRide",
-                            "Tracking network error: " + t.getMessage());
-                }
+            public void onFailure(@NonNull Call<TrackRideDTO> call, @NonNull Throwable t) {
+                // LOG 5 — mrezna greska
+                android.util.Log.e("TRACK_DEBUG", "onFailure: " + t.getMessage(), t);
             }
         });
     }
-
     private void loadVehicle(Long driverId) {
         if (driverId == null) return;
 
@@ -344,24 +365,34 @@ public class TrackRideFragment extends Fragment
 
     // ── Auto refresh ─────────────────────────────────────────────
 
-    private void startAutoRefresh() {
-        if (refreshRunnable != null) return;
-        refreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                loadRide();
-                handler.postDelayed(this, 1000);
-            }
-        };
-        handler.post(refreshRunnable);
-    }
+    
+private void startAutoRefresh() {
+    // Ako runnable vec postoji, ne prave novi — ovo je vec bio tu
+    // ali nije dovoljno jer handler.postDelayed moze imati vise
+    // pending callbacks u redu ako se onResume pozove vise puta
+    stopAutoRefresh(); // uvek prvo pocisti pre nego sto krenes
 
-    private void stopAutoRefresh() {
-        if (refreshRunnable != null) {
-            handler.removeCallbacks(refreshRunnable);
-            refreshRunnable = null;
+    refreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isAdded()) return; // ne pozivaj API ako fragment nije attachan
+            loadRide();
+            handler.postDelayed(this, 1000);
         }
+    };
+    handler.postDelayed(refreshRunnable, 1000); // prvi poziv sa delay-om
+    // (ne odmah, da se fragment stigne prikazati)
+}
+
+private void stopAutoRefresh() {
+    if (refreshRunnable != null) {
+        handler.removeCallbacks(refreshRunnable);
+        refreshRunnable = null;
     }
+    // Ukloni SVE pending callbacks od ovog handlera kao sigurnosna mreza
+    handler.removeCallbacksAndMessages(null);
+}
+
 
     // ── Dialog openers (NO dto null check — use fallbacks) ──────
 
@@ -377,13 +408,22 @@ public class TrackRideFragment extends Fragment
         dialog.show(getChildFragmentManager(), "panic_dialog");
     }
 
+    
     private void openStopDialog() {
+        double lat = 0.0, lng = 0.0;
+        if (vehicleMarker != null && vehicleMarker.getPosition() != null) {
+            lat = vehicleMarker.getPosition().getLatitude();
+            lng = vehicleMarker.getPosition().getLongitude();
+        }
+
         StopRideDialogFragment dialog = StopRideDialogFragment.newInstance(
                 rideId,
                 getFirstPassenger(),
                 getToLocation(),
                 getRidePrice(),
-                5.5);
+                5.5, 
+                lat,
+                lng);
 
         dialog.show(getChildFragmentManager(), "stop_dialog");
     }
