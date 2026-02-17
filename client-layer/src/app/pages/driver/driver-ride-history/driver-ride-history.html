@@ -4,7 +4,18 @@
     (filterApplied)="loadRideHistory($event)"
     (filterCleared)="loadRideHistory()">
   </app-ride-history-filter>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading rides...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && rides?.length === 0">
+    🚗 No rides found
+  </div>
+
   <app-ride-history-table 
+    *ngIf="!loading && rides.length > 0"
     [rides]="rides" 
     [columns]="columns"
     [attributes]="attributes">
