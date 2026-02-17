@@ -1,27 +1,33 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.repositories;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class RideRepositoryTest {
 
     @Autowired
@@ -36,24 +42,29 @@ class RideRepositoryTest {
     @Autowired
     private RouteRepository routeRepository;
 
+    @Autowired
+    private PanicAlertRepository panicAlertRepository;
+
     private Driver driver1;
     private Driver driver2;
     private Passenger passenger1;
     private Route route;
 
+        
+    @Autowired
+    private EntityManager entityManager;
+    
     @BeforeEach
     void setUp() {
-        // Cleanup
-        rideRepository.deleteAll();
-        driverRepository.deleteAll();
-        passengerRepository.deleteAll();
-        routeRepository.deleteAll();
+        // Briše sve odjednom, ignorišući foreign key redosled
+        entityManager.createNativeQuery("TRUNCATE TABLE panic_alerts, ride_ratings, ride_passengers, rides, routes, drivers, passengers, vehicles RESTART IDENTITY CASCADE").executeUpdate();
 
+        
         // Create and save vehicle + driver1
         Vehicle vehicle1 = new Vehicle();
         vehicle1.setVehicleModel("Toyota Prius");
         vehicle1.setVehicleType(VehicleType.STANDARD);
-        vehicle1.setLicensePlate("NS-001-AB");
+        vehicle1.setLicensePlate("NS-321-AP");
         vehicle1.setSeats(4);
         vehicle1.setBabyTransport(false);
         vehicle1.setPetTransport(false);
