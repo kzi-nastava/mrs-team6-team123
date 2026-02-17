@@ -1,27 +1,33 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.repositories;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class RideRepositoryTest {
 
     @Autowired
@@ -36,24 +42,26 @@ class RideRepositoryTest {
     @Autowired
     private RouteRepository routeRepository;
 
+    @Autowired
+    private PanicAlertRepository panicAlertRepository;
+
     private Driver driver1;
     private Driver driver2;
     private Passenger passenger1;
     private Route route;
 
+        
+    @Autowired
+    private EntityManager entityManager;
+    
     @BeforeEach
     void setUp() {
-        // Cleanup
-        rideRepository.deleteAll();
-        driverRepository.deleteAll();
-        passengerRepository.deleteAll();
-        routeRepository.deleteAll();
+        entityManager.createNativeQuery("TRUNCATE TABLE panic_alerts, ride_ratings, ride_passengers, rides, routes, drivers, passengers, vehicles RESTART IDENTITY CASCADE").executeUpdate();
 
-        // Create and save vehicle + driver1
         Vehicle vehicle1 = new Vehicle();
         vehicle1.setVehicleModel("Toyota Prius");
         vehicle1.setVehicleType(VehicleType.STANDARD);
-        vehicle1.setLicensePlate("NS-001-AB");
+        vehicle1.setLicensePlate("NS-321-AP");
         vehicle1.setSeats(4);
         vehicle1.setBabyTransport(false);
         vehicle1.setPetTransport(false);
@@ -76,7 +84,6 @@ class RideRepositoryTest {
         driver1.setVehicle(vehicle1);
         driver1 = driverRepository.save(driver1);
 
-        // Create and save vehicle + driver2
         Vehicle vehicle2 = new Vehicle();
         vehicle2.setVehicleModel("BMW X5");
         vehicle2.setVehicleType(VehicleType.LUXURY);
@@ -103,7 +110,6 @@ class RideRepositoryTest {
         driver2.setVehicle(vehicle2);
         driver2 = driverRepository.save(driver2);
 
-        // Create and save passenger
         passenger1 = new Passenger();
         passenger1.setEmail("passenger1@test.com");
         passenger1.setPassword("password");
@@ -118,7 +124,6 @@ class RideRepositoryTest {
         passenger1.setStartedRide(false);
         passenger1 = passengerRepository.save(passenger1);
 
-        // Create and save route
         route = new Route();
         route.setStartLocation("45.2511,19.8367");
         route.setEndLocation("45.2671,19.8335");
@@ -283,7 +288,6 @@ class RideRepositoryTest {
             scheduledRide.setScheduledAt(LocalDateTime.now().plusHours(2));
             rideRepository.save(scheduledRide);
 
-            // Non-scheduled ride (scheduledAt is null)
             createAndSaveRide(driver2, RideStatus.CREATED, false);
 
             List<Ride> rides = rideRepository.findScheduledRides();

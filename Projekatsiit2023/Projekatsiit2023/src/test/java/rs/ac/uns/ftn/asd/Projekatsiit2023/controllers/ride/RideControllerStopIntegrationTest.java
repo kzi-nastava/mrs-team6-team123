@@ -1,7 +1,13 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers.ride;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,31 +16,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.StopRideRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.UserRole;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.VehicleType;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.models.*;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import org.springframework.security.test.context.support.WithMockUser;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Passenger;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Route;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Vehicle;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.DriverRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RideRepository;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.RouteRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @WithMockUser(username = "driver@test.com", roles = {"DRIVER"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class RideControllerStopIntegrationTest {
 
     @Autowired
@@ -63,16 +76,14 @@ class RideControllerStopIntegrationTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        // Create vehicle
         Vehicle vehicle = new Vehicle();
         vehicle.setVehicleModel("Toyota Prius");
         vehicle.setVehicleType(VehicleType.STANDARD);
-        vehicle.setLicensePlate("NS-001-AB");
+        vehicle.setLicensePlate("NS-123-AP");
         vehicle.setSeats(4);
         vehicle.setBabyTransport(false);
         vehicle.setPetTransport(false);
 
-        // Create and save driver
         driver = new Driver();
         driver.setEmail("driver@test.com");
         driver.setPassword("password123");
@@ -91,7 +102,6 @@ class RideControllerStopIntegrationTest {
         driver.setVehicle(vehicle);
         driver = driverRepository.save(driver);
 
-        // Create and save passenger
         passenger = new Passenger();
         passenger.setEmail("passenger@test.com");
         passenger.setPassword("password123");
@@ -106,7 +116,6 @@ class RideControllerStopIntegrationTest {
         passenger.setStartedRide(true);
         passenger = passengerRepository.save(passenger);
 
-        // Create and save route
         route = new Route();
         route.setStartLocation("45.2511,19.8367");
         route.setEndLocation("45.2671,19.8335");
@@ -116,7 +125,6 @@ class RideControllerStopIntegrationTest {
         route.setEndLongitude(19.8335);
         route = routeRepository.save(route);
 
-        // Create and save a STARTED ride
         startedRide = new Ride();
         startedRide.setDriver(driver);
         startedRide.setCreator(passenger);
@@ -410,7 +418,7 @@ class RideControllerStopIntegrationTest {
             double originalPrice = startedRide.getPrice();
 
             StopRideRequestDTO req = new StopRideRequestDTO();
-            req.setCurrentLocation("45.2530,19.8360"); // close to start
+            req.setCurrentLocation("45.2530,19.8360");
             req.setStoppedAt(LocalDateTime.now());
 
             mockMvc.perform(post("/api/rides/{rideId}/stop", startedRide.getId())
