@@ -76,7 +76,6 @@ class RideControllerStopIntegrationTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        // Create vehicle
         Vehicle vehicle = new Vehicle();
         vehicle.setVehicleModel("Toyota Prius");
         vehicle.setVehicleType(VehicleType.STANDARD);
@@ -85,7 +84,6 @@ class RideControllerStopIntegrationTest {
         vehicle.setBabyTransport(false);
         vehicle.setPetTransport(false);
 
-        // Create and save driver
         driver = new Driver();
         driver.setEmail("driver@test.com");
         driver.setPassword("password123");
@@ -104,7 +102,6 @@ class RideControllerStopIntegrationTest {
         driver.setVehicle(vehicle);
         driver = driverRepository.save(driver);
 
-        // Create and save passenger
         passenger = new Passenger();
         passenger.setEmail("passenger@test.com");
         passenger.setPassword("password123");
@@ -119,7 +116,6 @@ class RideControllerStopIntegrationTest {
         passenger.setStartedRide(true);
         passenger = passengerRepository.save(passenger);
 
-        // Create and save route
         route = new Route();
         route.setStartLocation("45.2511,19.8367");
         route.setEndLocation("45.2671,19.8335");
@@ -129,7 +125,6 @@ class RideControllerStopIntegrationTest {
         route.setEndLongitude(19.8335);
         route = routeRepository.save(route);
 
-        // Create and save a STARTED ride
         startedRide = new Ride();
         startedRide.setDriver(driver);
         startedRide.setCreator(passenger);
@@ -423,7 +418,7 @@ class RideControllerStopIntegrationTest {
             double originalPrice = startedRide.getPrice();
 
             StopRideRequestDTO req = new StopRideRequestDTO();
-            req.setCurrentLocation("45.2530,19.8360"); // close to start
+            req.setCurrentLocation("45.2530,19.8360");
             req.setStoppedAt(LocalDateTime.now());
 
             mockMvc.perform(post("/api/rides/{rideId}/stop", startedRide.getId())

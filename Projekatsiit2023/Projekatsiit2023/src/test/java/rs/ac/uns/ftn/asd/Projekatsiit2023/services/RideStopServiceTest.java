@@ -60,12 +60,10 @@ class RideStopServiceTest {
         route.setEndLatitude(45.2671);
         route.setEndLongitude(19.8335);
 
-        // Setup a default valid driver
         Driver driver = new Driver();
         driver.setId(1L);
         driver.setActive(true);
 
-        // Setup a default valid ride in STARTED status
         ride = new Ride();
         ride.setId(1L);
         ride.setDriver(driver);
@@ -76,12 +74,11 @@ class RideStopServiceTest {
         ride.setEndLocation("45.2671,19.8335");
         ride.setDate(LocalDate.now());
         ride.setTotalDistance(5.0);
-        ride.setPrice(800.0); // basePrice + 5.0 * 120 = 200 + 600 = 800
+        ride.setPrice(800.0);
         ride.setPanicTriggered(false);
         ride.setRideRated(false);
         ride.setDriverReported(false);
 
-        // Setup a default valid stop request (midpoint between start and end)
         request = new StopRideRequestDTO();
         request.setCurrentLocation("45.2600,19.8350");
         request.setStoppedAt(LocalDateTime.of(2025, 6, 15, 14, 30));
@@ -450,16 +447,13 @@ class RideStopServiceTest {
         @Test
         @DisplayName("Should recalculate price based on actual distance travelled")
         void shouldRecalculatePrice() {
-            // Original: 5km, price 800 (basePrice=200, distance part=600)
-            // Stop at start location => ~0km distance => price ~ basePrice
-            request.setCurrentLocation("45.2511,19.8367"); // same as start
+            request.setCurrentLocation("45.2511,19.8367"); 
             when(rideRepository.findById(1L)).thenReturn(Optional.of(ride));
             when(rideRepository.save(any(Ride.class))).thenReturn(ride);
             when(routeRepository.save(any(Route.class))).thenReturn(route);
 
             StopRideResponseDTO response = rideStopService.stopRide(1L, request);
 
-            // Distance should be ~0, so price should be ~basePrice (200)
             assertTrue(response.getRecalculatedPrice() < ride.getPrice() || response.getRecalculatedPrice() <= 200.01);
         }
 
@@ -467,7 +461,7 @@ class RideStopServiceTest {
         @DisplayName("Price should be lower when stopped earlier in ride")
         void priceShouldBeLowerWhenStoppedEarly() {
             double originalPrice = ride.getPrice();
-            request.setCurrentLocation("45.2530,19.8360"); // close to start
+            request.setCurrentLocation("45.2530,19.8360"); 
             when(rideRepository.findById(1L)).thenReturn(Optional.of(ride));
             when(rideRepository.save(any(Ride.class))).thenReturn(ride);
             when(routeRepository.save(any(Route.class))).thenReturn(route);
@@ -495,17 +489,14 @@ class RideStopServiceTest {
         @Test
         @DisplayName("Base price should default to 0 when original price is less than distance * PRICE_PER_KM")
         void basePriceShouldDefaultToZero() {
-            // Set price lower than distance * 120
-            ride.setPrice(100.0);        // price = 100
-            ride.setTotalDistance(5.0);   // 5 * 120 = 600 > 100 => basePrice = 0
-
+            ride.setPrice(100.0);        
+            ride.setTotalDistance(5.0); 
             when(rideRepository.findById(1L)).thenReturn(Optional.of(ride));
             when(rideRepository.save(any(Ride.class))).thenReturn(ride);
             when(routeRepository.save(any(Route.class))).thenReturn(route);
 
             StopRideResponseDTO response = rideStopService.stopRide(1L, request);
 
-            // Price should be just distanceTravelled * 120 (no base)
             assertTrue(response.getRecalculatedPrice() >= 0);
         }
 
@@ -522,7 +513,6 @@ class RideStopServiceTest {
             verify(rideRepository).save(rideCaptor.capture());
             Ride savedRide = rideCaptor.getValue();
 
-            // Distance should be recalculated, not the original 5.0
             assertNotEquals(5.0, savedRide.getTotalDistance(), 0.01,
                     "Total distance should be updated to actual distance travelled");
             assertTrue(savedRide.getTotalDistance() >= 0);
@@ -531,7 +521,7 @@ class RideStopServiceTest {
         @Test
         @DisplayName("Should calculate distance as ~0 when stopped at start location")
         void shouldCalculateZeroDistanceAtStart() {
-            request.setCurrentLocation("45.2511,19.8367"); // exact start coords
+            request.setCurrentLocation("45.2511,19.8367"); 
             when(rideRepository.findById(1L)).thenReturn(Optional.of(ride));
             when(rideRepository.save(any(Ride.class))).thenReturn(ride);
             when(routeRepository.save(any(Route.class))).thenReturn(route);

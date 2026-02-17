@@ -157,7 +157,6 @@ public class AdminRideHistoryE2ETest {
                 "el.dispatchEvent(new Event('input', {bubbles:true}));" +
                 "el.dispatchEvent(new Event('change', {bubbles:true}));",
                 input, isoDate);
-        // Čeka da Angular procira promenu
         wait.until(ExpectedConditions.attributeToBe(input, "value", isoDate));
         log("Date input set: " + isoDate);
     }
@@ -235,9 +234,7 @@ public class AdminRideHistoryE2ETest {
         return Double.parseDouble(text.replace(" RSD", "").trim());
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // LOGIN & ACCESS
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Login and access tests")
@@ -271,9 +268,7 @@ public class AdminRideHistoryE2ETest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // PAGE ELEMENTS
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Page elements tests")
@@ -348,9 +343,7 @@ public class AdminRideHistoryE2ETest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // SORTING
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Sorting tests")
@@ -505,9 +498,7 @@ public class AdminRideHistoryE2ETest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // FILTERING
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Filtering tests")
@@ -622,9 +613,7 @@ public class AdminRideHistoryE2ETest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // SEARCH BY USER ID
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Search by user ID tests")
@@ -726,9 +715,7 @@ public class AdminRideHistoryE2ETest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
     // TABLE CONTENT
-    // ═══════════════════════════════════════════════════════════════
 
     @Nested
     @DisplayName("Table content tests")

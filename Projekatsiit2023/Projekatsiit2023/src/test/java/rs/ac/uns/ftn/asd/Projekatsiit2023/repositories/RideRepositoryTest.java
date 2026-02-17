@@ -56,11 +56,8 @@ class RideRepositoryTest {
     
     @BeforeEach
     void setUp() {
-        // Briše sve odjednom, ignorišući foreign key redosled
         entityManager.createNativeQuery("TRUNCATE TABLE panic_alerts, ride_ratings, ride_passengers, rides, routes, drivers, passengers, vehicles RESTART IDENTITY CASCADE").executeUpdate();
 
-        
-        // Create and save vehicle + driver1
         Vehicle vehicle1 = new Vehicle();
         vehicle1.setVehicleModel("Toyota Prius");
         vehicle1.setVehicleType(VehicleType.STANDARD);
@@ -87,7 +84,6 @@ class RideRepositoryTest {
         driver1.setVehicle(vehicle1);
         driver1 = driverRepository.save(driver1);
 
-        // Create and save vehicle + driver2
         Vehicle vehicle2 = new Vehicle();
         vehicle2.setVehicleModel("BMW X5");
         vehicle2.setVehicleType(VehicleType.LUXURY);
@@ -114,7 +110,6 @@ class RideRepositoryTest {
         driver2.setVehicle(vehicle2);
         driver2 = driverRepository.save(driver2);
 
-        // Create and save passenger
         passenger1 = new Passenger();
         passenger1.setEmail("passenger1@test.com");
         passenger1.setPassword("password");
@@ -129,7 +124,6 @@ class RideRepositoryTest {
         passenger1.setStartedRide(false);
         passenger1 = passengerRepository.save(passenger1);
 
-        // Create and save route
         route = new Route();
         route.setStartLocation("45.2511,19.8367");
         route.setEndLocation("45.2671,19.8335");
@@ -294,7 +288,6 @@ class RideRepositoryTest {
             scheduledRide.setScheduledAt(LocalDateTime.now().plusHours(2));
             rideRepository.save(scheduledRide);
 
-            // Non-scheduled ride (scheduledAt is null)
             createAndSaveRide(driver2, RideStatus.CREATED, false);
 
             List<Ride> rides = rideRepository.findScheduledRides();
