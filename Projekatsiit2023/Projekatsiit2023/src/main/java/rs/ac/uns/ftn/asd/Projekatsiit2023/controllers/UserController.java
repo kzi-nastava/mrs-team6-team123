@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.ChangePasswordRequest;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserBasicInfoDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
@@ -51,7 +52,7 @@ public class UserController {
 
     // 2.3 Profil korisnika - UPDATE
     @PutMapping("/{userId}")
-    public ResponseEntity<UserProfileResponseDTO> updateProfile(@PathVariable Long userId,
+    public ResponseEntity<UserProfileResponseDTO> updateProfile(@Valid @PathVariable Long userId,
             @RequestBody UserProfileRequestDTO request) {
         return ResponseEntity.ok(userService.updateProfile(userId, request));
     }

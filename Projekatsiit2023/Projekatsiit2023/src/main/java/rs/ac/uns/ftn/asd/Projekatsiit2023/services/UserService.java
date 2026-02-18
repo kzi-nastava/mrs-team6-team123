@@ -88,9 +88,6 @@ public class UserService {
     }
 
     public UserProfileResponseDTO updateProfile(Long userId, UserProfileRequestDTO dto) {
-        // Validate profile data
-        userProfileValidation.validateProfileUpdate(dto);
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -271,7 +268,7 @@ public class UserService {
 
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         user.setAccountBlocked(true);
         if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {
             ((Driver) user).setActive(false);

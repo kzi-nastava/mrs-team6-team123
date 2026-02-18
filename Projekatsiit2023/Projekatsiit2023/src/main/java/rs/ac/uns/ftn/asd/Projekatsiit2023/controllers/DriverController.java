@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
@@ -18,9 +19,11 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.LinkedPassengersService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.StartRideService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriverRegistrationValidation;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriversRideValidation;
 
 import java.net.URI;
+import java.sql.Driver;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class DriverController {
     private final LinkedPassengersService linkedPassengersService;
     private final StartRideService startRideService;
     private final DriversRideValidation assignRideValidation;
+    private final DriverRegistrationValidation driverRegistrationValidation;
 
     public DriverController(
             DriverService driverService,
@@ -43,7 +47,8 @@ public class DriverController {
             PassengerRepository passengerRepository,
             LinkedPassengersService linkedPassengersService,
             StartRideService startRideService,
-            DriversRideValidation assignRideValidation) {
+            DriversRideValidation assignRideValidation,
+            DriverRegistrationValidation driverRegistrationValidation) {
         this.driverService = driverService;
         this.reportService = reportService;
         this.rideRepository = rideRepository;
@@ -51,13 +56,20 @@ public class DriverController {
         this.linkedPassengersService = linkedPassengersService;
         this.startRideService = startRideService;
         this.assignRideValidation = assignRideValidation;
+        this.driverRegistrationValidation = driverRegistrationValidation;
     }
 
     // 2.2.3 Registracija vozača
     @PostMapping
-    public ResponseEntity<DriverResponseDTO> registerDriver(@RequestBody DriverRegistrationRequestDTO request) {
+    public ResponseEntity<DriverResponseDTO> registerDriver(
+            @Valid @RequestBody DriverRegistrationRequestDTO request) {
+
+        driverRegistrationValidation.validateDriverRegistration(request);
+
         DriverResponseDTO response = driverService.registerDriver(request);
-        return ResponseEntity.created(URI.create("/api/drivers/" + response.getId()))
+
+        return ResponseEntity.created(
+                URI.create("/api/drivers/" + response.getId()))
                 .body(response);
     }
 
