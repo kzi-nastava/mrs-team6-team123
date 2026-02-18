@@ -95,8 +95,10 @@ public class AuthService {
             }
             av.setCurrentLatitude(45.2576);
             av.setCurrentLongitude(19.8442);
+            av.setTargetLatitude(0.0);
+            av.setTargetLongitude(0.0);
             av.setAvailable(true);
-            av.setRouteCoordinates("");
+            av.setRouteCoordinates(null);
             activeVehicleRepository.save(av);
             publicMapService.getDriversVehicle(user.getId());
         }
@@ -187,6 +189,8 @@ public class AuthService {
             av.setRouteIndex(0);
             av.setRouteCoordinates(null);
             av.setAvailable(false);
+            av.setTargetLatitude(0.0);
+            av.setTargetLongitude(0.0);
             activeVehicleRepository.save(av);
         }
 
