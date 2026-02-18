@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.ride.*;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Driver;
@@ -90,7 +91,8 @@ public class RideController {
 
     // 2.4.1 Poručivanje vožnje
     @PostMapping
-    public ResponseEntity<?> orderRide(@RequestBody RideOrderRequestDTO request) {
+    public ResponseEntity<?> orderRide(@Valid @RequestBody RideOrderRequestDTO request) {
+
         try {
             orderRideValidation.validateOrderRideRequest(request);
 
@@ -287,33 +289,33 @@ public class RideController {
     }
 
     // 2.6.1 Početak vožnje
-    
-@PostMapping("/{rideId}/start")
-public ResponseEntity<?> startRide(@PathVariable Long rideId) {
-    try {
-        Ride ride = rideRepository.findById(rideId)
-                .orElseThrow(() -> new RuntimeException("Ride not found"));
 
-        if (ride.getStatus() != RideStatus.CREATED) {
-            return ResponseEntity.badRequest()
-                    .body("Ride cannot be started — current status: " + ride.getStatus());
+    @PostMapping("/{rideId}/start")
+    public ResponseEntity<?> startRide(@PathVariable Long rideId) {
+        try {
+            Ride ride = rideRepository.findById(rideId)
+                    .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+            if (ride.getStatus() != RideStatus.CREATED) {
+                return ResponseEntity.badRequest()
+                        .body("Ride cannot be started — current status: " + ride.getStatus());
+            }
+
+            ride.setStartedAt(LocalDateTime.now());
+            ride.setStatus(RideStatus.STARTED);
+            rideRepository.save(ride);
+
+            RideResponseDTO response = new RideResponseDTO();
+            response.setRideId(ride.getId());
+            response.setDriverId(ride.getDriver().getId());
+            response.setStatus(RideStatus.STARTED);
+
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-
-        ride.setStartedAt(LocalDateTime.now());
-        ride.setStatus(RideStatus.STARTED);
-        rideRepository.save(ride);
-
-        RideResponseDTO response = new RideResponseDTO();
-        response.setRideId(ride.getId());
-        response.setDriverId(ride.getDriver().getId());
-        response.setStatus(RideStatus.STARTED);
-
-        return ResponseEntity.ok(response);
-
-    } catch (RuntimeException e) {
-        return ResponseEntity.internalServerError().body(e.getMessage());
     }
-}
 
     @PostMapping("/{rideId}/rate")
     public ResponseEntity<?> rateRide(@RequestBody RideRatingResponseDTO response) {
