@@ -27,6 +27,9 @@ import com.example.mobile_application.helper.MapRouteHelper;
 import com.example.mobile_application.repository.ActiveVehicleRepository;
 import com.example.mobile_application.repository.RideRepository;
 import com.example.mobile_application.repository.TrackRideRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
+import com.example.mobile_application.ui.irregularity_report.IrregularityReportFragment;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -41,27 +44,74 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TrackRideFragment extends Fragment {
+public class TrackRideFragment extends Fragment
+        implements StopRideDialogFragment.OnRideStoppedListener,
+        CancelRideDialogFragment.OnRideCancelledListener {
+
     private MapView mapView;
     private Marker vehicleMarker;
-    private Button btnPanic, btnReport, btnFinish, btnStop;
-    private TextView
-            tvRouteName, tvStartedAt, tvTimeLeft,
+    private Button btnPanic, btnReport, btnFinish, btnStop, btnCancel;
+    private TextView tvRouteName, tvStartedAt, tvTimeLeft,
             tvDriver, tvPrice, tvPassengers, tvReports,
             tvPassengersHeading, tvReportsHeading;
+    private View viewButtons, viewPassengers;
     private static final String ARG_RIDE_ID = "ride_id";
     private Long rideId;
     private Long driverId;
     private TrackRideRepository trackRideRepository;
     private ActiveVehicleRepository activeVehicleRepository;
     private RideRepository rideRepository;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable refreshRunnable;
     private BitmapDrawable taxiIcon;
     private BitmapDrawable stopIcon;
     private boolean rideInfoInitialized = false;
     private MapRouteHelper mapRouteHelper;
     private DrawMarkerHelper drawMarkerHelper;
+    private TrackRideDTO dto;
+
+    // ── Fallback helpers for when tracking endpoint fails ────────
+    private String getDriverName() {
+        if (dto != null && dto.getInfo() != null && dto.getInfo().getDriver() != null)
+            return dto.getInfo().getDriver();
+        return "Driver";
+    }
+
+    private String getFromLocation() {
+        if (dto != null && dto.getInfo() != null && dto.getInfo().getFrom() != null)
+            return dto.getInfo().getFrom();
+        return "Unknown";
+    }
+
+    private String getToLocation() {
+        if (dto != null && dto.getInfo() != null && dto.getInfo().getTo() != null)
+            return dto.getInfo().getTo();
+        return "Unknown";
+    }
+
+    private double getRidePrice() {
+        if (dto != null && dto.getInfo() != null)
+            return dto.getInfo().getPrice();
+        return 0.0;
+    }
+
+    private String getFirstPassenger() {
+        if (dto != null && dto.getInfo() != null
+                && dto.getInfo().getPassengers() != null
+                && !dto.getInfo().getPassengers().isEmpty())
+            return dto.getInfo().getPassengers().get(0);
+        return "Passenger";
+    }
+
+    private String getCurrentVehicleLocation() {
+        if (vehicleMarker != null) {
+            return vehicleMarker.getPosition().getLatitude()
+                    + ", " + vehicleMarker.getPosition().getLongitude();
+        }
+        return "45.2550, 19.8450";
+    }
+
+    // ── Fragment lifecycle ───────────────────────────────────────
 
     public static TrackRideFragment newInstance(Long rideId) {
         TrackRideFragment fragment = new TrackRideFragment();
@@ -74,7 +124,6 @@ public class TrackRideFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() != null) {
             rideId = getArguments().getLong(ARG_RIDE_ID);
         }
@@ -90,6 +139,7 @@ public class TrackRideFragment extends Fragment {
         btnReport = view.findViewById(R.id.btnReport);
         btnFinish = view.findViewById(R.id.btnFinish);
         btnStop = view.findViewById(R.id.btnStop);
+        btnCancel = view.findViewById(R.id.btnCancel);
         tvRouteName = view.findViewById(R.id.tvRouteName);
         tvStartedAt = view.findViewById(R.id.tvStartedAt);
         tvTimeLeft = view.findViewById(R.id.tvTimeLeft);
@@ -99,16 +149,21 @@ public class TrackRideFragment extends Fragment {
         tvReports = view.findViewById(R.id.tvReports);
         tvPassengersHeading = view.findViewById(R.id.tvPassengersHeading);
         tvReportsHeading = view.findViewById(R.id.tvReportsHeading);
+        viewButtons = view.findViewById(R.id.viewButtons);
+        viewPassengers = view.findViewById(R.id.viewPassengers);
+
         trackRideRepository = new TrackRideRepository();
         activeVehicleRepository = new ActiveVehicleRepository();
         rideRepository = new RideRepository();
 
         int newSize = 36;
-        Bitmap originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.taxi)).getBitmap();
+        Bitmap originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(
+                requireContext(), R.drawable.taxi)).getBitmap();
         Bitmap smallBitmap = Bitmap.createScaledBitmap(originalBitmap, newSize, newSize, true);
         taxiIcon = new BitmapDrawable(getResources(), smallBitmap);
 
-        originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.location_icon)).getBitmap();
+        originalBitmap = ((BitmapDrawable) ContextCompat.getDrawable(
+                requireContext(), R.drawable.location_icon)).getBitmap();
         smallBitmap = Bitmap.createScaledBitmap(originalBitmap, newSize, newSize, true);
         stopIcon = new BitmapDrawable(getResources(), smallBitmap);
 
@@ -116,10 +171,19 @@ public class TrackRideFragment extends Fragment {
         mapRouteHelper = new MapRouteHelper(mapView);
         drawMarkerHelper = new DrawMarkerHelper(mapView);
 
+        // All buttons work regardless of whether dto is loaded
         btnFinish.setOnClickListener(v -> finishRide());
+        btnReport.setOnClickListener(v -> reportDriver());
+        btnPanic.setOnClickListener(v -> openPanicDialog());
+        btnStop.setOnClickListener(v -> openStopDialog());
+        if (btnCancel != null) {
+            btnCancel.setOnClickListener(v -> openCancelDialog());
+        }
 
         return view;
     }
+
+    // ── Map setup ────────────────────────────────────────────────
 
     private void mapSetup() {
         Configuration.getInstance().setUserAgentValue(requireContext().getPackageName());
@@ -133,7 +197,7 @@ public class TrackRideFragment extends Fragment {
 
     private void showRoute(List<GeoPointDTO> stops) {
         for (int i = 0; i < stops.size() - 1; ++i) {
-            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i+1));
+            mapRouteHelper.fetchRoute(stops.get(i), stops.get(i + 1));
         }
         for (GeoPointDTO stop : stops)
             drawMarkerHelper.drawMarkers(stop, stopIcon);
@@ -144,86 +208,104 @@ public class TrackRideFragment extends Fragment {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
     }
 
+    // ── Load ride data ───────────────────────────────────────────
+
+
     private void loadRide() {
+        // LOG 1 — da li rideId uopste ima vrednost
+        android.util.Log.d("TRACK_DEBUG", "loadRide() called, rideId=" + rideId);
+
         trackRideRepository.trackRide(rideId, new Callback<TrackRideDTO>() {
             @Override
-            public void onResponse(
-                    @NonNull Call<TrackRideDTO> call,
-                    @NonNull Response<TrackRideDTO> response) {
+            public void onResponse(@NonNull Call<TrackRideDTO> call,
+                                   @NonNull Response<TrackRideDTO> response) {
                 if (!isAdded()) return;
 
+                // LOG 2 — status kod koji backend vraca
+                android.util.Log.d("TRACK_DEBUG", "onResponse code=" + response.code());
+
                 if (response.isSuccessful() && response.body() != null) {
-                    TrackRideDTO dto = response.body();
+                    dto = response.body();
+
+                    // LOG 3 — da li dto ima info
+                    android.util.Log.d("TRACK_DEBUG", "dto.info=" + dto.getInfo());
+                    if (dto.getInfo() != null) {
+                        android.util.Log.d("TRACK_DEBUG",
+                                "from="   + dto.getInfo().getFrom()
+                                        + " to="     + dto.getInfo().getTo()
+                                        + " driver=" + dto.getInfo().getDriver()
+                                        + " price="  + dto.getInfo().getPrice()
+                                        + " passengers=" + dto.getInfo().getPassengers());
+                    }
 
                     if (!rideInfoInitialized) {
                         updateRideStaticUI(dto);
                         showRoute(dto.getStops());
                     }
-
                     updateTimeLeft(dto);
-
                     driverId = dto.getDriverId();
                     loadVehicle(driverId);
+
+                } else {
+                    // LOG 4 — error body ako postoji (4xx, 5xx)
+                    try {
+                        String errBody = response.errorBody() != null
+                                ? response.errorBody().string()
+                                : "no error body";
+                        android.util.Log.e("TRACK_DEBUG",
+                                "Error response: code=" + response.code()
+                                        + " body=" + errBody);
+                    } catch (Exception e) {
+                        android.util.Log.e("TRACK_DEBUG", "Could not read error body", e);
+                    }
                 }
             }
 
             @Override
-            public void onFailure(
-                    @NonNull Call<TrackRideDTO> call,
-                    @NonNull Throwable t) {
-                if (isAdded())
-                    showToast("Failed loading ride to track");
+            public void onFailure(@NonNull Call<TrackRideDTO> call, @NonNull Throwable t) {
+                // LOG 5 — mrezna greska
+                android.util.Log.e("TRACK_DEBUG", "onFailure: " + t.getMessage(), t);
             }
         });
     }
-
     private void loadVehicle(Long driverId) {
         if (driverId == null) return;
 
         activeVehicleRepository.getDriversVehicle(driverId,
                 new Callback<ActiveVehicleDTO>() {
                     @Override
-                    public void onResponse(
-                            @NonNull Call<ActiveVehicleDTO> call,
-                            @NonNull Response<ActiveVehicleDTO> response) {
-
+                    public void onResponse(@NonNull Call<ActiveVehicleDTO> call,
+                                           @NonNull Response<ActiveVehicleDTO> response) {
                         if (!isAdded()) return;
-
                         if (response.isSuccessful() && response.body() != null) {
                             updateVehicleMarker(response.body());
                         }
                     }
 
                     @Override
-                    public void onFailure(
-                            @NonNull Call<ActiveVehicleDTO> call,
-                            @NonNull Throwable t) {
-                        if (isAdded())
-                            showToast("Failed showing driver's vehicle");
+                    public void onFailure(@NonNull Call<ActiveVehicleDTO> call,
+                                          @NonNull Throwable t) {
                     }
                 });
     }
 
     private void updateVehicleMarker(ActiveVehicleDTO vehicle) {
-        GeoPoint point = new GeoPoint(
-                vehicle.getLatitude(),
-                vehicle.getLongitude()
-        );
-
+        GeoPoint point = new GeoPoint(vehicle.getLatitude(), vehicle.getLongitude());
         if (vehicleMarker == null) {
             vehicleMarker = new Marker(mapView);
             vehicleMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             vehicleMarker.setIcon(taxiIcon);
             mapView.getOverlays().add(vehicleMarker);
         }
-
         vehicleMarker.setPosition(point);
         mapView.invalidate();
     }
 
+    // ── UI updates ───────────────────────────────────────────────
 
     private void updateRideStaticUI(TrackRideDTO dto) {
-        String userRole = "DRIVER"; // current logged in user role
+        TokenManager tokenManager = ApiClient.getTokenManager();
+        String userRole = tokenManager.getRole();
         String routeStr = dto.getInfo().getFrom() + " -> " + dto.getInfo().getTo();
         tvRouteName.setText(routeStr);
         tvPrice.setText(String.format("%sRSD", dto.getInfo().getPrice()));
@@ -233,6 +315,7 @@ public class TrackRideFragment extends Fragment {
         tvPassengers.setText(passengersText);
         String reportsText = TextUtils.join("\n", dto.getInfo().getReports());
         tvReports.setText(reportsText);
+
         if (userRole.equals(getString(R.string.role_passenger)))
             setVisibilityPassenger();
         if (userRole.equals(getString(R.string.role_driver)))
@@ -253,6 +336,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         btnStop.setVisibility(View.GONE);
         btnFinish.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void setVisibilityDriver() {
@@ -263,6 +347,7 @@ public class TrackRideFragment extends Fragment {
         tvReportsHeading.setVisibility(View.GONE);
         tvStartedAt.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
+        viewPassengers.setVisibility(View.GONE);
     }
 
     private void hideButtons() {
@@ -270,31 +355,150 @@ public class TrackRideFragment extends Fragment {
         btnFinish.setVisibility(View.GONE);
         btnReport.setVisibility(View.GONE);
         btnPanic.setVisibility(View.GONE);
+        if (btnCancel != null) btnCancel.setVisibility(View.GONE);
+        viewButtons.setVisibility(View.GONE);
     }
 
-    // TODO: live time left update
     private void updateTimeLeft(TrackRideDTO dto) {
         tvTimeLeft.setText(String.format("%d min", dto.getInfo().getDuration()));
     }
 
-    private void startAutoRefresh() {
-        if (refreshRunnable != null) return;
-        refreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                loadRide();
-                handler.postDelayed(this, 1000);
-            }
-        };
-        handler.post(refreshRunnable);
+    // ── Auto refresh ─────────────────────────────────────────────
+
+    
+private void startAutoRefresh() {
+    // Ako runnable vec postoji, ne prave novi — ovo je vec bio tu
+    // ali nije dovoljno jer handler.postDelayed moze imati vise
+    // pending callbacks u redu ako se onResume pozove vise puta
+    stopAutoRefresh(); // uvek prvo pocisti pre nego sto krenes
+
+    refreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isAdded()) return; // ne pozivaj API ako fragment nije attachan
+            loadRide();
+            handler.postDelayed(this, 1000);
+        }
+    };
+    handler.postDelayed(refreshRunnable, 1000); // prvi poziv sa delay-om
+    // (ne odmah, da se fragment stigne prikazati)
+}
+
+private void stopAutoRefresh() {
+    if (refreshRunnable != null) {
+        handler.removeCallbacks(refreshRunnable);
+        refreshRunnable = null;
+    }
+    // Ukloni SVE pending callbacks od ovog handlera kao sigurnosna mreza
+    handler.removeCallbacksAndMessages(null);
+}
+
+
+    // ── Dialog openers (NO dto null check — use fallbacks) ──────
+
+    private void openPanicDialog() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+
+        PanicDialogFragment dialog = PanicDialogFragment.newInstance(
+                rideId,
+                tokenManager.getUserId(),
+                getDriverName(),
+                getCurrentVehicleLocation());
+
+        dialog.show(getChildFragmentManager(), "panic_dialog");
     }
 
-    private void stopAutoRefresh() {
-        if (refreshRunnable != null) {
-            handler.removeCallbacks(refreshRunnable);
-            refreshRunnable = null;
+    
+    private void openStopDialog() {
+        double lat = 0.0, lng = 0.0;
+        if (vehicleMarker != null && vehicleMarker.getPosition() != null) {
+            lat = vehicleMarker.getPosition().getLatitude();
+            lng = vehicleMarker.getPosition().getLongitude();
+        }
+
+        StopRideDialogFragment dialog = StopRideDialogFragment.newInstance(
+                rideId,
+                getFirstPassenger(),
+                getToLocation(),
+                getRidePrice(),
+                5.5, 
+                lat,
+                lng);
+
+        dialog.show(getChildFragmentManager(), "stop_dialog");
+    }
+
+    private void openCancelDialog() {
+        TokenManager tokenManager = ApiClient.getTokenManager();
+
+        CancelRideDialogFragment dialog = CancelRideDialogFragment.newInstance(
+                rideId,
+                tokenManager.getUserId(),
+                getFromLocation(),
+                getToLocation(),
+                getDriverName());
+
+        dialog.show(getChildFragmentManager(), "cancel_dialog");
+    }
+
+    // ── Callbacks from dialogs ───────────────────────────────────
+
+    @Override
+    public void onRideStopped(String newDestination, double newPrice) {
+        showToast("Ride stopped. New price: " + (int) newPrice + " RSD");
+        if (isAdded()) {
+            requireActivity().getSupportFragmentManager().popBackStack();
         }
     }
+
+    @Override
+    public void onRideCancelled() {
+        showToast("Ride cancelled successfully");
+        if (isAdded()) {
+            requireActivity().getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    // ── Actions ──────────────────────────────────────────────────
+
+    public void finishRide() {
+        btnFinish.setEnabled(false);
+        rideRepository.finishRide(rideId, new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call,
+                                   @NonNull Response<Void> response) {
+                btnFinish.setEnabled(true);
+                if (response.isSuccessful()) {
+                    if (isAdded()) showToast("Ride successfully finished!");
+                } else {
+                    if (isAdded()) showToast("Error while finishing the ride");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call,
+                                  @NonNull Throwable t) {
+                btnFinish.setEnabled(true);
+                if (isAdded()) showToast("Failed finishing ride");
+            }
+        });
+        requireActivity().getSupportFragmentManager().popBackStack();
+    }
+
+    public void reportDriver() {
+        if (dto == null) {
+            showToast("Ride data not loaded yet. Please try again.");
+            return;
+        }
+        Fragment fragment = IrregularityReportFragment.newInstance(dto);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.main_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    // ── Lifecycle ────────────────────────────────────────────────
 
     @Override
     public void onResume() {
@@ -306,32 +510,5 @@ public class TrackRideFragment extends Fragment {
     public void onPause() {
         super.onPause();
         stopAutoRefresh();
-    }
-
-    public void finishRide() {
-        btnFinish.setEnabled(false);
-        rideRepository.finishRide(rideId, new Callback<Void>() {
-            @Override
-            public void onResponse(
-                    @NonNull Call<Void> call,
-                    @NonNull Response<Void> response) {
-                btnFinish.setEnabled(true);
-                if (response.isSuccessful()) {
-                    if (isAdded())
-                        showToast("Ride successfully finished!");
-                } else {
-                    if (isAdded())
-                        showToast("Error while finishing the ride");
-                }
-            }
-            @Override
-            public void onFailure(
-                    @NonNull Call<Void> call,
-                    @NonNull Throwable t) {
-                btnFinish.setEnabled(true);
-                if (isAdded())
-                    showToast("Failed finishing ride");
-            }
-        });
     }
 }

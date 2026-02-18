@@ -253,25 +253,6 @@
   border-color: #325639;
 }
 
-.schedule-time {
-  display: flex;
-  gap: 8px;
-}
-
-.time-input {
-  flex: 1;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-}
-
-.time-input:focus {
-  outline: none;
-  border-color: #325639;
-}
-
 .instructions-textarea {
   padding: 10px 12px;
   border: 1px solid #ddd;

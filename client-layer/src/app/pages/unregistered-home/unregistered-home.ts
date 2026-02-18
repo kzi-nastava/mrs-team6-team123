@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { MapComponent } from '../../components/map/map';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { RideEstimateModalComponent } from '../../components/ride-estimate/ride-estimate';
-import { RateRideComponent } from '../../components/rate-ride/rate-ride';
 
 @Component({
   selector: 'app-unregistered-home',
@@ -13,7 +12,12 @@ import { RateRideComponent } from '../../components/rate-ride/rate-ride';
   styleUrls: ['./unregistered-home.css'],
 })
 export class UnregisteredHomeComponent {
-  constructor(private dialog: MatDialog) {}
+  estimateRoute?: string[];
+
+  constructor(
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef   // ← dodato
+  ) {}
 
   openEstimateDialog() {
     const dialogRef = this.dialog.open(RideEstimateModalComponent, {
@@ -24,11 +28,21 @@ export class UnregisteredHomeComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'book') {
-        console.log('User wants to book ride but is not registered');
         alert('Please register or login to book a ride');
+        return;
+      }
+
+      if (result?.startCoordinates && result?.destinationCoordinates) {
+        this.estimateRoute = [
+          result.startCoordinates,
+          ...(result.intermediateStops ?? []).map((s: any) => s.coordinates),
+          result.destinationCoordinates
+        ];
+        this.cdr.detectChanges();  // ← odmah obavesti Angular o promeni
       }
     });
   }
+}
 
   /*
   openRateDialog() {
@@ -44,4 +58,3 @@ export class UnregisteredHomeComponent {
     });
   }
   */
-}

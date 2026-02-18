@@ -43,6 +43,7 @@ export class NavbarComponent implements OnInit {
     { route: '/registered-home', icon: 'home.png', type: 'home' },
     { route: '/history', icon: 'history.png', type: 'history' },
     { route: '/favorites', icon: 'favorites.png', type: 'favorites' },
+    { route: '/reports', icon: 'report.png', type: 'reports' },
     { route: '', icon: 'notification.png', type: 'notifications' },
     { route: '/profile', icon: 'user.png', type: 'profile' }
   ];
@@ -50,7 +51,6 @@ export class NavbarComponent implements OnInit {
   driverLinks = [
     { route: '/driver/home', icon: 'home.png', type: 'home' },
     { route: '/driver/driver-ride-history', icon: 'history.png', type: 'history' },
-    { route: '/driver/favorites', icon: 'favorites.png', type: 'favorites' },
     { route: '', icon: 'notification.png', type: 'notifications' },
     { route: '/driver/reports', icon: 'report.png', type: 'reports' },
     { route: '/profile', icon: 'user.png', type: 'profile' }
@@ -63,7 +63,8 @@ export class NavbarComponent implements OnInit {
     { route: '/admin/reports', icon: 'report.png', type: 'reports' },
     { route: '/admin/pricing', icon: 'pricing.png', type: 'pricing' },
     { route: '', icon: 'notification.png', type: 'notifications' },
-    { route: '/profile', icon: 'user.png', type: 'profile' }
+    { route: '/profile', icon: 'user.png', type: 'profile' },
+    { route: '/admin/block-users', icon: 'blocked.png', type: 'block-users' }
   ]
 
   constructor(
@@ -74,14 +75,16 @@ export class NavbarComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.userRole = user?.role || 'GUEST';
       this.updateLinks();
-     this.cdr.detectChanges();
+      // Defer change detection to avoid triggering during Angular's change detection cycle
+      setTimeout(() => this.cdr.detectChanges(), 0);
     });
   }
 
   ngOnInit() {
     this.notifcationService.getUnread().subscribe(list => {
       this.unreadCount = list.length;
-      this.cdr.detectChanges();
+      // Defer change detection to avoid triggering during Angular's change detection cycle
+      setTimeout(() => this.cdr.detectChanges(), 0);
     });
     
     // Initial load if already logged in

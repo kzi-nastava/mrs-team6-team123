@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Map takes full screen -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/rides_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:background="@drawable/stats_card_bg"
+        android:layout_marginHorizontal="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No assigned rides"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="You don't have any rides assigned at the moment."
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <!-- Bottom Floating Card Container -->
+    <RelativeLayout
+        android:id="@+id/card_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:paddingVertical="16dp">
+
+        <!-- Left Arrow -->
+        <ImageView
+            android:id="@+id/arrow_left"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="Previous ride"
+            android:background="@drawable/circle_button_bg"
+            android:padding="6dp"
+            android:alpha="0.7"
+            android:visibility="invisible"/>
+
+        <!-- ViewPager2 for horizontal scrolling -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/rides_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/arrow_left"
+            android:layout_toStartOf="@id/arrow_right"
+            android:layout_marginHorizontal="8dp"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:orientation="horizontal"/>
+
+        <!-- Right Arrow -->
+        <ImageView
+            android:id="@+id/arrow_right"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="Next ride"
+            android:background="@drawable/circle_button_bg"
+            android:padding="6dp"
+            android:alpha="0.7"
+            android:visibility="invisible"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

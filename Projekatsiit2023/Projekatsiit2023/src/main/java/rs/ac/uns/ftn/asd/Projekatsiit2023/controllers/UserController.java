@@ -1,10 +1,14 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.controllers;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.ChangePasswordRequest;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserBasicInfoDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.UserService;
@@ -34,6 +38,17 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllActiveUsers(@RequestParam Long excludeUserId) {
+        try {
+            List<UserBasicInfoDTO> users = userService.getAllActiveUsers(excludeUserId);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching users: " + e.getMessage());
+        }
+    }
+
     // 2.3 Profil korisnika - UPDATE
     @PutMapping("/{userId}")
     public ResponseEntity<UserProfileResponseDTO> updateProfile(@PathVariable Long userId,
@@ -55,5 +70,18 @@ public class UserController {
             @RequestParam("profileImage") MultipartFile file) {
         UserProfileResponseDTO response = userService.uploadProfilePhoto(userId, file);
         return ResponseEntity.ok(response);
+    }
+
+    // Blocking/unblocking users
+    @PostMapping("/{userId}/block")
+    public ResponseEntity<Void> blockUser(@PathVariable Long userId) {
+        userService.blockUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{userId}/unblock")
+    public ResponseEntity<Void> unblockUser(@PathVariable Long userId) {
+        userService.unblockUser(userId);
+        return ResponseEntity.ok().build();
     }
 }

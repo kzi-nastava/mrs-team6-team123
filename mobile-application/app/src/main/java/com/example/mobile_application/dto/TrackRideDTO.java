@@ -2,10 +2,11 @@ package com.example.mobile_application.dto;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackRideDTO {
+public class TrackRideDTO implements Serializable {
     @SerializedName("rideId")
     private Long rideId;
     @SerializedName("driverId")

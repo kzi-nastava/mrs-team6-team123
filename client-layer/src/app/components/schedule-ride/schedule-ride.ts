@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectorRef, Output, EventEmitter, Input, OnInit, Inject, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RideService } from '../../services/ride.service';
 import { OrderRideService } from '../../services/order-ride.service';
 import { UserService } from '../../services/user.service';
@@ -17,6 +18,7 @@ import { RideOrderRequest, RideResponse } from '../../models/ride.model';
 import { VehicleType } from '../../models/enums';
 import { GeocodeHit } from '../../services/graphhopper.service';
 import { LocationInputComponent } from './location-input/location-input.component';
+import { ScheduleTimeComponent } from './schedule-time/schedule-time.component';
 
 @Component({
   selector: 'app-schedule-ride',
@@ -29,19 +31,30 @@ import { LocationInputComponent } from './location-input/location-input.componen
     MatFormFieldModule,
     MatSlideToggleModule,
     MatIconModule,
-    LocationInputComponent
+    LocationInputComponent,
+    ScheduleTimeComponent
   ],
   templateUrl: './schedule-ride.html',
   styleUrl: './schedule-ride.css'
 })
-export class ScheduleRideComponent {
+export class ScheduleRideComponent implements OnInit {
+  @Input() prefilledRoute?: {
+    startLocation: string;
+    endLocation: string;
+    startLatitude: number;
+    startLongitude: number;
+    endLatitude: number;
+    endLongitude: number;
+  };
+
   startAddress = '';
   endAddress = '';
   hasPet = false;
   hasBaby = false;
   vehicleType = 'STANDARD';
   scheduleType = 'now';
-  scheduledTime = '';
+  scheduledHour = '12';
+  scheduledMinute = '00';
   additionalInstructions = '';
 
   @Output() locationsChanged = new EventEmitter<{
@@ -75,8 +88,30 @@ export class ScheduleRideComponent {
     private userService: UserService,
     private passengerManagement: PassengerManagementService,
     private stopManagement: StopManagementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData?: any
   ) {}
+
+  ngOnInit(): void {
+    // Pre-fill from dialog data (favorite route) if provided
+    if (this.dialogData) {
+      this.startAddress = this.dialogData.startLocation;
+      this.endAddress = this.dialogData.endLocation;
+      this.startLat = this.dialogData.startLatitude;
+      this.startLng = this.dialogData.startLongitude;
+      this.endLat = this.dialogData.endLatitude;
+      this.endLng = this.dialogData.endLongitude;
+    } else if (this.prefilledRoute) {
+      // Fallback to @Input if not using dialog
+      this.startAddress = this.prefilledRoute.startLocation;
+      this.endAddress = this.prefilledRoute.endLocation;
+      this.startLat = this.prefilledRoute.startLatitude;
+      this.startLng = this.prefilledRoute.startLongitude;
+      this.endLat = this.prefilledRoute.endLatitude;
+      this.endLng = this.prefilledRoute.endLongitude;
+    }
+  }
+
 
   addPassenger() {
     this.passengerManagement.addPassenger();
@@ -196,10 +231,21 @@ export class ScheduleRideComponent {
       return;
     }
 
-    if (!this.startLat || !this.startLng || !this.endLat || !this.endLng) {
+    // Check if coordinates are defined (not checking for falsy since 0 is a valid coordinate)
+    if (this.startLat === undefined || this.startLng === undefined || this.endLat === undefined || this.endLng === undefined) {
       alert('Please select valid locations from the suggestions');
       return;
     }
+
+    // Debug: Log coordinates to verify they are valid numbers
+    console.log('Booking ride with coordinates:', {
+      startLat: this.startLat,
+      startLng: this.startLng,
+      endLat: this.endLat,
+      endLng: this.endLng,
+      startAddress: this.startAddress,
+      endAddress: this.endAddress
+    });
 
     // Validate passenger count for vehicle type
     const maxPassengers = this.getMaxPassengersForVehicle(this.vehicleType);
@@ -217,6 +263,13 @@ export class ScheduleRideComponent {
     }
     const user = JSON.parse(userStr);
 
+    console.log('Current user:', user);
+
+    if (!user.userId || user.userId <= 0) {
+      alert('Invalid user ID. Please log in again.');
+      return;
+    }
+
     this.passengerManagement.resolvePassengerIds(user.userId)
       .then(passengerIds => {
         this.submitRideOrder(user.userId, passengerIds);
@@ -227,6 +280,17 @@ export class ScheduleRideComponent {
   }
 
   private submitRideOrder(creatorId: number, passengerIds: number[]) {
+    // Format scheduledAt: always send a time (now for immediate, or scheduled time for later)
+    let scheduledAt: string;
+    if (this.scheduleType === 'later' && this.scheduledHour && this.scheduledMinute) {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0]; // Get YYYY-MM-DD
+      scheduledAt = `${dateStr}T${this.scheduledHour}:${this.scheduledMinute}:00`; // Combine with HH:mm and add seconds
+    } else {
+      // For immediate rides, send current time
+      scheduledAt = new Date().toISOString().substring(0, 19); // Format: YYYY-MM-DDTHH:mm:ss
+    }
+
     const request: RideOrderRequest = {
       creatorId,
       passengerIds,
@@ -238,20 +302,32 @@ export class ScheduleRideComponent {
       endLongitude: this.endLng!,
       waypoints: this.stopManagement.getValidStops()
         .map(s => `${s.lat},${s.lng}`),
-      scheduledAt: this.scheduleType === 'later' ? this.scheduledTime : undefined,
+      scheduledAt: scheduledAt,
       babySeat: this.hasBaby,
       petFriendly: this.hasPet,
       vehicleType: this.vehicleType as VehicleType,
       estimatedPrice: this.estimatedPrice ? parseFloat(this.estimatedPrice.split(' ')[0]) : 0
     };
 
+    console.log('Submitting ride order with request:', request);
+
     this.orderRideService.orderRide(request).subscribe({
       next: (response: RideResponse) => {
-        alert(`Ride booked successfully! Ride ID: ${response.rideId}. Estimated time: ${response.estimatedTimeMinutes} minutes.`);
-        // TODO: Navigate to tracking page or show ride details
+        console.log(`Ride booked successfully! Ride ID: ${response.rideId}`);
       },
       error: (err: HttpErrorResponse) => {
-        alert('Failed to book ride. Please try again.');
+        console.error('Error response:', err);
+        console.error('Error message:', err.error);
+        if (err.status === 403) {
+          // Blocked user or passenger
+          alert(err.error || 'You or one of the passengers are blocked and cannot book a ride.');
+          return;
+        }
+        if (err.status === 503) {
+          console.log('No drivers available. Notification sent to passenger.');
+          return;
+        }
+        alert('Failed to book ride: ' + (err.error || 'Unknown error'));
       }
     });
   }

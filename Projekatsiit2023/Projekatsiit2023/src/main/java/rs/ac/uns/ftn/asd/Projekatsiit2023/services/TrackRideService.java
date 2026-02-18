@@ -63,19 +63,29 @@ public class TrackRideService {
         return (int) Math.ceil(remainingTimeHours * 60);
     }
 
-    private void setRideInfo(RideTrackingResponseDTO dto, Ride ride) {
-        dto.getInfo().setDriver(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
-        dto.getInfo().setStartedAt(ride.getStartedAt().toString());
-        dto.getInfo().setFrom(ride.getRoute().getStartLocation());
-        dto.getInfo().setTo(ride.getRoute().getEndLocation());
-        dto.getInfo().setPrice(ride.getPrice());
-        for (var passenger : ride.getPassengers()) {
-            dto.getInfo().getPassengers().add(passenger.getFirstName() + " " + passenger.getLastName());
-        }
-        dto.getInfo().setDuration(calculateDuration(ride));
-        for (var report : ride.getIrregularityReports()) {
-            dto.getInfo().getReports().add(report.getDescription());
-        }
-        dto.getInfo().setStatus(ride.getStatus());
+    
+private void setRideInfo(RideTrackingResponseDTO dto, Ride ride) {
+    dto.getInfo().setDriver(ride.getDriver().getFirstName() + " " + ride.getDriver().getLastName());
+
+    dto.getInfo().setStartedAt(
+            ride.getStartedAt() != null ? ride.getStartedAt().toString() : null
+    );
+
+    dto.getInfo().setFrom(ride.getRoute().getStartLocation());
+    dto.getInfo().setTo(ride.getRoute().getEndLocation());
+    dto.getInfo().setPrice(ride.getPrice());
+
+    for (var passenger : ride.getPassengers()) {
+        dto.getInfo().getPassengers().add(
+                passenger.getFirstName() + " " + passenger.getLastName());
     }
+
+    dto.getInfo().setDuration(calculateDuration(ride));
+
+    for (var report : ride.getIrregularityReports()) {
+        dto.getInfo().getReports().add(report.getDescription());
+    }
+
+    dto.getInfo().setStatus(ride.getStatus());
+}
 }

@@ -18,20 +18,22 @@
             android:id="@+id/tvRoute"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            style="@style/TextSubHeading"/>
 
         <TextView
             android:id="@+id/tvDriver"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"/>
+            android:layout_marginTop="6dp"
+            style="@style/TextParagraph"/>
 
         <TextView
             android:id="@+id/tvLicencePlate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="italic"/>
+            android:textStyle="italic"
+            style="@style/TextParagraph"/>
 
     </LinearLayout>
 

@@ -1,22 +1,54 @@
-<table class="ride-table">
-  <thead>
-    <tr>
-      <th *ngFor="let col of columns">{{ col }}</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let ride of rides">
-      <td *ngFor="let col of columns">
+<div class="table-container">
+  <table class="ride-table">
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns">{{ col }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ride of rides"
+          [class.panic-row]="isPanic(ride)"
+          [class.canceled-row]="isCanceled(ride)">
 
-        <button *ngIf="col === 'Details'" class="btn-route" (click)="showRoute(ride)">
-          view
-        </button>
+        <td *ngFor="let col of columns"
+          [class.location-cell]="col === 'From' || col === 'To'"
+          [attr.title]="col === 'From' || col === 'To' ? getRideValue(ride, attributes[col]) : null">
 
-        <span *ngIf="col !== 'Details'">
-          {{ getRideValue(ride, attributes[col]) }}
-        </span>
+          <button *ngIf="col === 'Details'" class="btn-view" (click)="showRoute(ride)">
+            View
+          </button>
 
-      </td>
-    </tr>
-  </tbody>
-</table>
+          <ng-container *ngIf="col === 'Canceled'">
+            <span *ngIf="isCanceled(ride)"
+                  class="badge badge-canceled">
+              {{ ride.canceledBy }}
+            </span>
+            <span *ngIf="!isCanceled(ride)"
+                  class="badge badge-ok">
+              No
+            </span>
+          </ng-container>
+
+          <ng-container *ngIf="col === 'PANIC'">
+            <span *ngIf="isPanic(ride)"
+                  class="badge badge-panic">
+              🚨 Yes
+            </span>
+            <span *ngIf="!isPanic(ride)"
+                  class="badge badge-ok">
+              No
+            </span>
+          </ng-container>
+
+          <span *ngIf="
+            col !== 'Details' &&
+            col !== 'Canceled' &&
+            col !== 'PANIC'">
+            {{ getRideValue(ride, attributes[col]) }}
+          </span>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

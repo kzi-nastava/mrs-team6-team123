@@ -8,7 +8,6 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverRegistrationRequestD
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.ReportDriverRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.driver.DriverAssignedRideDTO;
-import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.DriverStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.enums.RideStatus;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.IrregularityReport;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.models.Ride;
@@ -18,6 +17,7 @@ import rs.ac.uns.ftn.asd.Projekatsiit2023.repositories.PassengerRepository;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.IrregularityReportService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.DriverService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.services.LinkedPassengersService;
+import rs.ac.uns.ftn.asd.Projekatsiit2023.services.StartRideService;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.validations.DriversRideValidation;
 
 import java.net.URI;
@@ -33,6 +33,7 @@ public class DriverController {
     private final RideRepository rideRepository;
     private final PassengerRepository passengerRepository;
     private final LinkedPassengersService linkedPassengersService;
+    private final StartRideService startRideService;
     private final DriversRideValidation assignRideValidation;
 
     public DriverController(
@@ -41,12 +42,14 @@ public class DriverController {
             RideRepository rideRepository,
             PassengerRepository passengerRepository,
             LinkedPassengersService linkedPassengersService,
+            StartRideService startRideService,
             DriversRideValidation assignRideValidation) {
         this.driverService = driverService;
         this.reportService = reportService;
         this.rideRepository = rideRepository;
         this.passengerRepository = passengerRepository;
         this.linkedPassengersService = linkedPassengersService;
+        this.startRideService = startRideService;
         this.assignRideValidation = assignRideValidation;
     }
 
@@ -74,7 +77,7 @@ public class DriverController {
     public ResponseEntity<?> getAssignedRides(@PathVariable Long driverId) {
         try {
             // Fetch only active rides from database
-            List<RideStatus> activeStatuses = List.of(RideStatus.CREATED, RideStatus.ACCEPTED, RideStatus.STARTED);
+            List<RideStatus> activeStatuses = List.of(RideStatus.CREATED, RideStatus.STARTED);
             List<Ride> rides = rideRepository.findByDriverIdAndStatusIn(driverId, activeStatuses);
 
             // Map to DTOs
@@ -107,23 +110,6 @@ public class DriverController {
     }
 
     // Accept a ride
-    @PostMapping("/{driverId}/rides/{rideId}/accept")
-    public ResponseEntity<?> acceptRide(@PathVariable Long driverId, @PathVariable Long rideId) {
-        try {
-            Ride ride = assignRideValidation.validateRideExists(rideId);
-            assignRideValidation.validateRideAssignedToDriver(driverId, ride);
-            assignRideValidation.validateRideStatusForAccept(ride);
-
-            ride.setStatus(RideStatus.ACCEPTED);
-            rideRepository.save(ride);
-
-            return ResponseEntity.ok().body("Ride accepted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error accepting ride: " + e.getMessage());
-        }
-    }
-
     // Start a ride
     @PostMapping("/{driverId}/rides/{rideId}/start")
     public ResponseEntity<?> startRide(@PathVariable Long driverId, @PathVariable Long rideId) {
@@ -134,7 +120,7 @@ public class DriverController {
 
             // Set ride status to STARTED and update actual start time
             ride.setStatus(RideStatus.STARTED);
-            ride.setStartedAt(java.time.LocalTime.now());
+            ride.setStartedAt(java.time.LocalDateTime.now());
 
             // Set all passengers' startedRide flag to true and send notifications
             for (Passenger passenger : ride.getPassengers()) {
@@ -145,7 +131,7 @@ public class DriverController {
             }
 
             rideRepository.save(ride);
-
+            startRideService.setActiveVehicle(rideId);
             return ResponseEntity.ok().body("Ride started successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

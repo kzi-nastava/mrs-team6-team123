@@ -10,7 +10,7 @@ import { AdminHomeComponent } from './pages/admin/admin-home/admin-home';
 import { TrackRidePageComponent } from './pages/track-ride-page/track-ride-page';
 import { DriverRideHistoryComponent } from './pages/driver/driver-ride-history/driver-ride-history';
 import { DriverHomeComponent } from './pages/driver/driver-home/driver-home';
-import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard } from './guards/auth.guard';
+import { authGuard, guestGuard, driverGuard, adminGuard, passengerGuard, homeRedirectGuard } from './guards/auth.guard';
 import { AdminPricingComponent } from './pages/admin/admin-pricing/admin-pricing';
 import { DriverRegistration } from './pages/admin/driver-registration/driver-registration';
 import { ActivateAccountComponent } from './pages/auth/activate-account/activate-account';
@@ -18,13 +18,16 @@ import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-pas
 import { PassengerRideHistoryComponent } from './pages/user/passenger-ride-history/passenger-ride-history';
 import { AdminRideHistoryComponent } from './pages/admin/admin-ride-history/admin-ride-history';
 import { ReportsComponent } from './components/reports/reports';
+import { BlockingUsersComponent } from './pages/blocking-users/blocking-users'; 
+
 
 
 import { RateRidePageComponent } from './pages/rate-ride-page/rate-ride-page';
+import { EmptyComponent } from './components/empty/empty';
 
 export const routes: Routes = [
   // Public routes
-  { path: '', redirectTo: '/unregistered-home', pathMatch: 'full' },
+  { path: '', canActivate: [homeRedirectGuard], component: EmptyComponent },
   { path: 'unregistered-home', component: UnregisteredHomeComponent },
   
   // Guest only
@@ -41,6 +44,7 @@ export const routes: Routes = [
   { path: 'track-ride-page', component: TrackRidePageComponent, canActivate: [authGuard] },
   { path: 'history', component: PassengerRideHistoryComponent, canActivate: [authGuard] },
   { path: 'rate-ride', component: RateRidePageComponent, canActivate: [authGuard] },
+  { path: 'reports', component: ReportsComponent, canActivate: [passengerGuard] },
 
   // Driver only
   { path: 'driver/home', component: DriverHomeComponent, canActivate: [driverGuard] },
@@ -53,6 +57,7 @@ export const routes: Routes = [
   { path: 'admin/pricing', component: AdminPricingComponent, canActivate: [adminGuard] },
   { path: 'admin/ride-history', component: AdminRideHistoryComponent, canActivate: [adminGuard] },
   { path: 'admin/reports', component: ReportsComponent, canActivate: [adminGuard] },
+  { path: 'admin/block-users', component: BlockingUsersComponent, canActivate: [adminGuard] },
   
   // Fallback
   { path: '**', redirectTo: '/unregistered-home' }

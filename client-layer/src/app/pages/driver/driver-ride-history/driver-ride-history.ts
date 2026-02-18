@@ -4,11 +4,12 @@ import { RideHistoryTableComponent } from '../../../components/ride-history/ride
 import { DriverRideHistory } from '../../../models/driver-ride-history.model';
 import { RideHistoryService } from '../../../services/ride-history.service';
 import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-driver-ride-history',
   standalone: true,
-  imports: [RideHistoryFilterComponent, RideHistoryTableComponent],
+  imports: [RideHistoryFilterComponent, RideHistoryTableComponent, CommonModule],
   templateUrl: './driver-ride-history.html',
   styleUrls: ['./driver-ride-history.css'],
 })
@@ -24,6 +25,8 @@ export class DriverRideHistoryComponent {
     'PANIC': 'panicTriggered',
     'Price': 'price'
   }
+
+  loading = false;
 
   constructor(
     private rideHistoryService: RideHistoryService,
@@ -41,16 +44,19 @@ export class DriverRideHistoryComponent {
 
   loadRideHistory(filter?: { fromDate: string, toDate: string }): void {
     if (this.driverId) {
+      this.loading = true;
       this.rideHistoryService
         .getDriverRideHistory(this.driverId, filter?.fromDate, filter?.toDate)
         .subscribe({
           next: (data) => {
             console.log('Rides from backend:', data);
             this.rides = data;
+            this.loading = false;
             this.cdr.detectChanges();
           },
           error: (err) => {
             console.error('Error loading ride history', err);
+            this.loading = false;
           }
         })
     }

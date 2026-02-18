@@ -1,13 +1,15 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouteCardComponent } from '../../../components/route-card/route-card';
+import { ScheduleRideComponent } from '../../../components/schedule-ride/schedule-ride';
 import { FavoriteRoutesService, FavoriteRoute } from '../../../services/favorite-routes.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-user-favorites',
   standalone: true,
-  imports: [CommonModule, RouteCardComponent],
+  imports: [CommonModule, RouteCardComponent, MatDialogModule],
   templateUrl: './user-favorites.html',
   styleUrls: ['./user-favorites.css'],
 })
@@ -26,7 +28,8 @@ export class UserFavoritesComponent implements OnInit {
   constructor(
     private favoriteRoutesService: FavoriteRoutesService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -81,6 +84,30 @@ export class UserFavoritesComponent implements OnInit {
       error: (err) => {
         console.error('Error removing favorite route:', err);
         alert('Failed to remove favorite route');
+      }
+    });
+  }
+
+  bookFavoriteRoute(index: number) {
+    const favorite = this.favorites[index];
+    
+    // Find the original favorite route data with all coordinates
+    this.favoriteRoutesService.getFavoriteRoutes(this.authService.getCurrentUserId()!).subscribe({
+      next: (routes: FavoriteRoute[]) => {
+        const fullRoute = routes.find(r => r.id === favorite.id);
+        if (!fullRoute) return;
+
+        this.dialog.open(ScheduleRideComponent, {
+          width: '800px',
+          data: {
+            startLocation: fullRoute.startLocation,
+            endLocation: fullRoute.endLocation,
+            startLatitude: fullRoute.startLatitude,
+            startLongitude: fullRoute.startLongitude,
+            endLatitude: fullRoute.endLatitude,
+            endLongitude: fullRoute.endLongitude
+          }
+        });
       }
     });
   }

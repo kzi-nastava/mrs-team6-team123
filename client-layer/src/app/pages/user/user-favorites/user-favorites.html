@@ -5,10 +5,16 @@
 
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
-  <div class="routes-list" *ngIf="!loading && !errorMessage && favorites.length > 0">
+  <div
+    class="routes-list"
+    data-testid="favorites-list"
+    *ngIf="!loading && !errorMessage && favorites.length > 0"
+  >
     <app-route-card
       *ngFor="let route of favorites; let i = index"
       [data]="route"
+      [attr.data-route-id]="route.routeId"
+      (book)="bookFavoriteRoute(i)"
       (delete)="removeFavorite(i)"
     ></app-route-card>
   </div>

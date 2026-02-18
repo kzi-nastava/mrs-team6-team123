@@ -1,5 +1,7 @@
 package rs.ac.uns.ftn.asd.Projekatsiit2023.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,8 +15,10 @@ import lombok.Setter;
 @Table(name = "active_vehicles")
 public class ActiveVehicle {
     @Id
+    @Column(name = "vehicle_id")
     private Long id;
 
+    @JsonIgnore
     @OneToOne
     @MapsId
     @JoinColumn(name = "vehicle_id")
@@ -27,10 +31,10 @@ public class ActiveVehicle {
     private double currentLongitude;
 
     @Column
-    private double targetLatitude;
+    private double targetLatitude = 0.0;
 
     @Column
-    private double targetLongitude;
+    private double targetLongitude = 0.0;
 
     @Column(nullable = false)
     private boolean available;

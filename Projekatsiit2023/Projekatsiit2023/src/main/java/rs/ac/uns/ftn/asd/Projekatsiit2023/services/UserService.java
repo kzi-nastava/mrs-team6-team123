@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
+import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserBasicInfoDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileRequestDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.UserProfileResponseDTO;
 import rs.ac.uns.ftn.asd.Projekatsiit2023.dtos.user.VehicleDTO;
@@ -25,7 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -34,7 +37,7 @@ public class UserService {
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
     private final UserProfileValidation userProfileValidation;
-    private final String uploadDir = "../uploads/profile-images/";
+    private final String uploadDir = "./uploads/profile-images/";
 
     public UserService(UserRepository userRepository,
             PendingDriverProfileChangeRepository pendingChangeRepository,
@@ -46,6 +49,30 @@ public class UserService {
         this.notificationService = notificationService;
         this.passwordEncoder = passwordEncoder;
         this.userProfileValidation = userProfileValidation;
+    }
+
+    /**
+     * Get all active users (both passengers and drivers), excluding one user
+     */
+    public List<UserBasicInfoDTO> getAllActiveUsers(Long excludeUserId) {
+        List<UserBasicInfoDTO> allUsers = new ArrayList<>();
+
+        // Add all active passengers except the excluded one
+        allUsers.addAll(userRepository.findAll().stream()
+                .filter(p -> p.isAccountActivated() && !p.getId().equals(excludeUserId))
+                .map(p -> {
+                    UserBasicInfoDTO dto = new UserBasicInfoDTO();
+                    dto.setId(p.getId());
+                    dto.setEmail(p.getEmail());
+                    dto.setFirstName(p.getFirstName());
+                    dto.setLastName(p.getLastName());
+                    dto.setUserRole(UserRole.PASSENGER);
+                    dto.setAccountBlocked(p.isAccountBlocked());
+                    return dto;
+                })
+                .collect(Collectors.toList()));
+
+        return allUsers;
     }
 
     public UserProfileResponseDTO getUserProfile(Long userId) {
@@ -240,6 +267,23 @@ public class UserService {
         dto.setBabiesAllowed(vehicle.isBabyTransport());
         dto.setPetsAllowed(vehicle.isPetTransport());
         return dto;
+    }
+
+    public void blockUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        user.setAccountBlocked(true);
+        if (user.getUserRole() == UserRole.DRIVER && user instanceof Driver) {
+            ((Driver) user).setActive(false);
+        }
+        userRepository.save(user);
+    }
+
+    public void unblockUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        user.setAccountBlocked(false);
+        userRepository.save(user);
     }
 
 }

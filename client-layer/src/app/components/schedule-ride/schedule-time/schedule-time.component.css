@@ -1,0 +1,28 @@
+.schedule-time {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: white;
+  color: #325639;
+  cursor: pointer;
+  min-width: 70px;
+}
+
+.time-select:focus {
+  outline: none;
+  border-color: #325639;
+}
+
+.time-separator {
+  font-size: 18px;
+  font-weight: bold;
+  color: #325639;
+}

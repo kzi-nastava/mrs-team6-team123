@@ -1,0 +1,73 @@
+.unblock-btn {
+  background: #62b183;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.unblock-btn:hover {
+  background: #1f7442;
+}
+.user-block-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #f7f7f7;
+  border-radius: 4px;
+}
+
+.user-info {
+  font-size: 1rem;
+}
+
+.block-btn {
+  background: #d85647;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.block-btn:hover {
+  background: #a73b2c;
+}
+
+
+
+.block-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}

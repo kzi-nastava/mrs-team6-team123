@@ -19,7 +19,7 @@ public class DriverRideHistoryDTO {
     private List<String> passengers = new ArrayList<>();
     private String startLocation;
     private String endLocation;
-    private LocalTime startedAt;
+    private LocalDateTime startedAt;
     private LocalTime endedAt;
     private LocalDate date;
     private double price;

@@ -44,8 +44,8 @@ public class Ride {
         @Column
         private LocalDateTime scheduledAt;
 
-        @Column(nullable = false)
-        private LocalTime startedAt;
+        @Column
+        private LocalDateTime startedAt;
 
         @Column
         private LocalTime endedAt;
@@ -55,6 +55,9 @@ public class Ride {
 
         @Column(nullable = false)
         private double price;
+
+        @Column
+        private Integer estimatedDurationMinutes; // Duration of this ride in minutes
 
         @Column(nullable = false)
         private boolean isPaid = false;
@@ -103,4 +106,14 @@ public class Ride {
 
         @Column
         private double endLongitude;
+
+        // Track if reminder notifications have been sent
+        @Column(nullable = false)
+        private boolean notified15Min = false;
+
+        @Column(nullable = false)
+        private boolean notified10Min = false;
+
+        @Column(nullable = false)
+        private boolean notified5Min = false;
 }

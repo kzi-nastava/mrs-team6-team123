@@ -62,7 +62,6 @@ export class RateRideComponent {
 
   submit() {
     this.rateRide();
-    this.dialogRef.close();
   }
 
   rateRide() {
@@ -89,7 +88,9 @@ export class RateRideComponent {
     this.rideService.rateRide(response).subscribe({
       next: () => {
         console.log('Ride rated successfully');
-        window.alert('Ride rated successfully!');
+        this.dialogRef.close({
+          rating: (this.driverRating + this.vehicleRating) / 2
+        });
       },
       error: (err) => {
         console.error('Error rating ride:', err);

@@ -15,15 +15,12 @@ import com.example.mobile_application.R;
 import com.example.mobile_application.dto.UserProfileDTO;
 import com.example.mobile_application.dto.UserProfileRequestDTO;
 import com.example.mobile_application.repository.UserProfileRepository;
+import com.example.mobile_application.service.ApiClient;
+import com.example.mobile_application.service.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-/**
- * ProfileFragment manages the user profile display
- * Supports two modes: view mode (read-only) and edit mode
- */
 public class ProfileFragment extends Fragment {
 
     private static final String ARG_USER_ROLE = "userRole";
@@ -31,7 +28,7 @@ public class ProfileFragment extends Fragment {
     private static final String API_BASE_URL = "http://10.0.2.2:8080";
 
     private String mUserRole;
-    private Long mUserId = 3L; // Default user ID, should be passed from MainActivity
+    private Long mUserId;
 
     private ProfileViewBinder viewBinder;
     private ProfileImageLoader imageLoader;
@@ -90,6 +87,12 @@ public class ProfileFragment extends Fragment {
                 mUserId = getArguments().getLong(ARG_USER_ID);
             }
         }
+
+        if (mUserId == null || mUserId < 0 || mUserRole == null) {
+            TokenManager tokenManager = ApiClient.getTokenManager();
+            mUserId = tokenManager.getUserId();
+            mUserRole = tokenManager.getRole();
+        }
     }
 
     @Override
@@ -108,6 +111,11 @@ public class ProfileFragment extends Fragment {
         viewBinder.setEditMode(false);
 
         // Load profile from backend
+        if (mUserId == null || mUserId < 0) {
+            showToast("Please log in to view your profile");
+            return view;
+        }
+
         loadProfile();
 
         return view;
@@ -156,23 +164,16 @@ public class ProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     currentProfile = response.body();
 
-                    // Always update user role from backend (backend is source of truth)
                     mUserRole = currentProfile.getUserRole();
                     isDriver = "driver".equalsIgnoreCase(mUserRole);
                     updateRoleSpecificUI();
 
                     populateProfileUI();
-                    showToast("Profile loaded");
-                } else {
-                    showToast("Failed to load profile");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    showToast("Error: " + t.getMessage());
-                }
             }
         });
     }
@@ -205,10 +206,12 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        // Create request DTO (email is read-only, not sent in update)
+        // Create request DTO
+        String email = currentProfile != null ? currentProfile.getEmail() : "";
         UserProfileRequestDTO request = new UserProfileRequestDTO(
                 firstName,
                 lastName,
+                email,
                 phone,
                 address);
 
@@ -221,24 +224,14 @@ public class ProfileFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     currentProfile = response.body();
-                    showToast("Profile updated successfully");
-                } else {
-                    showToast("Failed to update profile");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserProfileDTO> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    showToast("Error updating profile: " + t.getMessage());
-                }
             }
         });
     }
-
-    /**
-     * Displays a toast message
-     */
     private void showToast(String message) {
         if (isAdded()) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();

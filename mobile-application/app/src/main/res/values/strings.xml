@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">mobile-application</string>
     <string name="taxi_name">Dusha Taxi</string>
-    <string name="report">report</string>
+    <string name="report">Report</string>
     <string name="stop">stop</string>
     <string name="panic">PANIC</string>
     <string name="go_inactive">go inactive</string>
@@ -48,6 +48,42 @@
     <string name="role_passenger">PASSENGER</string>
     <string name="role_driver">DRIVER</string>
     <string name="role_admin">ADMIN</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="report_header">Report</string>
+    <string name="comment">Comment:</string>
+    <string name="comment_hint">Write your comment here...</string>
+    <string name="cancel">Cancel</string>
+    <string name="rate_ride">Rate Ride</string>
+    <string name="confirm">Confirm</string>
+    <string name="new_price_hint">Enter new price</string>
+    <string name="message_hint">Type a message...</string>
+
+    <!-- Schedule Ride -->
+    <string name="schedule_a_ride">Schedule a ride</string>
+    <string name="schedule_a_ride_header">schedule a ride</string>
+    <string name="ride_preferences_header">ride preferences</string>
+    <string name="starting_point">Starting Point</string>
+    <string name="destination">Destination</string>
+    <string name="add_stop">+ add stop</string>
+    <string name="add_passenger">+ add passenger</string>
+    <string name="additional_instructions_hint">Additional instructions...</string>
+    <string name="must_allow_pets">must allow pets:</string>
+    <string name="must_allow_babies">must allow babies:</string>
+    <string name="estimated_price">Estimated Price:</string>
+    <string name="calculating">Calculating...</string>
+    <string name="book_ride">Book Ride</string>
+    <string name="stop_address">stop address</string>
+    <string name="passenger_email_hint">passenger email or name</string>
+
+    <!-- Vehicle Types -->
+    <string-array name="vehicle_types">
+        <item>Standard</item>
+        <item>Luxury</item>
+        <item>Van</item>
+    </string-array>
+
+    <!-- Schedule Types -->
+    <string-array name="schedule_types">
+        <item>now</item>
+        <item>schedule for later</item>
+    </string-array>
 </resources>

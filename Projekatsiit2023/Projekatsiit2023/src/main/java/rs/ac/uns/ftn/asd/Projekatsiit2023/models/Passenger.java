@@ -18,11 +18,9 @@ public class Passenger extends User {
     @Column(nullable = false)
     private boolean startedRide;
 
-    @OneToMany(
-            mappedBy = "passenger",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PassengerFavoriteRoute> favoriteRoutes = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "passengers", fetch = FetchType.LAZY)
+    private List<Ride> rides = new ArrayList<>();
 }
