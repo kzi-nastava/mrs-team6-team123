@@ -40,7 +40,14 @@ export class AdminPricingComponent {
 
   confirmPrice(priceItem: Pricing) {
     this.pricingService
-    .changePricing(priceItem)
+    .changePricing(priceItem).subscribe({
+      next: (response: any) => {
+        console.log('Price updated successfully', response);
+      },
+      error: (err: any) => {
+        console.error('Error updating price', err);
+      }
+    });
     priceItem.price = priceItem.newPrice;
   }
 }
