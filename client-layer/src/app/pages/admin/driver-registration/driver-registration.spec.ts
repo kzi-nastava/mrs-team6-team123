@@ -18,7 +18,7 @@ fdescribe('DriverRegistration (Funkcionalnost 2.2.3: Registracija vozača)', () 
     };
     alertSpy = spyOn(window, 'alert');
 
-    await TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({ 
       imports: [DriverRegistration, FormsModule],
       providers: [
         { provide: DriverService, useValue: driverService }

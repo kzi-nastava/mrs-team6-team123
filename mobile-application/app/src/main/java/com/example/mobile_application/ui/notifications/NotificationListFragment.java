@@ -146,7 +146,7 @@ public class NotificationListFragment extends Fragment {
     private void notificationClick(NotificationDTO notification) {
         markAsRead(notification.getNotificationId());
 
-        if (!notification.getLink().isEmpty()) {
+        if (notification.getLink() != null && !notification.getLink().isEmpty()) {
             String link = notification.getLink();
             String rateRidePrefix = "/rate-ride?rideId=";
             String trackRidePrefix = "/track-ride-page?rideId=";

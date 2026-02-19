@@ -16,6 +16,8 @@ public class UserProfileDTO {
     private VehicleDTO vehicle;
     private String profileImage;
 
+    private boolean accountBlocked;
+
     public UserProfileDTO() {
     }
 
@@ -125,5 +127,13 @@ public class UserProfileDTO {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public boolean isBlocked() {
+        return accountBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.accountBlocked = blocked;
     }
 }

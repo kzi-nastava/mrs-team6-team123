@@ -43,7 +43,11 @@ public class ApiClient {
         return retrofit;
     }
 
-    public static TokenManager getTokenManager() { return tokenManager; }
+    public static TokenManager getTokenManager() {
+        return tokenManager;
+    }
 
-    public static void resetClient() { retrofit = null; }
+    public static void resetClient() {
+        retrofit = null;
+    }
 }

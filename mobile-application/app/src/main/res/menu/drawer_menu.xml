@@ -32,4 +32,8 @@
         android:id="@+id/logout"
         android:icon="@drawable/logout"
         android:title="@string/logout"/>
+    <item
+        android:id="@+id/block_users"
+        android:icon="@drawable/delete_trash"
+        android:title="@string/block_users"/>
 </menu>

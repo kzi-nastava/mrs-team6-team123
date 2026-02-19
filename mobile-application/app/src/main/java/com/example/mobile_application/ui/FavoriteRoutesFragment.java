@@ -55,7 +55,6 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
         return inflater.inflate(R.layout.fragment_favorite_routes, container, false);
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -99,6 +98,7 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
 
         loadFavoriteRoutes();
     }
+
     private void initializeFavoritesViews(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_routes);
         progressBar = view.findViewById(R.id.progress_bar);
@@ -188,8 +188,15 @@ public class FavoriteRoutesFragment extends BaseRideBookingFragment {
         startingPointInput.setText(route.getStartLocation());
         destinationInput.setText(route.getEndLocation());
 
-        // TODO: Parse coordinates from route if available
-        // For now, leave coordinates empty - user can use autocomplete if needed
+        // Set coordinates for booking form (BaseRideBookingFragment fields)
+        startCoordinates = route.getStartLatitude() + ", " + route.getStartLongitude();
+        endCoordinates = route.getEndLatitude() + ", " + route.getEndLongitude();
+
+        // If both coordinates are valid, update the map/route
+        if (route.getStartLatitude() != 0 && route.getStartLongitude() != 0 &&
+                route.getEndLatitude() != 0 && route.getEndLongitude() != 0) {
+            drawRouteIfBothLocationsSet();
+        }
 
         // Expand the bottom sheet if it exists
         if (bottomSheetBehavior != null) {

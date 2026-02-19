@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { of } from 'rxjs';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-describe('RateRideComponent - Rate Driver and Vehicle', () => {
+fdescribe('RateRideComponent - Rate Driver and Vehicle', () => {
   let component: RateRideComponent;
   let fixture: ComponentFixture<RateRideComponent>;
   let rideServiceMock: any;

@@ -156,13 +156,16 @@ public class MainActivity extends AppCompatActivity
 
         if (role.equals(getString(R.string.role_admin))) {
             menu.findItem(R.id.favorites).setVisible(false);
+            menu.findItem(R.id.block_users).setVisible(true);
         } else if (role.equals(getString(R.string.role_driver))) {
             menu.findItem(R.id.favorites).setVisible(false);
             menu.findItem(R.id.drivers).setVisible(false);
             menu.findItem(R.id.pricing).setVisible(false);
+            menu.findItem(R.id.block_users).setVisible(false);
         } else if (role.equals(getString(R.string.role_passenger))) {
             menu.findItem(R.id.drivers).setVisible(false);
             menu.findItem(R.id.pricing).setVisible(false);
+            menu.findItem(R.id.block_users).setVisible(false);
         }
 
         // Show/hide logout item if you have one in the drawer
@@ -271,6 +274,8 @@ public class MainActivity extends AppCompatActivity
                 }
             } else if (id == R.id.logout) {
                 performLogout();
+            } else if (id == R.id.block_users) {
+                fragment = new com.example.mobile_application.ui.blocking_users.BlockingUsersFragment();
             }
 
             if (fragment != null) {
