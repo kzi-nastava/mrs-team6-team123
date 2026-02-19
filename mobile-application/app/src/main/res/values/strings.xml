@@ -86,4 +86,7 @@
         <item>now</item>
         <item>schedule for later</item>
     </string-array>
+
+    <!-- Block Users -->
+    <string name="block_users">Block Users</string>
 </resources>
