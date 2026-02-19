@@ -140,6 +140,7 @@ public class DriverController {
                 passengerRepository.save(passenger);
                 // Send notification to passenger with ride details and encouragement
                 linkedPassengersService.sendNotification(passenger, ride);
+                linkedPassengersService.sendEmail(passenger, ride);
             }
 
             rideRepository.save(ride);
