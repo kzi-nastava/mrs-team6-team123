@@ -10,8 +10,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ApiClient {
     private static Retrofit retrofit;
-    //private static final String ADDRESS = "http://10.0.2.2:8080/";
-    private static final String ADDRESS = "http://192.168.0.34:8080/"; // Ana
+    private static final String ADDRESS = "http://10.0.2.2:8080/";
+    // private static final String ADDRESS = "http://192.168.0.34:8080/"; // Ana
     private static TokenManager tokenManager;
 
     // Call this once in MainActivity.onCreate()
@@ -43,7 +43,11 @@ public class ApiClient {
         return retrofit;
     }
 
-    public static TokenManager getTokenManager() { return tokenManager; }
+    public static TokenManager getTokenManager() {
+        return tokenManager;
+    }
 
-    public static void resetClient() { retrofit = null; }
+    public static void resetClient() {
+        retrofit = null;
+    }
 }
