@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.mobile_application.R;
@@ -43,6 +44,7 @@ public class RideHistoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private DriverRideHistoryAdapter adapter;
     private DriverRideHistoryRepository repository;
+    private ProgressBar progressBar;
 
     @Nullable
     @Override
@@ -55,6 +57,7 @@ public class RideHistoryFragment extends Fragment {
         etDateTo = view.findViewById(R.id.etToDate);
         btnApply = view.findViewById(R.id.btnApply);
         btnClear = view.findViewById(R.id.btnClear);
+        progressBar = view.findViewById(R.id.progressBar);
 
         repository = new DriverRideHistoryRepository();
 
@@ -105,6 +108,7 @@ public class RideHistoryFragment extends Fragment {
     }
 
     private void loadRides(@Nullable LocalDate from, @Nullable LocalDate to) {
+        progressBar.setVisibility(View.VISIBLE);
         TokenManager tokenManager = ApiClient.getTokenManager();
         Long userId = tokenManager.getUserId();
         if (userId == -1L) {
@@ -115,6 +119,7 @@ public class RideHistoryFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<List<DriverRideHistoryDTO>> call,
                                    @NonNull Response<List<DriverRideHistoryDTO>> response) {
+                progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     List<DriverRideHistoryDTO> rides = response.body();
                     adapter.setRides(rides);
@@ -137,6 +142,7 @@ public class RideHistoryFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<DriverRideHistoryDTO>> call, @NonNull Throwable t) {
+                progressBar.setVisibility(View.GONE);
                 t.printStackTrace();
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() ->
