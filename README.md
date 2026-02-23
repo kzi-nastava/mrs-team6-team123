@@ -1,7 +1,7 @@
 ## Members:
 1. Lana Mirkov SV23/2023
 2. Ana Paroški SV53/2023
-3. Alekandar Papić SV80/2023
+3. Aleksandar Papić SV80/2023
 
 ---
 
